@@ -1,10 +1,10 @@
 # Numo::GSL::Integration
 
-`numo-gsl-integration` provides numerical integration routines from the GNU Scientific Library (GSL) under the `Numo::GSL::Integration` namespace. It is intended to complement the Numo ecosystem without depending on `numo-gsl` itself.
+`numo-gsl-integration` provides numerical integration routines from the [GNU Scientific Library (GSL)](https://www.gnu.org/software/gsl/) under the `Numo::GSL::Integration` namespace. It is intended to complement the [Numo](https://github.com/ruby-numo) ecosystem without depending on [numo-gsl](https://github.com/ruby-numo/numo-gsl) itself.
 
 ## Requirements
 
-- Ruby 3.2 or later
+- [Ruby](https://www.ruby-lang.org/) 3.2 or later
 - GNU Scientific Library (GSL)
 - `gsl-config` available in `PATH`
 
@@ -34,7 +34,7 @@ require "numo/gsl/integration"
 
 ### QAG integration
 
-`Numo::GSL::Integration.qag` integrates a Ruby block over a finite interval and returns the integral and its estimated absolute error.
+GSL [QAG](https://www.gnu.org/software/gsl/doc/html/integration.html#qag-adaptive-integration) provides adaptive integration over a finite interval. `Numo::GSL::Integration.qag` exposes this routine to Ruby and returns the integral and its estimated absolute error.
 
 ```ruby
 result, error = Numo::GSL::Integration.qag(0.0, 1.0) do |x|
@@ -77,10 +77,10 @@ Build the native extension and run the test and lint suites:
 bundle exec rake
 ```
 
-The default Rake task compiles the native extension, runs the RSpec suite, and runs RuboCop.
+The default Rake task compiles the native extension, runs the [RSpec](https://rspec.info/) suite, and runs [RuboCop](https://rubocop.org/).
 
-Ruby source code is formatted with `rubyfmt`. RuboCop is used for linting, with `rubocop-rake`, `rubocop-rspec`, and `rubocop-rubyfmt`.
+Ruby source code is formatted with [rubyfmt](https://github.com/fables-tales/rubyfmt). RuboCop is used for linting, with `rubocop-rake`, `rubocop-rspec`, and `rubocop-rubyfmt`.
 
 ## License
 
-This project is licensed under the GNU General Public License version 3 or later (`GPL-3.0-or-later`). See `LICENSE` for the full license text.
+This project is licensed under the [GNU General Public License version 3 or later](https://www.gnu.org/licenses/gpl-3.0.html). See the [LICENSE](LICENSE) file for the full license text.
