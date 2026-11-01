@@ -3,7 +3,6 @@
 require "numo/narray"
 
 require_relative "integration/version"
-require "numo/gsl/integration/integration"
 
 module Numo
   module GSL
@@ -13,3 +12,5 @@ module Numo
     end
   end
 end
+
+require "numo/gsl/integration/integration"

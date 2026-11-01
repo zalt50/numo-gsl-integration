@@ -1,5 +1,8 @@
+#include <gsl/gsl_errno.h>
 #include <gsl/gsl_integration.h>
 #include <ruby.h>
+
+static VALUE eIntegrationError;
 
 typedef struct {
   VALUE block;
@@ -37,6 +40,7 @@ static VALUE integration_qag(VALUE self, VALUE a, VALUE b) {
   integration_callback_params params;
   double result;
   double error;
+  int status;
 
   (void)self;
 
@@ -49,8 +53,9 @@ static VALUE integration_qag(VALUE self, VALUE a, VALUE b) {
 
   workspace = gsl_integration_workspace_alloc(limit);
 
-  gsl_integration_qag(&function, NUM2DBL(a), NUM2DBL(b), 0.0, 1e-8, limit,
-                      GSL_INTEG_GAUSS61, workspace, &result, &error);
+  status =
+      gsl_integration_qag(&function, NUM2DBL(a), NUM2DBL(b), 0.0, 1e-8, limit,
+                          GSL_INTEG_GAUSS61, workspace, &result, &error);
 
   gsl_integration_workspace_free(workspace);
 
@@ -58,6 +63,10 @@ static VALUE integration_qag(VALUE self, VALUE a, VALUE b) {
 
   if (params.state != 0) {
     rb_jump_tag(params.state);
+  }
+
+  if (status != GSL_SUCCESS) {
+    rb_raise(eIntegrationError, "%s", gsl_strerror(status));
   }
 
   return rb_ary_new_from_args(2, DBL2NUM(result), DBL2NUM(error));
@@ -71,6 +80,10 @@ void Init_integration(void) {
   mNumo = rb_define_module("Numo");
   mGSL = rb_define_module_under(mNumo, "GSL");
   mIntegration = rb_define_module_under(mGSL, "Integration");
+
+  eIntegrationError = rb_const_get(mIntegration, rb_intern("Error"));
+
+  gsl_set_error_handler_off();
 
   rb_define_singleton_method(mIntegration, "qag", integration_qag, 2);
 }

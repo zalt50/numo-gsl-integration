@@ -30,5 +30,12 @@ RSpec.describe Numo::GSL::Integration do
       end
         .to(raise_error(TypeError))
     end
+
+    it "raises Integration::Error when GSL integration fails" do
+      expect do
+        described_class.qag(0.0, 1.0) { Float::NAN }
+      end
+        .to(raise_error(Numo::GSL::Integration::Error))
+    end
   end
 end
