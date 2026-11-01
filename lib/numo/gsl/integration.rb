@@ -6,7 +6,6 @@ module Numo
   module GSL
     module Integration
       class Error < StandardError; end
-      # Your code goes here...
     end
   end
 end
