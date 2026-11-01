@@ -5,7 +5,6 @@
 ## Requirements
 
 - Ruby 3.2 or later
-- `numo-narray`
 - GNU Scientific Library (GSL)
 - `gsl-config` available in `PATH`
 
@@ -41,15 +40,22 @@ require "numo/gsl/integration"
 result, error = Numo::GSL::Integration.qag(0.0, 1.0) do |x|
   x * x
 end
-
-puts result
-# approximately 0.3333333333333333
-
-puts error
-# estimated absolute error
 ```
 
-The method currently uses fixed GSL integration parameters internally. Exceptions raised by the integrand are propagated to the caller, while errors reported by GSL are raised as `Numo::GSL::Integration::Error`.
+Integration parameters can be specified with the `epsabs`, `epsrel`, `limit`, and `key` keyword arguments:
+
+```ruby
+result, error = Numo::GSL::Integration.qag(
+  0.0,
+  1.0,
+  epsabs: 1e-12,
+  epsrel: 1e-12,
+  limit: 100,
+  key: Numo::GSL::Integration::GAUSS21,
+) { |x| x * x }
+```
+
+The available Gauss-Kronrod integration rules are `GAUSS15`, `GAUSS21`, `GAUSS31`, `GAUSS41`, `GAUSS51`, and `GAUSS61`. Exceptions raised by the integrand are propagated to the caller, while errors reported by GSL are raised as `Numo::GSL::Integration::Error`.
 
 ## GSL error handling
 

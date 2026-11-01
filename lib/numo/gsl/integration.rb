@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "numo/narray"
-
 require_relative "integration/version"
 
 module Numo
