@@ -27,6 +27,7 @@ Gem::Specification.new do |spec|
   spec.bindir = "exe"
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
+  spec.extensions = ["ext/numo/gsl/integration/extconf.rb"]
 
-  spec.add_dependency "numo-narray"
+  spec.add_dependency("numo-narray")
 end

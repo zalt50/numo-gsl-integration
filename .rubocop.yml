@@ -7,3 +7,7 @@ Style/StringLiterals:
 
 Style/StringLiteralsInInterpolation:
   EnforcedStyle: double_quotes
+
+Style/GlobalVars:
+  Exclude:
+    - "ext/**/extconf.rb"

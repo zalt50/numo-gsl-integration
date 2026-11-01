@@ -10,3 +10,16 @@
 # rspec failure tracking
 .rspec_status
 *.gem
+
+# Native extensions
+ext/**/Makefile
+ext/**/*.o
+ext/**/*.bundle
+ext/**/*.bundle.dSYM/
+ext/**/mkmf.log
+
+# Unpacked gems
+/numo-gsl-integration-*/
+
+/tmp/
+/lib/numo/gsl/integration/*.bundle
