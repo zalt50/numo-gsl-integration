@@ -1,12 +1,9 @@
+plugins:
+  - rubocop-rubyfmt
+
 AllCops:
   TargetRubyVersion: 3.2
   NewCops: enable
-
-Style/StringLiterals:
-  EnforcedStyle: double_quotes
-
-Style/StringLiteralsInInterpolation:
-  EnforcedStyle: double_quotes
 
 Style/GlobalVars:
   Exclude:
