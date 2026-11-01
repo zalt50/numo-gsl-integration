@@ -1,26 +1,51 @@
 #include <gsl/gsl_integration.h>
 #include <ruby.h>
 
-static double integration_callback(double x, void *params) {
-  VALUE block = *(VALUE *)params;
+typedef struct {
+  VALUE block;
+  VALUE x;
+  int state;
+} integration_callback_params;
 
-  return NUM2DBL(rb_funcall(block, rb_intern("call"), 1, DBL2NUM(x)));
+static VALUE integration_call_block(VALUE data) {
+  integration_callback_params *params = (integration_callback_params *)data;
+  VALUE value;
+
+  value = rb_funcall(params->block, rb_intern("call"), 1, params->x);
+
+  return rb_Float(value);
+}
+
+static double integration_callback(double x, void *data) {
+  integration_callback_params *params = data;
+  VALUE value;
+
+  if (params->state != 0) {
+    return 0.0;
+  }
+
+  params->x = DBL2NUM(x);
+  value = rb_protect(integration_call_block, (VALUE)params, &params->state);
+
+  return params->state == 0 ? NUM2DBL(value) : 0.0;
 }
 
 static VALUE integration_qag(VALUE self, VALUE a, VALUE b) {
   const size_t limit = 1000;
   gsl_integration_workspace *workspace;
   gsl_function function;
-  VALUE block;
+  integration_callback_params params;
   double result;
   double error;
 
   (void)self;
 
-  block = rb_block_proc();
+  params.block = rb_block_proc();
+  params.x = Qnil;
+  params.state = 0;
 
   function.function = integration_callback;
-  function.params = &block;
+  function.params = &params;
 
   workspace = gsl_integration_workspace_alloc(limit);
 
@@ -28,6 +53,12 @@ static VALUE integration_qag(VALUE self, VALUE a, VALUE b) {
                       GSL_INTEG_GAUSS61, workspace, &result, &error);
 
   gsl_integration_workspace_free(workspace);
+
+  RB_GC_GUARD(params.block);
+
+  if (params.state != 0) {
+    rb_jump_tag(params.state);
+  }
 
   return rb_ary_new_from_args(2, DBL2NUM(result), DBL2NUM(error));
 }
