@@ -11,6 +11,8 @@ Rake::ExtensionTask.new("integration") do |ext|
 end
 
 RSpec::Core::RakeTask.new(:spec)
+
+desc "Compile the native extension before running specs"
 task(spec: :compile)
 
 RuboCop::RakeTask.new
