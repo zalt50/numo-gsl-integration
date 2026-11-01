@@ -1,35 +1,80 @@
 # Numo::GSL::Integration
 
-TODO: Delete this and the text below, and describe your gem
+`numo-gsl-integration` provides numerical integration routines from the GNU Scientific Library (GSL) under the `Numo::GSL::Integration` namespace. It is intended to complement the Numo ecosystem without depending on `numo-gsl` itself.
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/numo/gsl/integration`. To experiment with that code, run `bin/console` for an interactive prompt.
+## Requirements
+
+- Ruby 3.2 or later
+- `numo-narray`
+- GNU Scientific Library (GSL)
+- `gsl-config` available in `PATH`
 
 ## Installation
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
+Add the gem to your Gemfile:
 
-Install the gem and add to the application's Gemfile by executing:
-
-```bash
-bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+```ruby
+gem "numo-gsl-integration"
 ```
 
-If bundler is not being used to manage dependencies, install the gem by executing:
+Then run:
 
 ```bash
-gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+bundle install
 ```
+
+GSL must be installed separately. The native extension uses `gsl-config` to locate the GSL headers and libraries.
 
 ## Usage
 
-TODO: Write usage instructions here
+Load the library:
+
+```ruby
+require "numo/gsl/integration"
+```
+
+### QAG integration
+
+`Numo::GSL::Integration.qag` integrates a Ruby block over a finite interval and returns the integral and its estimated absolute error.
+
+```ruby
+result, error = Numo::GSL::Integration.qag(0.0, 1.0) do |x|
+  x * x
+end
+
+puts result
+# approximately 0.3333333333333333
+
+puts error
+# estimated absolute error
+```
+
+The method currently uses fixed GSL integration parameters internally. Exceptions raised by the integrand are propagated to the caller, while errors reported by GSL are raised as `Numo::GSL::Integration::Error`.
+
+## GSL error handling
+
+Loading `numo-gsl-integration` calls `gsl_set_error_handler_off()` and therefore disables GSL's default error handler process-wide. This prevents GSL from aborting the process when an integration routine reports an error and allows the gem to raise `Numo::GSL::Integration::Error` instead.
+
+The GSL error handler is global, so loading this gem also changes error handling for other code that uses GSL in the same process.
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+After checking out the repository, install the dependencies:
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+```bash
+bundle install
+```
 
-## Contributing
+Build the native extension and run the test and lint suites:
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/numo-gsl-integration.
+```bash
+bundle exec rake
+```
+
+The default Rake task compiles the native extension, runs the RSpec suite, and runs RuboCop.
+
+Ruby source code is formatted with `rubyfmt`. RuboCop is used for linting, with `rubocop-rake`, `rubocop-rspec`, and `rubocop-rubyfmt`.
+
+## License
+
+This project is licensed under the GNU General Public License version 3 or later (`GPL-3.0-or-later`). See `LICENSE` for the full license text.
