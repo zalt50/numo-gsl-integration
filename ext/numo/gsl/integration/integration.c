@@ -33,8 +33,21 @@ static double integration_callback(double x, void *data) {
   return params->state == 0 ? NUM2DBL(value) : 0.0;
 }
 
-static VALUE integration_qag(VALUE self, VALUE a, VALUE b) {
-  const size_t limit = 1000;
+static VALUE integration_qag(int argc, VALUE *argv, VALUE self) {
+  VALUE a;
+  VALUE b;
+  VALUE options;
+  VALUE epsabs_value = Qundef;
+  VALUE epsrel_value = Qundef;
+  VALUE limit_value = Qundef;
+  VALUE key_value = Qundef;
+  ID keywords[] = {rb_intern("epsabs"), rb_intern("epsrel"), rb_intern("limit"),
+                   rb_intern("key")};
+  VALUE keyword_values[4];
+  double epsabs;
+  double epsrel;
+  size_t limit;
+  int key;
   gsl_integration_workspace *workspace;
   gsl_function function;
   integration_callback_params params;
@@ -43,6 +56,20 @@ static VALUE integration_qag(VALUE self, VALUE a, VALUE b) {
   int status;
 
   (void)self;
+
+  rb_scan_args(argc, argv, "2:", &a, &b, &options);
+  if (!NIL_P(options)) {
+    rb_get_kwargs(options, keywords, 0, 4, keyword_values);
+    epsabs_value = keyword_values[0];
+    epsrel_value = keyword_values[1];
+    limit_value = keyword_values[2];
+    key_value = keyword_values[3];
+  }
+
+  epsabs = epsabs_value == Qundef ? 0.0 : NUM2DBL(epsabs_value);
+  epsrel = epsrel_value == Qundef ? 1e-8 : NUM2DBL(epsrel_value);
+  limit = limit_value == Qundef ? 1000 : NUM2SIZET(limit_value);
+  key = key_value == Qundef ? GSL_INTEG_GAUSS61 : NUM2INT(key_value);
 
   params.block = rb_block_proc();
   params.x = Qnil;
@@ -53,9 +80,8 @@ static VALUE integration_qag(VALUE self, VALUE a, VALUE b) {
 
   workspace = gsl_integration_workspace_alloc(limit);
 
-  status =
-      gsl_integration_qag(&function, NUM2DBL(a), NUM2DBL(b), 0.0, 1e-8, limit,
-                          GSL_INTEG_GAUSS61, workspace, &result, &error);
+  status = gsl_integration_qag(&function, NUM2DBL(a), NUM2DBL(b), epsabs,
+                               epsrel, limit, key, workspace, &result, &error);
 
   gsl_integration_workspace_free(workspace);
 
@@ -83,7 +109,14 @@ void Init_integration(void) {
 
   eIntegrationError = rb_const_get(mIntegration, rb_intern("Error"));
 
+  rb_define_const(mIntegration, "GAUSS15", INT2NUM(GSL_INTEG_GAUSS15));
+  rb_define_const(mIntegration, "GAUSS21", INT2NUM(GSL_INTEG_GAUSS21));
+  rb_define_const(mIntegration, "GAUSS31", INT2NUM(GSL_INTEG_GAUSS31));
+  rb_define_const(mIntegration, "GAUSS41", INT2NUM(GSL_INTEG_GAUSS41));
+  rb_define_const(mIntegration, "GAUSS51", INT2NUM(GSL_INTEG_GAUSS51));
+  rb_define_const(mIntegration, "GAUSS61", INT2NUM(GSL_INTEG_GAUSS61));
+
   gsl_set_error_handler_off();
 
-  rb_define_singleton_method(mIntegration, "qag", integration_qag, 2);
+  rb_define_singleton_method(mIntegration, "qag", integration_qag, -1);
 }

@@ -10,3 +10,6 @@ AllCops:
 Style/GlobalVars:
   Exclude:
     - "ext/**/extconf.rb"
+
+RSpec/ExampleLength:
+  Max: 15

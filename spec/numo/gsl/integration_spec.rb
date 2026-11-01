@@ -37,5 +37,20 @@ RSpec.describe Numo::GSL::Integration do
       end
         .to(raise_error(Numo::GSL::Integration::Error))
     end
+
+    it "accepts integration options", :aggregate_failures do
+      result, error = described_class
+        .qag(
+          0.0,
+          1.0,
+          epsabs: 1e-12,
+          epsrel: 1e-12,
+          limit: 100,
+          key: described_class::GAUSS21
+        ) { |x| x * x }
+
+      expect(result).to(be_within(1e-10).of(1.0 / 3.0))
+      expect(error).to(be >= 0.0)
+    end
   end
 end
