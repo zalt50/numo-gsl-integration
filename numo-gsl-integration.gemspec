@@ -12,7 +12,11 @@ Gem::Specification.new do |spec|
   spec.description = "Provides GNU Scientific Library numerical integration routines under Numo::GSL::Integration."
   spec.required_ruby_version = ">= 3.2.0"
   spec.license = "GPL-3.0-or-later"
+  spec.homepage = "https://github.com/zalt50/numo-gsl-integration"
 
+  spec.metadata["homepage_uri"] = spec.homepage
+  spec.metadata["source_code_uri"] = "https://github.com/zalt50/numo-gsl-integration"
+  spec.metadata["changelog_uri"] = "https://github.com/zalt50/numo-gsl-integration/blob/master/CHANGELOG.md"
   spec.metadata["rubygems_mfa_required"] = "true"
 
   # Specify which files should be added to the gem when it is released.
