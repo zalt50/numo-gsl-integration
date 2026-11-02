@@ -4,6 +4,7 @@
 
 ### Added
 
+- Added QNG non-adaptive integration with result, error estimate, and function-evaluation count.
 - Added `numo-gsl-alt` as a runtime dependency with support for versions `>= 0.1.3` and `< 0.2`.
 - Added isolated-process specs for loading `numo/gsl` before or through `numo-gsl-integration`, including representative QAG failure modes.
 - Added RBS declarations for the public integration API and RBS validation to the default Rake task.

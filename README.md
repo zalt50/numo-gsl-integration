@@ -63,11 +63,32 @@ The available Gauss-Kronrod integration rules are `GAUSS15`, `GAUSS21`, `GAUSS31
 
 Exceptions raised by the integrand are propagated to the caller. A non-numeric return value from the integrand raises `TypeError`.
 
+### QNG integration
+
+GSL [QNG](https://www.gnu.org/software/gsl/doc/html/integration.html#qng-non-adaptive-gauss-kronrod-integration) provides non-adaptive integration for smooth functions over a finite interval. It applies increasingly accurate Gauss-Kronrod-Patterson rules and evaluates the integrand at up to 87 points.
+
+```ruby
+result, error, evaluations = Numo::GSL::Integration.qng(0.0, 1.0) do |x|
+  x * x
+end
+```
+
+The return value contains the integral, its estimated absolute error, and the number of integrand evaluations. The `epsabs` and `epsrel` keyword arguments control the requested absolute and relative error limits:
+
+```ruby
+result, error, evaluations = Numo::GSL::Integration.qng(
+  0.0,
+  1.0,
+  epsabs: 1e-12,
+  epsrel: 1e-12
+) { |x| x * x }
+```
+
 ## GSL error handling
 
 `numo-gsl-alt` installs the process-wide GSL error handler that converts GSL errors to `Numo::GSL::GslError`. `numo-gsl-integration` neither replaces nor temporarily disables that handler.
 
-Errors reported by GSL are raised directly as `Numo::GSL::GslError` by the handler installed by `numo-gsl-alt`. `numo-gsl-integration` does not convert QAG return statuses into a separate exception. The QAG workspace is released when the call completes normally and when the GSL handler raises an exception.
+Errors reported by GSL are raised directly as `Numo::GSL::GslError` by the handler installed by `numo-gsl-alt`. `numo-gsl-integration` does not convert integration return statuses into separate exceptions. The QAG workspace is released when the call completes normally and when the GSL handler raises an exception.
 
 `Numo::GSL::Integration::Error` is reserved for validation or state errors detected by `numo-gsl-integration` itself. It inherits from `Numo::GSL::GslError`:
 
@@ -100,6 +121,7 @@ The default Rake task performs the following checks:
 - compiles the native extension;
 - runs the [RSpec](https://rspec.info/) suite;
 - runs [RuboCop](https://rubocop.org/);
+- validates RBS signatures;
 - checks Ruby files with [rubyfmt](https://github.com/fables-tales/rubyfmt); and
 - checks C source files with `clang-format` using the LLVM style.
 
