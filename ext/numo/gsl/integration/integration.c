@@ -1,14 +1,24 @@
-#include <gsl/gsl_errno.h>
 #include <gsl/gsl_integration.h>
 #include <ruby.h>
-
-static VALUE eIntegrationError;
 
 typedef struct {
   VALUE block;
   VALUE x;
   int state;
 } integration_callback_params;
+
+typedef struct {
+  gsl_function *function;
+  double a;
+  double b;
+  double epsabs;
+  double epsrel;
+  size_t limit;
+  int key;
+  gsl_integration_workspace *workspace;
+  double *result;
+  double *error;
+} integration_qag_params;
 
 static VALUE integration_call_block(VALUE data) {
   integration_callback_params *params = (integration_callback_params *)data;
@@ -33,6 +43,25 @@ static double integration_callback(double x, void *data) {
   return params->state == 0 ? NUM2DBL(value) : 0.0;
 }
 
+static VALUE integration_run_qag(VALUE data) {
+  integration_qag_params *params = (integration_qag_params *)data;
+
+  (void)gsl_integration_qag(params->function, params->a, params->b,
+                            params->epsabs, params->epsrel, params->limit,
+                            params->key, params->workspace, params->result,
+                            params->error);
+
+  return Qnil;
+}
+
+static VALUE integration_free_workspace(VALUE data) {
+  gsl_integration_workspace *workspace = (gsl_integration_workspace *)data;
+
+  gsl_integration_workspace_free(workspace);
+
+  return Qnil;
+}
+
 static VALUE integration_qag(int argc, VALUE *argv, VALUE self) {
   VALUE a;
   VALUE b;
@@ -51,9 +80,9 @@ static VALUE integration_qag(int argc, VALUE *argv, VALUE self) {
   gsl_integration_workspace *workspace;
   gsl_function function;
   integration_callback_params params;
+  integration_qag_params qag_params;
   double result;
   double error;
-  int status;
 
   (void)self;
 
@@ -80,19 +109,24 @@ static VALUE integration_qag(int argc, VALUE *argv, VALUE self) {
 
   workspace = gsl_integration_workspace_alloc(limit);
 
-  status = gsl_integration_qag(&function, NUM2DBL(a), NUM2DBL(b), epsabs,
-                               epsrel, limit, key, workspace, &result, &error);
+  qag_params.function = &function;
+  qag_params.a = NUM2DBL(a);
+  qag_params.b = NUM2DBL(b);
+  qag_params.epsabs = epsabs;
+  qag_params.epsrel = epsrel;
+  qag_params.limit = limit;
+  qag_params.key = key;
+  qag_params.workspace = workspace;
+  qag_params.result = &result;
+  qag_params.error = &error;
 
-  gsl_integration_workspace_free(workspace);
+  rb_ensure(integration_run_qag, (VALUE)&qag_params, integration_free_workspace,
+            (VALUE)workspace);
 
   RB_GC_GUARD(params.block);
 
   if (params.state != 0) {
     rb_jump_tag(params.state);
-  }
-
-  if (status != GSL_SUCCESS) {
-    rb_raise(eIntegrationError, "%s", gsl_strerror(status));
   }
 
   return rb_ary_new_from_args(2, DBL2NUM(result), DBL2NUM(error));
@@ -106,8 +140,6 @@ void Init_integration(void) {
   mNumo = rb_define_module("Numo");
   mGSL = rb_define_module_under(mNumo, "GSL");
   mIntegration = rb_define_module_under(mGSL, "Integration");
-
-  eIntegrationError = rb_const_get(mIntegration, rb_intern("Error"));
 
   rb_define_const(mIntegration, "GAUSS15", INT2NUM(GSL_INTEG_GAUSS15));
   rb_define_const(mIntegration, "GAUSS21", INT2NUM(GSL_INTEG_GAUSS21));
