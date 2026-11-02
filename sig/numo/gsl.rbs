@@ -1,0 +1,6 @@
+module Numo
+  module GSL
+    class GslError <::StandardError
+    end
+  end
+end

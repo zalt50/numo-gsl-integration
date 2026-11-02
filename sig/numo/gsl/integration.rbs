@@ -2,7 +2,25 @@ module Numo
   module GSL
     module Integration
       VERSION: String
-      # See the writing guide of rbs: https://github.com/ruby/rbs#guides
+
+      class Error <::Numo::GSL::GslError
+      end
+
+      GAUSS15: Integer
+      GAUSS21: Integer
+      GAUSS31: Integer
+      GAUSS41: Integer
+      GAUSS51: Integer
+      GAUSS61: Integer
+
+      def self.qag: (
+        Numeric a,
+        Numeric b,
+        ?epsabs: Numeric,
+        ?epsrel: Numeric,
+        ?limit: Integer,
+        ?key: Integer
+      ) { (Float) -> Numeric } -> [Float, Float]
     end
   end
 end
