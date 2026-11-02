@@ -67,7 +67,9 @@ Exceptions raised by the integrand are propagated to the caller. A non-numeric r
 
 `numo-gsl-alt` installs the process-wide GSL error handler that converts GSL errors to `Numo::GSL::GslError`. `numo-gsl-integration` neither replaces nor temporarily disables that handler.
 
-Errors raised directly by the GSL handler are reported as `Numo::GSL::GslError`. Integration-specific failures that return to the wrapper are reported as `Numo::GSL::Integration::Error`, which inherits from `Numo::GSL::GslError`:
+Errors reported by GSL are raised directly as `Numo::GSL::GslError` by the handler installed by `numo-gsl-alt`. `numo-gsl-integration` does not convert QAG return statuses into a separate exception. The QAG workspace is released when the call completes normally and when the GSL handler raises an exception.
+
+`Numo::GSL::Integration::Error` is reserved for validation or state errors detected by `numo-gsl-integration` itself. It inherits from `Numo::GSL::GslError`:
 
 ```text
 StandardError
@@ -75,7 +77,7 @@ StandardError
     └── Numo::GSL::Integration::Error
 ```
 
-Code can therefore rescue all GSL-related errors with `Numo::GSL::GslError`, or rescue `Numo::GSL::Integration::Error` when it needs to handle only integration-specific failures.
+Code can rescue all GSL-related errors with `Numo::GSL::GslError`, or rescue `Numo::GSL::Integration::Error` when it needs to handle only errors detected by the integration wrapper.
 
 The GSL error handler is shared by the entire process. This gem leaves its ownership with `numo-gsl-alt` and does not switch the handler around individual integration calls.
 
