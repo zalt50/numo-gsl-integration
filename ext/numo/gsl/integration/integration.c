@@ -116,7 +116,5 @@ void Init_integration(void) {
   rb_define_const(mIntegration, "GAUSS51", INT2NUM(GSL_INTEG_GAUSS51));
   rb_define_const(mIntegration, "GAUSS61", INT2NUM(GSL_INTEG_GAUSS61));
 
-  gsl_set_error_handler_off();
-
   rb_define_singleton_method(mIntegration, "qag", integration_qag, -1);
 }

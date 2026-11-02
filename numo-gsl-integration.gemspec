@@ -32,4 +32,6 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
   spec.extensions = ["ext/numo/gsl/integration/extconf.rb"]
+
+  spec.add_dependency("numo-gsl-alt", ">= 0.1.3")
 end
