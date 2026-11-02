@@ -84,6 +84,28 @@ result, error, evaluations = Numo::GSL::Integration.qng(
 ) { |x| x * x }
 ```
 
+### QAGS integration
+
+GSL [QAGS](https://www.gnu.org/software/gsl/doc/html/integration.html#qags-adaptive-integration-with-singularities) combines adaptive subdivision with extrapolation to integrate functions with integrable singularities or discontinuities over a finite interval.
+
+```ruby
+result, error = Numo::GSL::Integration.qags(0.0, 1.0) do |x|
+  Math.log(x) / Math.sqrt(x)
+end
+```
+
+The example integral has an endpoint singularity and an exact value of `-4.0`. The `epsabs`, `epsrel`, and `limit` keyword arguments control the requested error limits and maximum number of subintervals:
+
+```ruby
+result, error = Numo::GSL::Integration.qags(
+  0.0,
+  1.0,
+  epsabs: 1e-12,
+  epsrel: 1e-12,
+  limit: 100
+) { |x| x * x }
+```
+
 ## GSL error handling
 
 `numo-gsl-alt` installs the process-wide GSL error handler that converts GSL errors to `Numo::GSL::GslError`. `numo-gsl-integration` neither replaces nor temporarily disables that handler.
