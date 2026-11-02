@@ -2,17 +2,14 @@ module Numo
   module GSL
     module Integration
       VERSION: String
-
-      class Error <::Numo::GSL::GslError
+      class Error < ::Numo::GSL::GslError
       end
-
       GAUSS15: Integer
       GAUSS21: Integer
       GAUSS31: Integer
       GAUSS41: Integer
       GAUSS51: Integer
       GAUSS61: Integer
-
       def self.qag: (
         Numeric a,
         Numeric b,
@@ -27,6 +24,13 @@ module Numo
         ?epsabs: Numeric,
         ?epsrel: Numeric
       ) { (Float) -> Numeric } -> [Float, Float, Integer]
+      def self.qags: (
+        Numeric a,
+        Numeric b,
+        ?epsabs: Numeric,
+        ?epsrel: Numeric,
+        ?limit: Integer
+      ) { (Float) -> Numeric } -> [Float, Float]
     end
   end
 end
