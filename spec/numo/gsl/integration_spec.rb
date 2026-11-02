@@ -180,8 +180,10 @@ RSpec.describe Numo::GSL::Integration do
   end
 
   describe ".qagp" do
-    it "integrates a function with a known interior singularity",
-       :aggregate_failures do
+    it(
+      "integrates a function with a known interior singularity",
+      :aggregate_failures
+    ) do
       result, error = described_class.qagp(
         [0.0, 0.5, 1.0]
       ) { |x| 1.0 / Math.sqrt((x - 0.5).abs) }
@@ -190,8 +192,10 @@ RSpec.describe Numo::GSL::Integration do
       expect(error).to(be >= 0.0)
     end
 
-    it "integrates a smooth function over specified subintervals",
-       :aggregate_failures do
+    it(
+      "integrates a smooth function over specified subintervals",
+      :aggregate_failures
+    ) do
       result, error = described_class.qagp(
         [0.0, 0.25, 0.75, 1.0]
       ) { |x| x * x }
