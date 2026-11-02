@@ -5,6 +5,12 @@ RSpec.describe Numo::GSL::Integration do
     expect(Numo::GSL::Integration::VERSION).not_to(be_nil)
   end
 
+  describe Numo::GSL::Integration::Error do
+    it "inherits from Numo::GSL::GslError" do
+      expect(described_class).to(be < Numo::GSL::GslError)
+    end
+  end
+
   describe ".qag" do
     it "integrates a function over a finite interval", :aggregate_failures do
       result, error = described_class.qag(0.0, 1.0) do |x|
@@ -31,11 +37,14 @@ RSpec.describe Numo::GSL::Integration do
         .to(raise_error(TypeError))
     end
 
-    it "raises Integration::Error when GSL integration fails" do
-      expect do
+    it "raises GslError directly when GSL integration fails" do
+      error = begin
         described_class.qag(0.0, 1.0) { Float::NAN }
+      rescue Numo::GSL::GslError => e
+        e
       end
-        .to(raise_error(Numo::GSL::Integration::Error))
+
+      expect(error).to(be_instance_of(Numo::GSL::GslError))
     end
 
     it "accepts integration options", :aggregate_failures do
