@@ -4,6 +4,7 @@
 typedef struct {
   VALUE block;
   VALUE x;
+  VALUE exception;
   int state;
 } integration_callback_params;
 
@@ -19,6 +20,17 @@ typedef struct {
   double *result;
   double *error;
 } integration_qag_params;
+
+typedef struct {
+  gsl_function *function;
+  double a;
+  double b;
+  double epsabs;
+  double epsrel;
+  double *result;
+  double *error;
+  size_t *evaluations;
+} integration_qng_params;
 
 static VALUE integration_call_block(VALUE data) {
   integration_callback_params *params = (integration_callback_params *)data;
@@ -40,7 +52,12 @@ static double integration_callback(double x, void *data) {
   params->x = DBL2NUM(x);
   value = rb_protect(integration_call_block, (VALUE)params, &params->state);
 
-  return params->state == 0 ? NUM2DBL(value) : 0.0;
+  if (params->state != 0) {
+    params->exception = rb_errinfo();
+    return 0.0;
+  }
+
+  return NUM2DBL(value);
 }
 
 static VALUE integration_run_qag(VALUE data) {
@@ -102,6 +119,7 @@ static VALUE integration_qag(int argc, VALUE *argv, VALUE self) {
 
   params.block = rb_block_proc();
   params.x = Qnil;
+  params.exception = Qnil;
   params.state = 0;
 
   function.function = integration_callback;
@@ -124,12 +142,88 @@ static VALUE integration_qag(int argc, VALUE *argv, VALUE self) {
             (VALUE)workspace);
 
   RB_GC_GUARD(params.block);
+  RB_GC_GUARD(params.exception);
 
   if (params.state != 0) {
-    rb_jump_tag(params.state);
+    rb_exc_raise(params.exception);
   }
 
   return rb_ary_new_from_args(2, DBL2NUM(result), DBL2NUM(error));
+}
+
+static VALUE integration_run_qng(VALUE data) {
+  integration_qng_params *params = (integration_qng_params *)data;
+
+  (void)gsl_integration_qng(params->function, params->a, params->b,
+                            params->epsabs, params->epsrel, params->result,
+                            params->error, params->evaluations);
+
+  return Qnil;
+}
+
+static VALUE integration_qng(int argc, VALUE *argv, VALUE self) {
+  VALUE a;
+  VALUE b;
+  VALUE options;
+  VALUE epsabs_value = Qundef;
+  VALUE epsrel_value = Qundef;
+  ID keywords[] = {rb_intern("epsabs"), rb_intern("epsrel")};
+  VALUE keyword_values[2];
+  double epsabs;
+  double epsrel;
+  gsl_function function;
+  integration_callback_params params;
+  integration_qng_params qng_params;
+  double result;
+  double error;
+  size_t evaluations;
+  int state = 0;
+
+  (void)self;
+
+  rb_scan_args(argc, argv, "2:", &a, &b, &options);
+
+  if (!NIL_P(options)) {
+    rb_get_kwargs(options, keywords, 0, 2, keyword_values);
+    epsabs_value = keyword_values[0];
+    epsrel_value = keyword_values[1];
+  }
+
+  epsabs = epsabs_value == Qundef ? 0.0 : NUM2DBL(epsabs_value);
+  epsrel = epsrel_value == Qundef ? 1e-8 : NUM2DBL(epsrel_value);
+
+  params.block = rb_block_proc();
+  params.x = Qnil;
+  params.exception = Qnil;
+  params.state = 0;
+
+  function.function = integration_callback;
+  function.params = &params;
+
+  qng_params.function = &function;
+  qng_params.a = NUM2DBL(a);
+  qng_params.b = NUM2DBL(b);
+  qng_params.epsabs = epsabs;
+  qng_params.epsrel = epsrel;
+  qng_params.result = &result;
+  qng_params.error = &error;
+  qng_params.evaluations = &evaluations;
+
+  rb_protect(integration_run_qng, (VALUE)&qng_params, &state);
+
+  RB_GC_GUARD(params.block);
+  RB_GC_GUARD(params.exception);
+
+  if (params.state != 0) {
+    rb_exc_raise(params.exception);
+  }
+
+  if (state != 0) {
+    rb_jump_tag(state);
+  }
+
+  return rb_ary_new_from_args(3, DBL2NUM(result), DBL2NUM(error),
+                              SIZET2NUM(evaluations));
 }
 
 void Init_integration(void) {
@@ -149,4 +243,5 @@ void Init_integration(void) {
   rb_define_const(mIntegration, "GAUSS61", INT2NUM(GSL_INTEG_GAUSS61));
 
   rb_define_singleton_method(mIntegration, "qag", integration_qag, -1);
+  rb_define_singleton_method(mIntegration, "qng", integration_qng, -1);
 }
