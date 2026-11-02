@@ -33,5 +33,5 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.extensions = ["ext/numo/gsl/integration/extconf.rb"]
 
-  spec.add_dependency("numo-gsl-alt", ">= 0.1.3")
+  spec.add_dependency("numo-gsl-alt", ">= 0.1.3", "< 0.2")
 end
