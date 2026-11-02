@@ -81,6 +81,24 @@ The default Rake task compiles the native extension, runs the [RSpec](https://rs
 
 Ruby source code is formatted with [rubyfmt](https://github.com/fables-tales/rubyfmt). RuboCop is used for linting, with `rubocop-rake`, `rubocop-rspec`, and `rubocop-rubyfmt`.
 
+### clangd
+
+The native extension requires compiler options for the Ruby and GSL headers.
+To make these options available to `clangd`, generate a compilation database
+with [Bear](https://github.com/rizsotto/Bear):
+
+```bash
+cd ext/numo/gsl/integration
+ruby extconf.rb
+make clean
+bear -- make
+```
+
+This creates `compile_commands.json` with the compiler options used to build
+`integration.c`. The file contains paths specific to the local build
+environment and should not be committed to the repository. Regenerate it after
+changing the Ruby or GSL installation or other build settings.
+
 ## License
 
 This project is licensed under the [GNU General Public License version 3 or later](https://www.gnu.org/licenses/gpl-3.0.html). See the [LICENSE](LICENSE) file for the full license text.
