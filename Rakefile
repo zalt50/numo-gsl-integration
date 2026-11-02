@@ -55,4 +55,9 @@ task(:rbs) do
   sh("bundle exec rbs -I sig validate")
 end
 
-task(default: %i[spec rubocop rbs format:check])
+desc("Lint Markdown files")
+task(:markdownlint) do
+  sh("markdownlint-cli2 README.md CHANGELOG.md")
+end
+
+task(default: %i[spec rubocop rbs format:check markdownlint])
