@@ -21,6 +21,12 @@ module Numo
         ?limit: Integer,
         ?key: Integer
       ) { (Float) -> Numeric } -> [Float, Float]
+      def self.qng: (
+        Numeric a,
+        Numeric b,
+        ?epsabs: Numeric,
+        ?epsrel: Numeric
+      ) { (Float) -> Numeric } -> [Float, Float, Integer]
     end
   end
 end
