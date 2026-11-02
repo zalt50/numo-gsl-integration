@@ -1,12 +1,14 @@
 # Numo::GSL::Integration
 
-`numo-gsl-integration` provides numerical integration routines from the [GNU Scientific Library (GSL)](https://www.gnu.org/software/gsl/) under the `Numo::GSL::Integration` namespace. It is intended to complement the [Numo](https://github.com/ruby-numo) ecosystem without depending on [numo-gsl](https://github.com/ruby-numo/numo-gsl) itself.
+`numo-gsl-integration` provides numerical integration routines from the [GNU Scientific Library (GSL)](https://www.gnu.org/software/gsl/) under the `Numo::GSL::Integration` namespace. It depends on [`numo-gsl-alt`](https://github.com/mvz/numo-gsl-alt) for the `Numo::GSL` namespace and GSL error handling.
 
 ## Requirements
 
 - [Ruby](https://www.ruby-lang.org/) 3.2 or later
 - GNU Scientific Library (GSL)
 - `gsl-config` available in `PATH`
+
+The `numo-gsl-alt` Ruby gem is installed as a runtime dependency. GSL itself must be installed separately.
 
 ## Installation
 
@@ -22,7 +24,7 @@ Then run:
 bundle install
 ```
 
-GSL must be installed separately. The native extension uses `gsl-config` to locate the GSL headers and libraries.
+The native extension uses `gsl-config` to locate the GSL headers and libraries.
 
 ## Usage
 
@@ -31,6 +33,8 @@ Load the library:
 ```ruby
 require "numo/gsl/integration"
 ```
+
+The entry point loads `numo/gsl` before the integration native extension. This ensures that `numo-gsl-alt` initializes the `Numo::GSL` namespace and installs its GSL error handler before integration routines are loaded.
 
 ### QAG integration
 
@@ -55,13 +59,25 @@ result, error = Numo::GSL::Integration.qag(
 ) { |x| x * x }
 ```
 
-The available Gauss-Kronrod integration rules are `GAUSS15`, `GAUSS21`, `GAUSS31`, `GAUSS41`, `GAUSS51`, and `GAUSS61`. Exceptions raised by the integrand are propagated to the caller, while errors reported by GSL are raised as `Numo::GSL::Integration::Error`.
+The available Gauss-Kronrod integration rules are `GAUSS15`, `GAUSS21`, `GAUSS31`, `GAUSS41`, `GAUSS51`, and `GAUSS61`.
+
+Exceptions raised by the integrand are propagated to the caller. A non-numeric return value from the integrand raises `TypeError`.
 
 ## GSL error handling
 
-Loading `numo-gsl-integration` calls `gsl_set_error_handler_off()` and therefore disables GSL's default error handler process-wide. This prevents GSL from aborting the process when an integration routine reports an error and allows the gem to raise `Numo::GSL::Integration::Error` instead.
+`numo-gsl-alt` installs the process-wide GSL error handler that converts GSL errors to `Numo::GSL::GslError`. `numo-gsl-integration` neither replaces nor temporarily disables that handler.
 
-The GSL error handler is global, so loading this gem also changes error handling for other code that uses GSL in the same process.
+Errors raised directly by the GSL handler are reported as `Numo::GSL::GslError`. Integration-specific failures that return to the wrapper are reported as `Numo::GSL::Integration::Error`, which inherits from `Numo::GSL::GslError`:
+
+```text
+StandardError
+└── Numo::GSL::GslError
+    └── Numo::GSL::Integration::Error
+```
+
+Code can therefore rescue all GSL-related errors with `Numo::GSL::GslError`, or rescue `Numo::GSL::Integration::Error` when it needs to handle only integration-specific failures.
+
+The GSL error handler is shared by the entire process. This gem leaves its ownership with `numo-gsl-alt` and does not switch the handler around individual integration calls.
 
 ## Development
 
@@ -71,15 +87,33 @@ After checking out the repository, install the dependencies:
 bundle install
 ```
 
-Build the native extension and run the test and lint suites:
+Build the native extension and run the complete verification suite:
 
 ```bash
 bundle exec rake
 ```
 
-The default Rake task compiles the native extension, runs the [RSpec](https://rspec.info/) suite, and runs [RuboCop](https://rubocop.org/).
+The default Rake task performs the following checks:
 
-Ruby source code is formatted with [rubyfmt](https://github.com/fables-tales/rubyfmt). RuboCop is used for linting, with `rubocop-rake`, `rubocop-rspec`, and `rubocop-rubyfmt`.
+- compiles the native extension;
+- runs the [RSpec](https://rspec.info/) suite;
+- runs [RuboCop](https://rubocop.org/);
+- checks Ruby files with [rubyfmt](https://github.com/fables-tales/rubyfmt); and
+- checks C source files with `clang-format` using the LLVM style.
+
+Check source formatting without applying changes:
+
+```bash
+bundle exec rake format:check
+```
+
+Format the Ruby and C source files:
+
+```bash
+bundle exec rake format:apply
+```
+
+RuboCop is configured with `rubocop-rake`, `rubocop-rspec`, and `rubocop-rubyfmt`.
 
 ### clangd
 
