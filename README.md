@@ -106,11 +106,34 @@ result, error = Numo::GSL::Integration.qags(
 ) { |x| x * x }
 ```
 
+### QAGP integration
+
+GSL [QAGP](https://www.gnu.org/software/gsl/doc/html/integration.html#qagp-adaptive-integration-with-known-singular-points) applies adaptive integration when the locations of interior singularities or discontinuities are known. Pass an array containing the left endpoint, zero or more known interior singularity or discontinuity points, and the right endpoint:
+
+```ruby
+result, error = Numo::GSL::Integration.qagp(
+  [0.0, 0.5, 1.0]
+) { |x| 1.0 / Math.sqrt((x - 0.5).abs) }
+```
+
+The points must be finite numeric values in strictly increasing order. The array must contain at least two values. Invalid point arrays raise `Numo::GSL::Integration::Error` before GSL is called.
+
+The `epsabs`, `epsrel`, and `limit` keyword arguments control the requested error limits and maximum number of subintervals:
+
+```ruby
+result, error = Numo::GSL::Integration.qagp(
+  [0.0, 0.25, 0.75, 1.0],
+  epsabs: 1e-12,
+  epsrel: 1e-12,
+  limit: 100
+) { |x| x * x }
+```
+
 ## GSL error handling
 
 `numo-gsl-alt` installs the process-wide GSL error handler that converts GSL errors to `Numo::GSL::GslError`. `numo-gsl-integration` neither replaces nor temporarily disables that handler.
 
-Errors reported by GSL are raised directly as `Numo::GSL::GslError` by the handler installed by `numo-gsl-alt`. `numo-gsl-integration` does not convert integration return statuses into separate exceptions. The QAG workspace is released when the call completes normally and when the GSL handler raises an exception.
+Errors reported by GSL are raised directly as `Numo::GSL::GslError` by the handler installed by `numo-gsl-alt`. `numo-gsl-integration` does not convert integration return statuses into separate exceptions. The workspaces used by QAG, QAGS, and QAGP are released when a call completes normally or raises an exception. QAGP also releases its temporary copy of the point array.
 
 `Numo::GSL::Integration::Error` is reserved for validation or state errors detected by `numo-gsl-integration` itself. It inherits from `Numo::GSL::GslError`:
 
@@ -144,8 +167,9 @@ The default Rake task performs the following checks:
 - runs the [RSpec](https://rspec.info/) suite;
 - runs [RuboCop](https://rubocop.org/);
 - validates RBS signatures;
-- checks Ruby files with [rubyfmt](https://github.com/fables-tales/rubyfmt); and
-- checks C source files with `clang-format` using the LLVM style.
+- checks Ruby files with [rubyfmt](https://github.com/fables-tales/rubyfmt);
+- checks C source files with `clang-format` using the LLVM style; and
+- checks `README.md` and `CHANGELOG.md` with `markdownlint-cli2`.
 
 Check source formatting without applying changes:
 
@@ -180,7 +204,7 @@ bear --output "$build_dir/compile_commands.json" -- make -C "$build_dir"
 ln -sf "$build_dir/compile_commands.json" compile_commands.json
 ```
 
-The compilation database contains the compiler options used to build `integration.c`, including the Ruby and GSL header paths. It is specific to the local build environment and should not be committed to the repository. Regenerate it after changing the Ruby or GSL installation or other build settings.
+The compilation database contains the compiler options used to build the native extension, including the Ruby and GSL header paths. It is specific to the local build environment and should not be committed to the repository. Regenerate it after changing the Ruby or GSL installation or other build settings.
 
 ## License
 
