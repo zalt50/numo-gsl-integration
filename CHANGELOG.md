@@ -4,6 +4,7 @@
 
 ### Added
 
+- Added QAWS adaptive integration for algebraic and logarithmic endpoint singularities.
 - Added QAWC adaptive integration for Cauchy principal values.
 - Added QAGIU adaptive integration from a finite lower bound to positive infinity.
 - Added QAGIL adaptive integration from negative infinity to a finite upper bound.
@@ -20,7 +21,7 @@
 
 - Load `numo/gsl` before the integration native extension and make `Numo::GSL::Integration::Error` inherit from `Numo::GSL::GslError`.
 - Delegate GSL-reported QAG errors to the process-wide handler installed by `numo-gsl-alt` instead of converting return statuses to `Integration::Error`.
-- Ensure the QAG, QAGS, QAGP, QAGI, QAGIU, QAGIL, and QAWC workspaces and QAGP's temporary point array are released when integration completes normally or raises an exception.
+- Ensure the QAG, QAGS, QAGP, QAGI, QAGIU, QAGIL, QAWC, and QAWS workspaces, the QAWS weight table, and QAGP's temporary point array are released when integration completes normally or raises an exception.
 
 ## [0.1.0] - 2026-11-01
 
