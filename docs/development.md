@@ -38,21 +38,12 @@ RuboCop is configured with `rubocop-rake`, `rubocop-rspec`, and `rubocop-rubyfmt
 
 ## clangd
 
-The native extension requires compiler options for the Ruby and GSL headers. To make these options available to `clangd`, generate a compilation database with [Bear](https://github.com/rizsotto/Bear).
-
-First, build the native extension:
+To enable accurate code completion, navigation, and diagnostics when editing the native extension, generate a compilation database with [Bear](https://rizsotto.github.io/Bear/):
 
 ```bash
-bundle exec rake compile
+bear -- bundle exec rake clean compile
 ```
 
-Then rebuild the extension with Bear and create a symbolic link to the compilation database in the repository root:
+The compilation database provides `clangd` with the compiler options and Ruby and GSL header paths used to build each C source file. See the [clangd documentation](https://clangd.llvm.org/design/compile-commands) for details.
 
-```bash
-build_dir="tmp/$(ruby -rrbconfig -e 'print RbConfig::CONFIG["arch"]')/integration/$(ruby -e 'print RUBY_VERSION')"
-make -C "$build_dir" clean
-bear --output "$build_dir/compile_commands.json" -- make -C "$build_dir"
-ln -sf "$build_dir/compile_commands.json" compile_commands.json
-```
-
-The compilation database contains the compiler options used to build the native extension, including the Ruby and GSL header paths. It is specific to the local build environment and should not be committed to the repository. Regenerate it after changing the Ruby or GSL installation or other build settings.
+The generated `compile_commands.json` contains paths specific to the local build environment and should not be committed. Regenerate it after changing the Ruby or GSL installation or other build settings.

@@ -24,4 +24,4 @@ ext/**/mkmf.log
 /tmp/
 /lib/numo/gsl/integration/*.bundle
 /ext/numo/gsl/integration/.cache/
-/ext/numo/gsl/integration/compile_commands.json
+/compile_commands.json
