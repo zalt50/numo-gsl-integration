@@ -72,6 +72,18 @@ module Numo
         ?epsrel: Numeric,
         ?limit: Integer
       ) { (Float) -> Numeric } -> [Float, Float]
+
+      def self.qaws: (
+        Numeric a,
+        Numeric b,
+        Numeric alpha,
+        Numeric beta,
+        Integer mu,
+        Integer nu,
+        ?epsabs: Numeric,
+        ?epsrel: Numeric,
+        ?limit: Integer
+      ) { (Float) -> Numeric } -> [Float, Float]
     end
   end
 end
