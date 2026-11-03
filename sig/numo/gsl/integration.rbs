@@ -43,6 +43,12 @@ module Numo
         ?epsrel: Numeric,
         ?limit: Integer
       ) { (Float) -> Numeric } -> [Float, Float]
+
+      def self.qagi: (
+        ?epsabs: Numeric,
+        ?epsrel: Numeric,
+        ?limit: Integer
+      ) { (Float) -> Numeric } -> [Float, Float]
     end
   end
 end
