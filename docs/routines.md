@@ -28,7 +28,9 @@ result, error = Numo::GSL::Integration.qag(
   epsrel: 1e-12,
   limit: 100,
   key: Numo::GSL::Integration::GAUSS21,
-) { |x| x * x }
+) do |x|
+  x * x
+end
 ```
 
 The available Gauss-Kronrod integration rules are `GAUSS15`, `GAUSS21`, `GAUSS31`, `GAUSS41`, `GAUSS51`, and `GAUSS61`.
@@ -51,7 +53,9 @@ result, error, evaluations = Numo::GSL::Integration.qng(
   1.0,
   epsabs: 1e-12,
   epsrel: 1e-12
-) { |x| x * x }
+) do |x|
+  x * x
+end
 ```
 
 ## QAGS integration
@@ -73,7 +77,9 @@ result, error = Numo::GSL::Integration.qags(
   epsabs: 1e-12,
   epsrel: 1e-12,
   limit: 100
-) { |x| x * x }
+) do |x|
+  x * x
+end
 ```
 
 ## QAGP integration
@@ -83,7 +89,9 @@ GSL [QAGP](https://www.gnu.org/software/gsl/doc/html/integration.html#qagp-adapt
 ```ruby
 result, error = Numo::GSL::Integration.qagp(
   [0.0, 0.5, 1.0]
-) { |x| 1.0 / Math.sqrt((x - 0.5).abs) }
+) do |x|
+  1.0 / Math.sqrt((x - 0.5).abs)
+end
 ```
 
 The points must be finite numeric values in strictly increasing order. The array must contain at least two values. Invalid point arrays raise `Numo::GSL::Integration::Error` before GSL is called.
@@ -96,7 +104,9 @@ result, error = Numo::GSL::Integration.qagp(
   epsabs: 1e-12,
   epsrel: 1e-12,
   limit: 100
-) { |x| x * x }
+) do |x|
+  x * x
+end
 ```
 
 ## QAGI integration
@@ -116,5 +126,7 @@ result, error = Numo::GSL::Integration.qagi(
   epsabs: 1e-12,
   epsrel: 1e-12,
   limit: 100
-) { |x| 1.0 / (1.0 + (x * x)) }
+) do |x|
+  1.0 / (1.0 + (x * x))
+end
 ```
