@@ -129,11 +129,31 @@ result, error = Numo::GSL::Integration.qagp(
 ) { |x| x * x }
 ```
 
+### QAGI integration
+
+GSL [QAGI](https://www.gnu.org/software/gsl/doc/html/integration.html#qagi-adaptive-integration-on-infinite-intervals) provides adaptive integration over the infinite interval from negative infinity to positive infinity. `Numo::GSL::Integration.qagi` takes no interval endpoints and returns the integral and its estimated absolute error.
+
+```ruby
+result, error = Numo::GSL::Integration.qagi do |x|
+  Math.exp(-(x * x))
+end
+```
+
+The example integrates the Gaussian function, whose exact value is `Math.sqrt(Math::PI)`. The `epsabs`, `epsrel`, and `limit` keyword arguments control the requested error limits and maximum number of subintervals:
+
+```ruby
+result, error = Numo::GSL::Integration.qagi(
+  epsabs: 1e-12,
+  epsrel: 1e-12,
+  limit: 100
+) { |x| 1.0 / (1.0 + (x * x)) }
+```
+
 ## GSL error handling
 
 `numo-gsl-alt` installs the process-wide GSL error handler that converts GSL errors to `Numo::GSL::GslError`. `numo-gsl-integration` neither replaces nor temporarily disables that handler.
 
-Errors reported by GSL are raised directly as `Numo::GSL::GslError` by the handler installed by `numo-gsl-alt`. `numo-gsl-integration` does not convert integration return statuses into separate exceptions. The workspaces used by QAG, QAGS, and QAGP are released when a call completes normally or raises an exception. QAGP also releases its temporary copy of the point array.
+Errors reported by GSL are raised directly as `Numo::GSL::GslError` by the handler installed by `numo-gsl-alt`. `numo-gsl-integration` does not convert integration return statuses into separate exceptions. The workspaces used by QAG, QAGS, QAGP, and QAGI are released when a call completes normally or raises an exception. QAGP also releases its temporary copy of the point array.
 
 `Numo::GSL::Integration::Error` is reserved for validation or state errors detected by `numo-gsl-integration` itself. It inherits from `Numo::GSL::GslError`:
 
