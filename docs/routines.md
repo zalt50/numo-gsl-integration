@@ -33,7 +33,7 @@ result, error = Numo::GSL::Integration.qag(
 end
 ```
 
-The available Gauss-Kronrod integration rules are `GAUSS15`, `GAUSS21`, `GAUSS31`, `GAUSS41`, `GAUSS51`, and `GAUSS61`.
+The `key` keyword selects the Gauss-Kronrod integration rule and defaults to `GAUSS61`. The available values are `GAUSS15`, `GAUSS21`, `GAUSS31`, `GAUSS41`, `GAUSS51`, and `GAUSS61`.
 
 ## QNG integration
 
