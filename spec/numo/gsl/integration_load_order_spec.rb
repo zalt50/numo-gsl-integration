@@ -11,13 +11,13 @@ RSpec.describe Numo::GSL::Integration do
     [status, stdout + stderr]
   end
 
-  it "loads numo-gsl-alt before the integration extension" do
+  it "loads numo-gsl-alt when the integration gem is required first" do
     status, output = run_fixture("integration_first")
 
     expect(status).to(be_success, output)
   end
 
-  it "coexists when numo-gsl-alt is loaded first" do
+  it "coexists when numo-gsl-alt is required first" do
     status, output = run_fixture("numo_gsl_first")
 
     expect(status).to(be_success, output)
