@@ -94,8 +94,7 @@ result, error = Numo::GSL::Integration.qagp(
 end
 ```
 
-The points must be finite numeric values in strictly increasing order. The array must contain at least two values. Invalid point arrays raise `Numo::GSL::Integration::Error` before GSL is called.
-
+The points must be finite numeric values in strictly increasing order. The array must contain at least two values. Invalid point arrays raise `Numo::GSL::Integration::Error` before GSL is called.  
 The `epsabs`, `epsrel`, and `limit` keyword arguments control the requested error limits and maximum number of subintervals:
 
 ```ruby
@@ -174,5 +173,45 @@ result, error = Numo::GSL::Integration.qagil(
   limit: 100
 ) do |x|
   Math.exp(x)
+end
+```
+
+## QAWC integration
+
+GSL [QAWC](https://www.gnu.org/software/gsl/doc/html/integration.html#qawc-adaptive-integration-for-cauchy-principal-values) computes the Cauchy principal value (PV) of an integral over a finite interval with a singularity at $c$:
+
+```math
+PV \int_a^b \frac{f(x)}{x-c}\,dx
+=
+\lim_{\varepsilon\to 0^+}
+\left(
+\int_a^{c-\varepsilon}\frac{f(x)}{x-c}\,dx
++
+\int_{c+\varepsilon}^b\frac{f(x)}{x-c}\,dx
+\right)
+```
+
+The block passed to `Numo::GSL::Integration.qawc` returns $f(x)$. Do not divide the block result by $x - c$; QAWC applies that weight internally.
+
+The following example uses the default integration options and computes the principal value of `x / (x - 1.0)` over the interval from `0.0` to `2.0`, whose exact value is `2.0`:
+
+```ruby
+result, error = Numo::GSL::Integration.qawc(0.0, 2.0, 1.0) do |x|
+  x
+end
+```
+
+The `epsabs`, `epsrel`, and `limit` keyword arguments control the requested error limits and maximum number of subintervals. The following example computes the principal value of `1.0 / x` over the symmetric interval from `-1.0` to `1.0`, whose exact value is `0.0`. It specifies a positive `epsabs` because a relative error bound alone is not suitable when the expected result is zero:
+
+```ruby
+result, error = Numo::GSL::Integration.qawc(
+  -1.0,
+  1.0,
+  0.0,
+  epsabs: 1e-12,
+  epsrel: 1e-12,
+  limit: 100
+) do |_x|
+  1.0
 end
 ```

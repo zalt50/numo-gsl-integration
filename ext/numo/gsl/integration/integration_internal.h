@@ -23,5 +23,6 @@ VALUE integration_qagp(int argc, VALUE *argv, VALUE self);
 VALUE integration_qagi(int argc, VALUE *argv, VALUE self);
 VALUE integration_qagiu(int argc, VALUE *argv, VALUE self);
 VALUE integration_qagil(int argc, VALUE *argv, VALUE self);
+VALUE integration_qawc(int argc, VALUE *argv, VALUE self);
 
 #endif

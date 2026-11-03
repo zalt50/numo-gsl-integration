@@ -4,7 +4,7 @@
 
 Errors reported by GSL are raised directly as `Numo::GSL::GslError` by the handler installed by `numo-gsl-alt`. `numo-gsl-integration` does not convert integration return statuses into separate exceptions.
 
-The workspaces used by QAG, QAGS, QAGP, QAGI, QAGIU, and QAGIL are released when a call completes normally or raises an exception. QAGP also releases its temporary copy of the point array.
+The workspaces used by QAG, QAGS, QAGP, QAGI, QAGIU, QAGIL, and QAWC are released when a call completes normally or raises an exception. QAGP also releases its temporary copy of the point array.
 
 `Numo::GSL::Integration::Error` is reserved for validation or state errors detected by `numo-gsl-integration` itself. It inherits from `Numo::GSL::GslError`:
 

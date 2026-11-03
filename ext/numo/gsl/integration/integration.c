@@ -23,4 +23,5 @@ void Init_integration(void) {
   rb_define_singleton_method(mIntegration, "qagi", integration_qagi, -1);
   rb_define_singleton_method(mIntegration, "qagiu", integration_qagiu, -1);
   rb_define_singleton_method(mIntegration, "qagil", integration_qagil, -1);
+  rb_define_singleton_method(mIntegration, "qawc", integration_qawc, -1);
 }

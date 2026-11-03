@@ -55,6 +55,7 @@ end
 | `qagi` | Infinite | Integration over the entire real line |
 | `qagiu` | Semi-infinite | Integration from a finite lower bound to positive infinity |
 | `qagil` | Semi-infinite | Integration from negative infinity to a finite upper bound |
+| `qawc` | Finite | Cauchy principal value with a known singular point |
 
 See [Integration routines](docs/routines.md) for parameters and examples.
 
