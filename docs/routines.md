@@ -130,3 +130,49 @@ result, error = Numo::GSL::Integration.qagi(
   1.0 / (1.0 + (x * x))
 end
 ```
+
+## QAGIU integration
+
+GSL [QAGIU](https://www.gnu.org/software/gsl/doc/html/integration.html#qagi-adaptive-integration-on-infinite-intervals) provides adaptive integration from a finite lower bound to positive infinity. `Numo::GSL::Integration.qagiu` takes the lower bound and returns the integral and its estimated absolute error.
+
+```ruby
+result, error = Numo::GSL::Integration.qagiu(0.0) do |x|
+  Math.exp(-x)
+end
+```
+
+The example integral has an exact value of `1.0`. The `epsabs`, `epsrel`, and `limit` keyword arguments control the requested error limits and maximum number of subintervals:
+
+```ruby
+result, error = Numo::GSL::Integration.qagiu(
+  1.0,
+  epsabs: 1e-12,
+  epsrel: 1e-12,
+  limit: 100
+) do |x|
+  Math.exp(-x)
+end
+```
+
+## QAGIL integration
+
+GSL [QAGIL](https://www.gnu.org/software/gsl/doc/html/integration.html#qagi-adaptive-integration-on-infinite-intervals) provides adaptive integration from negative infinity to a finite upper bound. `Numo::GSL::Integration.qagil` takes the upper bound and returns the integral and its estimated absolute error.
+
+```ruby
+result, error = Numo::GSL::Integration.qagil(0.0) do |x|
+  Math.exp(x)
+end
+```
+
+The example integral has an exact value of `1.0`. The `epsabs`, `epsrel`, and `limit` keyword arguments control the requested error limits and maximum number of subintervals:
+
+```ruby
+result, error = Numo::GSL::Integration.qagil(
+  -1.0,
+  epsabs: 1e-12,
+  epsrel: 1e-12,
+  limit: 100
+) do |x|
+  Math.exp(x)
+end
+```

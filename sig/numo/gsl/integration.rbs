@@ -49,6 +49,20 @@ module Numo
         ?epsrel: Numeric,
         ?limit: Integer
       ) { (Float) -> Numeric } -> [Float, Float]
+
+      def self.qagiu: (
+        Numeric a,
+        ?epsabs: Numeric,
+        ?epsrel: Numeric,
+        ?limit: Integer
+      ) { (Float) -> Numeric } -> [Float, Float]
+
+      def self.qagil: (
+        Numeric b,
+        ?epsabs: Numeric,
+        ?epsrel: Numeric,
+        ?limit: Integer
+      ) { (Float) -> Numeric } -> [Float, Float]
     end
   end
 end

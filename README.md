@@ -53,6 +53,8 @@ end
 | `qags` | Finite | Functions with integrable singularities or discontinuities |
 | `qagp` | Finite | Known singular or discontinuity points |
 | `qagi` | Infinite | Integration over the entire real line |
+| `qagiu` | Semi-infinite | Integration from a finite lower bound to positive infinity |
+| `qagil` | Semi-infinite | Integration from negative infinity to a finite upper bound |
 
 See [Integration routines](docs/routines.md) for parameters and examples.
 

@@ -4,6 +4,8 @@
 
 ### Added
 
+- Added QAGIU adaptive integration from a finite lower bound to positive infinity.
+- Added QAGIL adaptive integration from negative infinity to a finite upper bound.
 - Added QAGI adaptive integration over the infinite interval from negative infinity to positive infinity.
 - Added QAGP adaptive integration for user-supplied singularity and discontinuity points, including validation that the points are finite and strictly increasing.
 - Added QNG non-adaptive integration with result, error estimate, and function-evaluation count.
@@ -17,7 +19,7 @@
 
 - Load `numo/gsl` before the integration native extension and make `Numo::GSL::Integration::Error` inherit from `Numo::GSL::GslError`.
 - Delegate GSL-reported QAG errors to the process-wide handler installed by `numo-gsl-alt` instead of converting return statuses to `Integration::Error`.
-- Ensure the QAG, QAGS, QAGP, and QAGI workspaces and QAGP's temporary point array are released when integration completes normally or raises an exception.
+- Ensure the QAG, QAGS, QAGP, QAGI, QAGIU, and QAGIL workspaces and QAGP's temporary point array are released when integration completes normally or raises an exception.
 
 ## [0.1.0] - 2026-11-01
 
