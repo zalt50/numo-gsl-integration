@@ -1,0 +1,120 @@
+# Integration routines
+
+Load the library before calling an integration routine:
+
+```ruby
+require "numo/gsl/integration"
+```
+
+Exceptions raised by an integrand are propagated to the caller. A non-numeric return value from an integrand raises `TypeError`.
+
+## QAG integration
+
+GSL [QAG](https://www.gnu.org/software/gsl/doc/html/integration.html#qag-adaptive-integration) provides adaptive integration over a finite interval. `Numo::GSL::Integration.qag` exposes this routine to Ruby and returns the integral and its estimated absolute error.
+
+```ruby
+result, error = Numo::GSL::Integration.qag(0.0, 1.0) do |x|
+  x * x
+end
+```
+
+Integration parameters can be specified with the `epsabs`, `epsrel`, `limit`, and `key` keyword arguments:
+
+```ruby
+result, error = Numo::GSL::Integration.qag(
+  0.0,
+  1.0,
+  epsabs: 1e-12,
+  epsrel: 1e-12,
+  limit: 100,
+  key: Numo::GSL::Integration::GAUSS21,
+) { |x| x * x }
+```
+
+The available Gauss-Kronrod integration rules are `GAUSS15`, `GAUSS21`, `GAUSS31`, `GAUSS41`, `GAUSS51`, and `GAUSS61`.
+
+## QNG integration
+
+GSL [QNG](https://www.gnu.org/software/gsl/doc/html/integration.html#qng-non-adaptive-gauss-kronrod-integration) provides non-adaptive integration for smooth functions over a finite interval. It applies increasingly accurate Gauss-Kronrod-Patterson rules and evaluates the integrand at up to 87 points.
+
+```ruby
+result, error, evaluations = Numo::GSL::Integration.qng(0.0, 1.0) do |x|
+  x * x
+end
+```
+
+The return value contains the integral, its estimated absolute error, and the number of integrand evaluations. The `epsabs` and `epsrel` keyword arguments control the requested absolute and relative error limits:
+
+```ruby
+result, error, evaluations = Numo::GSL::Integration.qng(
+  0.0,
+  1.0,
+  epsabs: 1e-12,
+  epsrel: 1e-12
+) { |x| x * x }
+```
+
+## QAGS integration
+
+GSL [QAGS](https://www.gnu.org/software/gsl/doc/html/integration.html#qags-adaptive-integration-with-singularities) combines adaptive subdivision with extrapolation to integrate functions with integrable singularities or discontinuities over a finite interval.
+
+```ruby
+result, error = Numo::GSL::Integration.qags(0.0, 1.0) do |x|
+  Math.log(x) / Math.sqrt(x)
+end
+```
+
+The example integral has an endpoint singularity and an exact value of `-4.0`. The `epsabs`, `epsrel`, and `limit` keyword arguments control the requested error limits and maximum number of subintervals:
+
+```ruby
+result, error = Numo::GSL::Integration.qags(
+  0.0,
+  1.0,
+  epsabs: 1e-12,
+  epsrel: 1e-12,
+  limit: 100
+) { |x| x * x }
+```
+
+## QAGP integration
+
+GSL [QAGP](https://www.gnu.org/software/gsl/doc/html/integration.html#qagp-adaptive-integration-with-known-singular-points) applies adaptive integration when the locations of interior singularities or discontinuities are known. Pass an array containing the left endpoint, zero or more known interior singularity or discontinuity points, and the right endpoint:
+
+```ruby
+result, error = Numo::GSL::Integration.qagp(
+  [0.0, 0.5, 1.0]
+) { |x| 1.0 / Math.sqrt((x - 0.5).abs) }
+```
+
+The points must be finite numeric values in strictly increasing order. The array must contain at least two values. Invalid point arrays raise `Numo::GSL::Integration::Error` before GSL is called.
+
+The `epsabs`, `epsrel`, and `limit` keyword arguments control the requested error limits and maximum number of subintervals:
+
+```ruby
+result, error = Numo::GSL::Integration.qagp(
+  [0.0, 0.25, 0.75, 1.0],
+  epsabs: 1e-12,
+  epsrel: 1e-12,
+  limit: 100
+) { |x| x * x }
+```
+
+## QAGI integration
+
+GSL [QAGI](https://www.gnu.org/software/gsl/doc/html/integration.html#qagi-adaptive-integration-on-infinite-intervals) provides adaptive integration over the infinite interval from negative infinity to positive infinity. `Numo::GSL::Integration.qagi` takes no interval endpoints and returns the integral and its estimated absolute error.
+
+```ruby
+result, error = Numo::GSL::Integration.qagi do |x|
+  Math.exp(-(x * x))
+end
+```
+
+The example integrates the Gaussian function, whose exact value is `Math.sqrt(Math::PI)`. The `epsabs`, `epsrel`, and `limit` keyword arguments control the requested error limits and maximum number of subintervals:
+
+```ruby
+result, error = Numo::GSL::Integration.qagi(
+  epsabs: 1e-12,
+  epsrel: 1e-12,
+  limit: 100
+) { |x| 1.0 / (1.0 + (x * x)) }
+```
