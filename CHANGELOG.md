@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-04
+
 ### Added
 
 - Added fixed-order Gauss–Legendre integration for smooth functions.
@@ -27,7 +29,3 @@
 - Load `numo/gsl` before the integration native extension and make `Numo::GSL::Integration::Error` inherit from `Numo::GSL::GslError`.
 - Delegate GSL-reported integration errors to the process-wide handler installed by `numo-gsl-alt` instead of converting return statuses to `Integration::Error`.
 - Ensure integration workspaces, weight tables, and temporary arrays are released when integration completes normally or raises an exception.
-
-## [0.1.0] - 2026-11-01
-
-- Initial release
