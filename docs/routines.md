@@ -212,68 +212,24 @@ This example computes the integral of `log(x)` from `0.0` to `1.0`, whose exact 
 
 ## QAWO integration
 
-GSL [QAWO](https://www.gnu.org/software/gsl/doc/html/integration.html#qawo-adaptive-integration-for-oscillatory-functions) provides adaptive integration for finite-interval integrals with a sine or cosine weight. It computes
-
-```math
-\int_a^b f(x) \cos(\omega x)\,dx
-```
-
-or
-
-```math
-\int_a^b f(x) \sin(\omega x)\,dx.
-```
-
-Call `Numo::GSL::Integration.qawo` with the endpoints `a` and `b`, the angular frequency `omega`, and either `Numo::GSL::Integration::COSINE` or `Numo::GSL::Integration::SINE`. The block returns the unweighted function $f(x)$; QAWO applies the oscillatory weight internally.
-
-The following example integrates `cos(x)` from `0.0` to `Math::PI / 2.0`, whose exact value is `1.0`:
-
-```ruby
-result, error = Numo::GSL::Integration.qawo(
-  0.0,
-  Math::PI / 2.0,
-  1.0,
-  Numo::GSL::Integration::COSINE
-) do |_x|
-  1.0
-end
-```
-
-Use `SINE` for a sine weight. This example integrates `sin(x)` from `0.0` to `Math::PI`, whose exact value is `2.0`:
+GSL [QAWO](https://www.gnu.org/software/gsl/doc/html/integration.html#qawo-adaptive-integration-for-oscillatory-functions) provides adaptive integration for finite-interval integrals with a sine or cosine weight. The block returns the unweighted function; QAWO applies the oscillatory weight internally.
 
 ```ruby
 result, error = Numo::GSL::Integration.qawo(
   0.0,
   Math::PI,
   1.0,
-  Numo::GSL::Integration::SINE,
-  epsabs: 1e-12,
-  epsrel: 1e-12,
-  limit: 100
+  Numo::GSL::Integration::SINE
 ) do |_x|
   1.0
 end
 ```
 
-The `epsabs`, `epsrel`, and `limit` keyword arguments control the requested error limits and maximum number of subintervals. The `limit` value also determines the number of precomputed Chebyshev-moment levels available to the QAWO algorithm.
+The `epsabs`, `epsrel`, and `limit` keyword arguments control the requested error limits and workspace capacity.
 
 ## QAWF integration
 
-GSL [QAWF](https://www.gnu.org/software/gsl/doc/html/integration.html#qawf-adaptive-integration-for-fourier-integrals) provides adaptive integration for Fourier integrals over a semi-infinite interval. It computes
-
-```math
-\int_a^{+\infty} f(x) \cos(\omega x)\,dx
-```
-
-or
-
-```math
-\int_a^{+\infty} f(x) \sin(\omega x)\,dx.
-```
-
-Call `Numo::GSL::Integration.qawf` with the lower bound `a`, the angular frequency `omega`, and either `Numo::GSL::Integration::COSINE` or `Numo::GSL::Integration::SINE`. The block returns the unweighted function $f(x)$; QAWF applies the Fourier weight internally.
-
-The following example integrates $e^{-x}\cos(x)$ from `0.0` to positive infinity, whose exact value is `0.5`:
+GSL [QAWF](https://www.gnu.org/software/gsl/doc/html/integration.html#qawf-adaptive-integration-for-fourier-integrals) provides adaptive integration for sine- or cosine-weighted Fourier integrals over a semi-infinite interval.
 
 ```ruby
 result, error = Numo::GSL::Integration.qawf(
@@ -285,18 +241,16 @@ result, error = Numo::GSL::Integration.qawf(
 end
 ```
 
-Use `SINE` for a sine weight. This example also has an exact value of `0.5`:
+The `epsabs` keyword controls the requested absolute error. The `limit` keyword controls the maximum number of Fourier cycles and the allocated workspace capacity.
+
+## CQUAD integration
+
+GSL [CQUAD](https://www.gnu.org/software/gsl/doc/html/integration.html#cquad-doubly-adaptive-integration) provides doubly-adaptive integration over a finite interval. It is intended for difficult integrands, including functions with integrable singularities. The return value contains the integral, its estimated absolute error, and the number of integrand evaluations.
 
 ```ruby
-result, error = Numo::GSL::Integration.qawf(
-  0.0,
-  1.0,
-  Numo::GSL::Integration::SINE,
-  epsabs: 1e-12,
-  limit: 100
-) do |x|
-  Math.exp(-x)
+result, error, evaluations = Numo::GSL::Integration.cquad(0.0, 1.0) do |x|
+  Math.log(x) / Math.sqrt(x)
 end
 ```
 
-The `epsabs` keyword controls the requested absolute error and defaults to `1e-10`. QAWF does not accept a relative error limit. The `limit` keyword controls the maximum number of Fourier cycles and defaults to `1000`; it also determines the capacities of the per-cycle workspace and the precomputed Chebyshev-moment table.
+The example integral has an endpoint singularity and an exact value of `-4.0`. The `epsabs` and `epsrel` keyword arguments control the requested error limits. The `limit` keyword controls the number of intervals retained in the CQUAD workspace and defaults to `100`; GSL requires at least `3`.

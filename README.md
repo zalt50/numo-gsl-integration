@@ -59,6 +59,7 @@ end
 | `qaws` | Finite | Algebraic and logarithmic endpoint singularities |
 | `qawo` | Finite | Sine- or cosine-weighted oscillatory integrals |
 | `qawf` | Semi-infinite | Sine- or cosine-weighted Fourier integrals |
+| `cquad` | Finite | Difficult integrands and endpoint singularities |
 
 See [Integration routines](docs/routines.md) for parameters and examples.
 
