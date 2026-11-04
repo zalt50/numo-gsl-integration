@@ -29,5 +29,6 @@ VALUE integration_qawo(int argc, VALUE *argv, VALUE self);
 VALUE integration_qawf(int argc, VALUE *argv, VALUE self);
 VALUE integration_cquad(int argc, VALUE *argv, VALUE self);
 VALUE integration_romberg(int argc, VALUE *argv, VALUE self);
+VALUE integration_glfixed(int argc, VALUE *argv, VALUE self);
 
 #endif

@@ -120,6 +120,12 @@ module Numo
         ?epsrel: Numeric,
         ?limit: Integer
       ) { (Float) -> Numeric } -> [Float, Integer]
+
+      def self.glfixed: (
+        Numeric a,
+        Numeric b,
+        ?order: Integer
+      ) { (Float) -> Numeric } -> Float
     end
   end
 end

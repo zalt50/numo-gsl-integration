@@ -268,3 +268,21 @@ end
 The example integral has an exact value of `2.0`. The `epsabs` and `epsrel` keyword arguments control the requested error limits. The `limit` keyword controls the maximum number of Romberg levels and defaults to `20`. GSL requires at least one level and limits the effective workspace to 30 levels.
 
 Romberg integration does not return an estimated absolute error. Use CQUAD, QAG, QAGS, or another routine that returns an error estimate when the caller needs one.
+
+## GLFIXED integration
+
+GSL [fixed-order Gauss–Legendre integration](https://www.gnu.org/software/gsl/doc/html/integration.html#gauss-legendre-integration) provides fast integration of smooth functions when an appropriate polynomial order is known. An `n`-point rule integrates polynomials of degree `2 * n - 1` or less exactly, subject to floating-point precision.
+
+```ruby
+result = Numo::GSL::Integration.glfixed(
+  0.0,
+  1.0,
+  order: 3
+) do |x|
+  x**4
+end
+```
+
+The example integral has an exact value of `1.0 / 5.0`. The `order` keyword controls the number of Gauss–Legendre points and defaults to `10`. It must be a positive integer.
+
+GLFIXED returns only the integral. It does not accept absolute or relative error bounds and does not return an error estimate. Use an adaptive routine when the required fixed order is not known in advance.

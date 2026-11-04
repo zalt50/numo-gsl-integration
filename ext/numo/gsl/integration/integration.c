@@ -31,4 +31,5 @@ void Init_integration(void) {
   rb_define_singleton_method(mIntegration, "qawf", integration_qawf, -1);
   rb_define_singleton_method(mIntegration, "cquad", integration_cquad, -1);
   rb_define_singleton_method(mIntegration, "romberg", integration_romberg, -1);
+  rb_define_singleton_method(mIntegration, "glfixed", integration_glfixed, -1);
 }

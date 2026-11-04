@@ -61,6 +61,7 @@ end
 | `qawf` | Semi-infinite | Sine- or cosine-weighted Fourier integrals |
 | `cquad` | Finite | Difficult integrands and endpoint singularities |
 | `romberg` | Finite | Smooth functions with extrapolated trapezoidal integration |
+| `glfixed` | Finite | Fixed-order Gauss–Legendre integration of smooth functions |
 
 See [Integration routines](docs/routines.md) for parameters and examples.
 
