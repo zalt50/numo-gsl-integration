@@ -38,6 +38,11 @@ jobs:
           echo "/home/linuxbrew/.linuxbrew/bin" >> "$GITHUB_PATH"
           rubyfmt --version
 
+      - name: Install markdownlint-cli2
+        run: |
+          npm install --global markdownlint-cli2
+          markdownlint-cli2 --version
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
