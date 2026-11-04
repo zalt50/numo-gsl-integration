@@ -57,12 +57,7 @@ VALUE integration_qaws(int argc, VALUE *argv, VALUE self) {
   VALUE mu;
   VALUE nu;
   VALUE options;
-  VALUE epsabs_value = Qundef;
-  VALUE epsrel_value = Qundef;
-  VALUE limit_value = Qundef;
-  ID keywords[] = {rb_intern("epsabs"), rb_intern("epsrel"),
-                   rb_intern("limit")};
-  VALUE keyword_values[3];
+  integration_options parsed_options;
   double epsabs;
   double epsrel;
   size_t limit;
@@ -75,16 +70,11 @@ VALUE integration_qaws(int argc, VALUE *argv, VALUE self) {
 
   (void)self;
   rb_scan_args(argc, argv, "6:", &a, &b, &alpha, &beta, &mu, &nu, &options);
-  if (!NIL_P(options)) {
-    rb_get_kwargs(options, keywords, 0, 3, keyword_values);
-    epsabs_value = keyword_values[0];
-    epsrel_value = keyword_values[1];
-    limit_value = keyword_values[2];
-  }
 
-  epsabs = epsabs_value == Qundef ? 0.0 : NUM2DBL(epsabs_value);
-  epsrel = epsrel_value == Qundef ? 1e-8 : NUM2DBL(epsrel_value);
-  limit = limit_value == Qundef ? 1000 : NUM2SIZET(limit_value);
+  integration_options_parse(options, &parsed_options, 0.0, 1e-8, 1000);
+  epsabs = parsed_options.epsabs;
+  epsrel = parsed_options.epsrel;
+  limit = parsed_options.limit;
 
   integration_function_init(&function, &params);
 

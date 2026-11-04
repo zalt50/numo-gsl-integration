@@ -5,6 +5,16 @@
 #include <ruby.h>
 
 typedef struct {
+  double epsabs;
+  double epsrel;
+  size_t limit;
+} integration_options;
+
+void integration_options_parse(VALUE options, integration_options *parsed,
+                               double default_epsabs, double default_epsrel,
+                               size_t default_limit);
+
+typedef struct {
   VALUE block;
   VALUE x;
   VALUE exception;
