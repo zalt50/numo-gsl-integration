@@ -31,22 +31,24 @@ C_FORMAT_FILES = FileList[
 ].to_a.freeze
 
 namespace(:format) do
-  desc("Format Ruby and C source files")
+  desc("Format Ruby, C, and Markdown files")
   task(:apply) do
     ruby_files = Shellwords.join(RUBY_FORMAT_FILES.to_a)
     c_files = Shellwords.join(C_FORMAT_FILES.to_a)
 
     sh("bundle exec rubyfmt -i #{ruby_files}")
     sh("clang-format --style=LLVM -i #{c_files}")
+    sh("markdownlint-cli2 --fix README.md CHANGELOG.md")
   end
 
-  desc("Check Ruby and C source formatting")
+  desc("Check Ruby, C, and Markdown formatting")
   task(:check) do
     ruby_files = Shellwords.join(RUBY_FORMAT_FILES.to_a)
     c_files = Shellwords.join(C_FORMAT_FILES.to_a)
 
     sh("bundle exec rubyfmt --check #{ruby_files}")
     sh("clang-format --style=LLVM --dry-run --Werror #{c_files}")
+    sh("markdownlint-cli2 README.md CHANGELOG.md")
   end
 end
 
@@ -60,4 +62,4 @@ task(:markdownlint) do
   sh("markdownlint-cli2 README.md CHANGELOG.md")
 end
 
-task(default: %i[spec rubocop rbs format:check markdownlint])
+task(default: %i[spec rubocop rbs format:check])
