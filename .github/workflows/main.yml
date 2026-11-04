@@ -15,14 +15,20 @@ jobs:
     runs-on: ubuntu-latest
     name: Ruby ${{ matrix.ruby }}
     strategy:
+      fail-fast: false
       matrix:
         ruby:
+          - '3.2'
           - '4.0.9'
 
     steps:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
+      - name: Install GSL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgsl-dev
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
