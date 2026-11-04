@@ -2,6 +2,13 @@
 
 RSpec.describe Numo::GSL::Integration do
   describe ".glfixed" do
+
+    let(:integrate) do
+      -> (&block) { described_class.glfixed(0.0, 1.0, &block) }
+    end
+
+    it_behaves_like("an integration callback")
+
     it "integrates a smooth function over a finite interval" do
       result = described_class.glfixed(0.0, Math::PI) do |x|
         Math.sin(x)
@@ -24,24 +31,6 @@ RSpec.describe Numo::GSL::Integration do
       end
 
       expect(result).to(be_within(1e-14).of(1.5))
-    end
-
-    it "propagates an exception raised by the integrand" do
-      error_class = Class.new(StandardError)
-
-      expect do
-        described_class.glfixed(0.0, 1.0) do
-          raise error_class, "integrand failed"
-        end
-      end
-        .to(raise_error(error_class, "integrand failed"))
-    end
-
-    it "raises when the integrand returns a non-numeric value" do
-      expect do
-        described_class.glfixed(0.0, 1.0) { Object.new }
-      end
-        .to(raise_error(TypeError))
     end
 
     it "requires a positive integration order" do

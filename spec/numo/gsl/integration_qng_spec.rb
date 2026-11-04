@@ -1,29 +1,18 @@
 # frozen_string_literal: true
-
 RSpec.describe Numo::GSL::Integration do
   describe ".qng" do
+
+    let(:integrate) do
+      -> (&block) { described_class.qng(0.0, 1.0, &block) }
+    end
+
+    it_behaves_like("an integration callback")
+
     it "integrates a smooth function over a finite interval", :aggregate_failures do
       result, error, evaluations = described_class.qng(0.0, 1.0) { |x| x * x }
-
       expect(result).to(be_within(1e-10).of(1.0 / 3.0))
       expect(error).to(be >= 0.0)
       expect(evaluations).to(satisfy { |value| [21, 43, 87].include?(value) })
-    end
-
-    it "propagates an exception raised by the integrand" do
-      error_class = Class.new(StandardError)
-
-      expect do
-        described_class.qng(0.0, 1.0) { raise error_class, "integrand failed" }
-      end
-        .to(raise_error(error_class, "integrand failed"))
-    end
-
-    it "raises when the integrand returns a non-numeric value" do
-      expect do
-        described_class.qng(0.0, 1.0) { Object.new }
-      end
-        .to(raise_error(TypeError))
     end
 
     it "raises GslError directly when GSL integration fails" do
@@ -48,7 +37,6 @@ RSpec.describe Numo::GSL::Integration do
         epsabs: 1e-12,
         epsrel: 1e-12
       ) { |x| x * x }
-
       expect(result).to(be_within(1e-10).of(1.0 / 3.0))
       expect(error).to(be >= 0.0)
       expect(evaluations).to(satisfy { |value| [21, 43, 87].include?(value) })

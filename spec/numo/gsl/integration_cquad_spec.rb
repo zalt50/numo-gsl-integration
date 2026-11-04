@@ -2,6 +2,13 @@
 
 RSpec.describe Numo::GSL::Integration do
   describe ".cquad" do
+
+    let(:integrate) do
+      -> (&block) { described_class.cquad(0.0, 1.0, &block) }
+    end
+
+    it_behaves_like("an integration callback")
+
     it "integrates a function with an endpoint singularity", :aggregate_failures do
       result, error, evaluations = described_class.cquad(0.0, 1.0) do |x|
         Math.log(x) / Math.sqrt(x)
@@ -20,24 +27,6 @@ RSpec.describe Numo::GSL::Integration do
       expect(result).to(be_within(1e-10).of(1.0 / 3.0))
       expect(error).to(be >= 0.0)
       expect(evaluations).to(be_positive)
-    end
-
-    it "propagates an exception raised by the integrand" do
-      error_class = Class.new(StandardError)
-
-      expect do
-        described_class.cquad(0.0, 1.0) do
-          raise error_class, "integrand failed"
-        end
-      end
-        .to(raise_error(error_class, "integrand failed"))
-    end
-
-    it "raises when the integrand returns a non-numeric value" do
-      expect do
-        described_class.cquad(0.0, 1.0) { Object.new }
-      end
-        .to(raise_error(TypeError))
     end
 
     it "raises GslError directly when GSL integration fails" do

@@ -1,7 +1,13 @@
 # frozen_string_literal: true
-
 RSpec.describe Numo::GSL::Integration do
   describe ".qagi" do
+
+    let(:integrate) do
+      -> (&block) { described_class.qagi(&block) }
+    end
+
+    it_behaves_like("an integration callback")
+
     it "integrates a function over an infinite interval", :aggregate_failures do
       result, error = described_class.qagi do |x|
         Math.exp(-(x * x))
@@ -9,22 +15,6 @@ RSpec.describe Numo::GSL::Integration do
 
       expect(result).to(be_within(1e-10).of(Math.sqrt(Math::PI)))
       expect(error).to(be >= 0.0)
-    end
-
-    it "propagates an exception raised by the integrand" do
-      error_class = Class.new(StandardError)
-
-      expect do
-        described_class.qagi { raise error_class, "integrand failed" }
-      end
-        .to(raise_error(error_class, "integrand failed"))
-    end
-
-    it "raises when the integrand returns a non-numeric value" do
-      expect do
-        described_class.qagi { Object.new }
-      end
-        .to(raise_error(TypeError))
     end
 
     it "raises GslError directly when GSL integration fails" do
@@ -46,7 +36,6 @@ RSpec.describe Numo::GSL::Integration do
         epsrel: 1e-12,
         limit: 100
       ) { |x| 1.0 / (1.0 + (x * x)) }
-
       expect(result).to(be_within(1e-10).of(Math::PI))
       expect(error).to(be >= 0.0)
     end

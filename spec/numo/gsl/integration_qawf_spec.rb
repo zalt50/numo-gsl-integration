@@ -2,6 +2,20 @@
 
 RSpec.describe Numo::GSL::Integration do
   describe ".qawf" do
+
+    let(:integrate) do
+      lambda do |&block|
+        described_class.qawf(
+          0.0,
+          1.0,
+          described_class::COSINE,
+          &block
+        )
+      end
+    end
+
+    it_behaves_like("an integration callback")
+
     it "integrates over a semi-infinite interval with a cosine weight", :aggregate_failures do
       result, error = described_class.qawf(
         0.0,
@@ -22,26 +36,6 @@ RSpec.describe Numo::GSL::Integration do
 
       expect(result).to(be_within(1e-8).of(0.5))
       expect(error).to(be >= 0.0)
-    end
-
-    it "propagates an exception raised by the integrand" do
-      error_class = Class.new(StandardError)
-
-      expect do
-        described_class.qawf(0.0, 1.0, described_class::COSINE) do
-          raise error_class, "integrand failed"
-        end
-      end
-        .to(raise_error(error_class, "integrand failed"))
-    end
-
-    it "raises when the integrand returns a non-numeric value" do
-      expect do
-        described_class.qawf(0.0, 1.0, described_class::COSINE) do
-          Object.new
-        end
-      end
-        .to(raise_error(TypeError))
     end
 
     it "raises GslError directly when GSL integration fails" do

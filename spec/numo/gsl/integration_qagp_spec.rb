@@ -1,7 +1,13 @@
 # frozen_string_literal: true
-
 RSpec.describe Numo::GSL::Integration do
   describe ".qagp" do
+
+    let(:integrate) do
+      -> (&block) { described_class.qagp([0.0, 0.5, 1.0], &block) }
+    end
+
+    it_behaves_like("an integration callback")
+
     it(
       "integrates a function with a known interior singularity",
       :aggregate_failures
@@ -9,7 +15,6 @@ RSpec.describe Numo::GSL::Integration do
       result, error = described_class.qagp(
         [0.0, 0.5, 1.0]
       ) { |x| 1.0 / Math.sqrt((x - 0.5).abs) }
-
       expect(result).to(be_within(1e-10).of(2.0 * Math.sqrt(2.0)))
       expect(error).to(be >= 0.0)
     end
@@ -21,27 +26,8 @@ RSpec.describe Numo::GSL::Integration do
       result, error = described_class.qagp(
         [0.0, 0.25, 0.75, 1.0]
       ) { |x| x * x }
-
       expect(result).to(be_within(1e-10).of(1.0 / 3.0))
       expect(error).to(be >= 0.0)
-    end
-
-    it "propagates an exception raised by the integrand" do
-      error_class = Class.new(StandardError)
-
-      expect do
-        described_class.qagp([0.0, 0.5, 1.0]) do
-          raise error_class, "integrand failed"
-        end
-      end
-        .to(raise_error(error_class, "integrand failed"))
-    end
-
-    it "raises when the integrand returns a non-numeric value" do
-      expect do
-        described_class.qagp([0.0, 0.5, 1.0]) { Object.new }
-      end
-        .to(raise_error(TypeError))
     end
 
     it "raises GslError directly when GSL integration fails" do
@@ -65,7 +51,6 @@ RSpec.describe Numo::GSL::Integration do
         epsrel: 1e-12,
         limit: 100
       ) { |x| x * x }
-
       expect(result).to(be_within(1e-10).of(1.0 / 3.0))
       expect(error).to(be >= 0.0)
     end
