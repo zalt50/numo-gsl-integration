@@ -63,10 +63,7 @@ VALUE integration_qag(int argc, VALUE *argv, VALUE self) {
   limit = limit_value == Qundef ? 1000 : NUM2SIZET(limit_value);
   key = key_value == Qundef ? GSL_INTEG_GAUSS61 : NUM2INT(key_value);
 
-  integration_callback_params_init(&params);
-
-  function.function = integration_callback;
-  function.params = &params;
+  integration_function_init(&function, &params);
 
   workspace = gsl_integration_workspace_alloc(limit);
 
@@ -87,7 +84,7 @@ VALUE integration_qag(int argc, VALUE *argv, VALUE self) {
   RB_GC_GUARD(params.block);
   RB_GC_GUARD(params.exception);
 
-  integration_raise_callback_exception(&params);
+  integration_finish_callback(&params, 0);
 
   return rb_ary_new_from_args(2, DBL2NUM(result), DBL2NUM(error));
 }

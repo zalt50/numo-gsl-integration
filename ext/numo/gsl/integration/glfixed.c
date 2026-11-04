@@ -9,10 +9,6 @@ typedef struct {
   double *result;
 } integration_glfixed_params;
 
-static VALUE integration_error_class(void) {
-  return rb_path2class("Numo::GSL::Integration::Error");
-}
-
 static VALUE integration_free_glfixed_table(VALUE data) {
   gsl_integration_glfixed_table *table = (gsl_integration_glfixed_table *)data;
 
@@ -65,9 +61,7 @@ VALUE integration_glfixed(int argc, VALUE *argv, VALUE self) {
     rb_raise(integration_error_class(), "order must be positive");
   }
 
-  integration_callback_params_init(&params);
-  function.function = integration_callback;
-  function.params = &params;
+  integration_function_init(&function, &params);
 
   glfixed_params.function = &function;
   glfixed_params.a = NUM2DBL(a);
@@ -82,11 +76,7 @@ VALUE integration_glfixed(int argc, VALUE *argv, VALUE self) {
   RB_GC_GUARD(params.block);
   RB_GC_GUARD(params.exception);
 
-  integration_raise_callback_exception(&params);
-
-  if (state != 0) {
-    rb_jump_tag(state);
-  }
+  integration_finish_callback(&params, state);
 
   return DBL2NUM(result);
 }

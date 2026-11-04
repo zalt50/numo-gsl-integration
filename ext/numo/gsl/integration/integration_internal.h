@@ -12,8 +12,13 @@ typedef struct {
 } integration_callback_params;
 
 void integration_callback_params_init(integration_callback_params *params);
+void integration_function_init(gsl_function *function,
+                               integration_callback_params *params);
 double integration_callback(double x, void *data);
 void integration_raise_callback_exception(integration_callback_params *params);
+void integration_finish_callback(integration_callback_params *params,
+                                 int state);
+VALUE integration_error_class(void);
 VALUE integration_free_workspace(VALUE data);
 
 VALUE integration_qag(int argc, VALUE *argv, VALUE self);

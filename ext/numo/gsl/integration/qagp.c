@@ -15,10 +15,6 @@ typedef struct {
   double *error;
 } integration_qagp_params;
 
-static VALUE integration_error_class(void) {
-  return rb_path2class("Numo::GSL::Integration::Error");
-}
-
 static void integration_validate_qagp_points(VALUE points) {
   long point_count;
   long index;
@@ -123,9 +119,7 @@ VALUE integration_qagp(int argc, VALUE *argv, VALUE self) {
   epsabs = epsabs_value == Qundef ? 0.0 : NUM2DBL(epsabs_value);
   epsrel = epsrel_value == Qundef ? 1e-8 : NUM2DBL(epsrel_value);
   limit = limit_value == Qundef ? 1000 : NUM2SIZET(limit_value);
-  integration_callback_params_init(&params);
-  function.function = integration_callback;
-  function.params = &params;
+  integration_function_init(&function, &params);
   qagp_params.points_array = points;
   qagp_params.function = &function;
   qagp_params.points = NULL;
@@ -140,10 +134,7 @@ VALUE integration_qagp(int argc, VALUE *argv, VALUE self) {
   RB_GC_GUARD(points);
   RB_GC_GUARD(params.block);
   RB_GC_GUARD(params.exception);
-  integration_raise_callback_exception(&params);
-  if (state != 0) {
-    rb_jump_tag(state);
-  }
+  integration_finish_callback(&params, state);
 
   return rb_ary_new_from_args(2, DBL2NUM(result), DBL2NUM(error));
 }

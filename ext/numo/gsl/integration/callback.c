@@ -16,6 +16,13 @@ void integration_callback_params_init(integration_callback_params *params) {
   params->state = 0;
 }
 
+void integration_function_init(gsl_function *function,
+                               integration_callback_params *params) {
+  integration_callback_params_init(params);
+  function->function = integration_callback;
+  function->params = params;
+}
+
 double integration_callback(double x, void *data) {
   integration_callback_params *params = data;
   VALUE value;
@@ -39,6 +46,18 @@ void integration_raise_callback_exception(integration_callback_params *params) {
   if (params->state != 0) {
     rb_exc_raise(params->exception);
   }
+}
+
+void integration_finish_callback(integration_callback_params *params,
+                                 int state) {
+  integration_raise_callback_exception(params);
+  if (state != 0) {
+    rb_jump_tag(state);
+  }
+}
+
+VALUE integration_error_class(void) {
+  return rb_path2class("Numo::GSL::Integration::Error");
 }
 
 VALUE integration_free_workspace(VALUE data) {
