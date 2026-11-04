@@ -1,7 +1,7 @@
 # GSL error handling  
 `numo-gsl-alt` installs the process-wide GSL error handler that converts GSL errors to `Numo::GSL::GslError`. `numo-gsl-integration` neither replaces nor temporarily disables that handler.  
 Errors reported by GSL are raised directly as `Numo::GSL::GslError` by the handler installed by `numo-gsl-alt`. `numo-gsl-integration` does not convert integration return statuses into separate exceptions.  
-The workspaces used by QAG, QAGS, QAGP, QAGI, QAGIU, QAGIL, QAWC, QAWS, and QAWO are released when a call completes normally or raises an exception. QAWS and QAWO also release their weight tables, and QAGP releases its temporary copy of the point array.  
+The workspaces used by QAG, QAGS, QAGP, QAGI, QAGIU, QAGIL, QAWC, QAWS, QAWO, and QAWF are released when a call completes normally or raises an exception. QAWS, QAWO, and QAWF also release their weight tables, and QAGP releases its temporary copy of the point array.  
 `Numo::GSL::Integration::Error` is reserved for validation or state errors detected by `numo-gsl-integration` itself. It inherits from `Numo::GSL::GslError`:  
 ```text  
 StandardError  

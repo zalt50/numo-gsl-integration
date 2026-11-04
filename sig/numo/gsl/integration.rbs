@@ -84,6 +84,13 @@ module Numo
         ?epsrel: Numeric,
         ?limit: Integer
       ) { (Float) -> Numeric } -> [Float, Float]
+      def self.qawf: (
+        Numeric a,
+        Numeric omega,
+        Integer sine,
+        ?epsabs: Numeric,
+        ?limit: Integer
+      ) { (Float) -> Numeric } -> [Float, Float]
     end
   end
 end
