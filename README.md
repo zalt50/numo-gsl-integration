@@ -10,6 +10,10 @@
 
 The `numo-gsl-alt` Ruby gem is installed as a runtime dependency. GSL itself must be installed separately.
 
+## Why numo-gsl-alt?
+
+This gem intentionally depends on [`numo-gsl-alt`](https://github.com/mvz/numo-gsl-alt) rather than [`numo-gsl`](https://github.com/ruby-numo/numo-gsl). The main reason is Ruby compatibility: `numo-gsl` 0.1.2 does not build with Ruby 4.0 because its generated native extension registers a three-argument C function as a one-argument Ruby method. Ruby 4.0 rejects that incompatible function-pointer type during compilation. `numo-gsl-integration` targets Ruby 3.2 or later and is developed and tested with `numo-gsl-alt` 0.1.x, including Ruby 4.0.
+
 ## Installation
 
 Add the gem to your Gemfile:
