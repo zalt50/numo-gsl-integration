@@ -4,6 +4,7 @@
 
 ### Added
 
+- Added Romberg integration for smooth functions with function-evaluation counts.
 - Added CQUAD doubly-adaptive integration with function-evaluation counts.
 - Added QAWF adaptive integration for sine- and cosine-weighted Fourier integrals over a semi-infinite interval.
 - Added QAWO adaptive integration for sine- and cosine-weighted oscillatory functions.

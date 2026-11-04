@@ -30,4 +30,5 @@ void Init_integration(void) {
   rb_define_singleton_method(mIntegration, "qawo", integration_qawo, -1);
   rb_define_singleton_method(mIntegration, "qawf", integration_qawf, -1);
   rb_define_singleton_method(mIntegration, "cquad", integration_cquad, -1);
+  rb_define_singleton_method(mIntegration, "romberg", integration_romberg, -1);
 }

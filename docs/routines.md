@@ -254,3 +254,17 @@ end
 ```
 
 The example integral has an endpoint singularity and an exact value of `-4.0`. The `epsabs` and `epsrel` keyword arguments control the requested error limits. The `limit` keyword controls the number of intervals retained in the CQUAD workspace and defaults to `100`; GSL requires at least `3`.
+
+## Romberg integration
+
+GSL [Romberg integration](https://www.gnu.org/software/gsl/doc/html/integration.html#romberg-integration) applies Richardson extrapolation to successive trapezoidal approximations. It is intended for smooth functions over a finite interval. The return value contains the integral and the number of integrand evaluations.
+
+```ruby
+result, evaluations = Numo::GSL::Integration.romberg(0.0, Math::PI) do |x|
+  Math.sin(x)
+end
+```
+
+The example integral has an exact value of `2.0`. The `epsabs` and `epsrel` keyword arguments control the requested error limits. The `limit` keyword controls the maximum number of Romberg levels and defaults to `20`. GSL requires at least one level and limits the effective workspace to 30 levels.
+
+Romberg integration does not return an estimated absolute error. Use CQUAD, QAG, QAGS, or another routine that returns an error estimate when the caller needs one.

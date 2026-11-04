@@ -112,6 +112,14 @@ module Numo
         ?epsrel: Numeric,
         ?limit: Integer
       ) { (Float) -> Numeric } -> [Float, Float, Integer]
+
+      def self.romberg: (
+        Numeric a,
+        Numeric b,
+        ?epsabs: Numeric,
+        ?epsrel: Numeric,
+        ?limit: Integer
+      ) { (Float) -> Numeric } -> [Float, Integer]
     end
   end
 end

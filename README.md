@@ -60,6 +60,7 @@ end
 | `qawo` | Finite | Sine- or cosine-weighted oscillatory integrals |
 | `qawf` | Semi-infinite | Sine- or cosine-weighted Fourier integrals |
 | `cquad` | Finite | Difficult integrands and endpoint singularities |
+| `romberg` | Finite | Smooth functions with extrapolated trapezoidal integration |
 
 See [Integration routines](docs/routines.md) for parameters and examples.
 
