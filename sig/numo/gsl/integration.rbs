@@ -2,17 +2,16 @@ module Numo
   module GSL
     module Integration
       VERSION: String
-
       class Error < ::Numo::GSL::GslError
       end
-
       GAUSS15: Integer
       GAUSS21: Integer
       GAUSS31: Integer
       GAUSS41: Integer
       GAUSS51: Integer
       GAUSS61: Integer
-
+      COSINE: Integer
+      SINE: Integer
       def self.qag: (
         Numeric a,
         Numeric b,
@@ -21,14 +20,12 @@ module Numo
         ?limit: Integer,
         ?key: Integer
       ) { (Float) -> Numeric } -> [Float, Float]
-
       def self.qng: (
         Numeric a,
         Numeric b,
         ?epsabs: Numeric,
         ?epsrel: Numeric
       ) { (Float) -> Numeric } -> [Float, Float, Integer]
-
       def self.qags: (
         Numeric a,
         Numeric b,
@@ -36,34 +33,29 @@ module Numo
         ?epsrel: Numeric,
         ?limit: Integer
       ) { (Float) -> Numeric } -> [Float, Float]
-
       def self.qagp: (
         Array[Numeric] points,
         ?epsabs: Numeric,
         ?epsrel: Numeric,
         ?limit: Integer
       ) { (Float) -> Numeric } -> [Float, Float]
-
       def self.qagi: (
         ?epsabs: Numeric,
         ?epsrel: Numeric,
         ?limit: Integer
       ) { (Float) -> Numeric } -> [Float, Float]
-
       def self.qagiu: (
         Numeric a,
         ?epsabs: Numeric,
         ?epsrel: Numeric,
         ?limit: Integer
       ) { (Float) -> Numeric } -> [Float, Float]
-
       def self.qagil: (
         Numeric b,
         ?epsabs: Numeric,
         ?epsrel: Numeric,
         ?limit: Integer
       ) { (Float) -> Numeric } -> [Float, Float]
-
       def self.qawc: (
         Numeric a,
         Numeric b,
@@ -72,7 +64,6 @@ module Numo
         ?epsrel: Numeric,
         ?limit: Integer
       ) { (Float) -> Numeric } -> [Float, Float]
-
       def self.qaws: (
         Numeric a,
         Numeric b,
@@ -80,6 +71,15 @@ module Numo
         Numeric beta,
         Integer mu,
         Integer nu,
+        ?epsabs: Numeric,
+        ?epsrel: Numeric,
+        ?limit: Integer
+      ) { (Float) -> Numeric } -> [Float, Float]
+      def self.qawo: (
+        Numeric a,
+        Numeric b,
+        Numeric omega,
+        Integer sine,
         ?epsabs: Numeric,
         ?epsrel: Numeric,
         ?limit: Integer
