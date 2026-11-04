@@ -12,6 +12,7 @@ gem "rbs", "~> 4.1.3"
 
 gem "rspec", "~> 3.0"
 
+gem "parallel", "~> 1.28"
 gem "rubocop", "~> 1.21"
 gem "rubocop-rake"
 gem "rubocop-rspec"
