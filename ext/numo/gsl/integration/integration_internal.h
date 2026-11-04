@@ -30,6 +30,9 @@ void integration_finish_callback(integration_callback_params *params,
                                  int state);
 VALUE integration_error_class(void);
 VALUE integration_free_workspace(VALUE data);
+VALUE integration_free_cquad_workspace(VALUE data);
+VALUE integration_free_romberg_workspace(VALUE data);
+VALUE integration_free_glfixed_table(VALUE data);
 
 VALUE integration_qag(int argc, VALUE *argv, VALUE self);
 VALUE integration_qng(int argc, VALUE *argv, VALUE self);

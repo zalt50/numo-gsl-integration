@@ -11,15 +11,6 @@ typedef struct {
   size_t *evaluations;
 } integration_romberg_params;
 
-static VALUE integration_free_romberg_workspace(VALUE data) {
-  gsl_integration_romberg_workspace *workspace =
-      (gsl_integration_romberg_workspace *)data;
-
-  gsl_integration_romberg_free(workspace);
-
-  return Qnil;
-}
-
 static VALUE integration_run_romberg(VALUE data) {
   integration_romberg_params *params = (integration_romberg_params *)data;
 

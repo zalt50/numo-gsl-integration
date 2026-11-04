@@ -13,15 +13,6 @@ typedef struct {
   size_t *evaluations;
 } integration_cquad_params;
 
-static VALUE integration_free_cquad_workspace(VALUE data) {
-  gsl_integration_cquad_workspace *workspace =
-      (gsl_integration_cquad_workspace *)data;
-
-  gsl_integration_cquad_workspace_free(workspace);
-
-  return Qnil;
-}
-
 static VALUE integration_run_cquad(VALUE data) {
   integration_cquad_params *params = (integration_cquad_params *)data;
 

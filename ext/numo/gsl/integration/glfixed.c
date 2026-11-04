@@ -9,14 +9,6 @@ typedef struct {
   double *result;
 } integration_glfixed_params;
 
-static VALUE integration_free_glfixed_table(VALUE data) {
-  gsl_integration_glfixed_table *table = (gsl_integration_glfixed_table *)data;
-
-  gsl_integration_glfixed_table_free(table);
-
-  return Qnil;
-}
-
 static VALUE integration_run_glfixed(VALUE data) {
   integration_glfixed_params *params = (integration_glfixed_params *)data;
 

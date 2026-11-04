@@ -59,11 +59,3 @@ void integration_finish_callback(integration_callback_params *params,
 VALUE integration_error_class(void) {
   return rb_path2class("Numo::GSL::Integration::Error");
 }
-
-VALUE integration_free_workspace(VALUE data) {
-  gsl_integration_workspace *workspace = (gsl_integration_workspace *)data;
-
-  gsl_integration_workspace_free(workspace);
-
-  return Qnil;
-}
