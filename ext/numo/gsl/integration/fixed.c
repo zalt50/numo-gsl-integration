@@ -35,6 +35,9 @@ static const gsl_integration_fixed_type *integration_fixed_type(VALUE type) {
   if (type_id == rb_intern("jacobi")) {
     return gsl_integration_fixed_jacobi;
   }
+  if (type_id == rb_intern("laguerre")) {
+    return gsl_integration_fixed_laguerre;
+  }
 
   rb_raise(rb_eArgError, "unsupported fixed quadrature type: %s",
            rb_id2name(type_id));
@@ -125,6 +128,12 @@ VALUE integration_fixed(int argc, VALUE *argv, VALUE self) {
     }
     fixed_params.alpha = NUM2DBL(alpha_value);
     fixed_params.beta = NUM2DBL(beta_value);
+  } else if (fixed_params.type == gsl_integration_fixed_laguerre) {
+    if (alpha_value == Qundef) {
+      rb_raise(rb_eArgError, "alpha is required for laguerre");
+    }
+    fixed_params.alpha = NUM2DBL(alpha_value);
+    fixed_params.beta = 0.0;
   } else {
     fixed_params.alpha = 0.0;
     fixed_params.beta = 0.0;
