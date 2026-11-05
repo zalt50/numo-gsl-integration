@@ -1,14 +1,11 @@
 # frozen_string_literal: true
-
 RSpec.describe Numo::GSL::Integration do
   describe ".glfixed" do
-
     let(:integrate) do
       -> (&block) { described_class.glfixed(0.0, 1.0, &block) }
     end
 
     it_behaves_like("an integration callback")
-
     it "integrates a smooth function over a finite interval" do
       result = described_class.glfixed(0.0, Math::PI) do |x|
         Math.sin(x)
@@ -33,11 +30,20 @@ RSpec.describe Numo::GSL::Integration do
       expect(result).to(be_within(1e-14).of(1.5))
     end
 
-    it "requires a positive integration order" do
+    it "requires an integer integration order" do
       expect do
-        described_class.glfixed(0.0, 1.0, order: 0) { |x| x }
+        described_class.glfixed(0.0, 1.0, order: 2.5) { |x| x }
       end
-        .to(raise_error(Numo::GSL::Integration::Error))
+        .to(raise_error(TypeError, "order must be an Integer"))
+    end
+
+    it "requires a positive integration order" do
+      [0, -1].each do |order|
+        expect do
+          described_class.glfixed(0.0, 1.0, order: order) { |x| x }
+        end
+          .to(raise_error(ArgumentError, "order must be positive"))
+      end
     end
   end
 end

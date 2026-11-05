@@ -1,14 +1,14 @@
 # frozen_string_literal: true
-
 require "numo/gsl/integration"
 
 abort("GslError is not defined") unless defined?(Numo::GSL::GslError)
-abort("Integration::Error does not inherit from GslError") unless Numo::GSL::Integration::Error < Numo::GSL::GslError
-
+abort("GslError does not inherit from StandardError") unless Numo::GSL::GslError < StandardError
+abort("Integration::Error is still defined") if defined?(Numo::GSL::Integration::Error)
 assert_direct_gsl_error = lambda do |label, **options, &integrand|
   Numo::GSL::Integration.qag(0.0, 1.0, **options, &integrand)
 rescue Numo::GSL::GslError => e
   abort("#{label} did not raise GslError directly") unless e.instance_of?(Numo::GSL::GslError)
+  abort("#{label} omitted the GSL error code") unless e.message.match?(/\(GSL error \d+\)\z/)
 else
   abort("#{label} did not raise an exception")
 end

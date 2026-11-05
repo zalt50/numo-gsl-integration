@@ -1,80 +1,74 @@
-# Numo::GSL::Integration
+# Numo::GSL::Integration  
 
-`numo-gsl-integration` provides numerical integration routines from the [GNU Scientific Library (GSL)](https://www.gnu.org/software/gsl/) under the `Numo::GSL::Integration` namespace. It depends on [`numo-gsl-alt`](https://github.com/mvz/numo-gsl-alt) for the `Numo::GSL` namespace and GSL error handling.
+`numo-gsl-integration` provides numerical integration routines from the [GNU Scientific Library (GSL)](https://www.gnu.org/software/gsl/) under the `Numo::GSL::Integration` namespace. It can be installed and loaded without `numo-gsl` or `numo-gsl-alt`.  
 
-## Requirements
+## Requirements  
 
-- [Ruby](https://www.ruby-lang.org/) 3.2 or later
-- GNU Scientific Library (GSL)
-- `gsl-config` available in `PATH`
+- [Ruby](https://www.ruby-lang.org/) 3.2 or later  
+- GNU Scientific Library (GSL)  
+- `gsl-config` available in `PATH`  
+GSL itself must be installed separately.  
 
-The `numo-gsl-alt` Ruby gem is installed as a runtime dependency. GSL itself must be installed separately.
+## Installation  
 
-## Why numo-gsl-alt?
+Add the gem to your Gemfile:  
 
-This gem intentionally depends on [`numo-gsl-alt`](https://github.com/mvz/numo-gsl-alt) rather than [`numo-gsl`](https://github.com/ruby-numo/numo-gsl). The main reason is Ruby compatibility: `numo-gsl` 0.1.2 does not build with Ruby 4.0 because its generated native extension registers a three-argument C function as a one-argument Ruby method. Ruby 4.0 rejects that incompatible function-pointer type during compilation. `numo-gsl-integration` targets Ruby 3.2 or later and is developed and tested with `numo-gsl-alt` 0.1.x, including Ruby 4.0.
+```ruby  
+gem "numo-gsl-integration"  
+```  
 
-## Installation
+Then run:  
 
-Add the gem to your Gemfile:
+```bash  
+bundle install  
+```  
 
-```ruby
-gem "numo-gsl-integration"
-```
+The native extension uses `gsl-config` to locate the GSL headers and libraries.  
 
-Then run:
+## Usage  
 
-```bash
-bundle install
-```
+Load the library:  
 
-The native extension uses `gsl-config` to locate the GSL headers and libraries.
+```ruby  
+require "numo/gsl/integration"  
+```  
 
-## Usage
+The native extension defines `Numo::GSL::GslError` and installs a process-wide GSL error handler when it is loaded.  
+For example, use `qag` to integrate a function over a finite interval:  
 
-Load the library:
+```ruby  
+result, error = Numo::GSL::Integration.qag(0.0, 1.0) do |x|  
+  x * x  
+end  
+```  
 
-```ruby
-require "numo/gsl/integration"
-```
+## Supported routines  
 
-The entry point loads `numo/gsl` before the integration native extension. This ensures that `numo-gsl-alt` initializes the `Numo::GSL` namespace and installs its GSL error handler before integration routines are loaded.
+| Method | Interval | Intended use |  
+| --- | --- | --- |  
+| `qag` | Finite | General-purpose adaptive integration |  
+| `qng` | Finite | Non-adaptive integration of smooth functions |  
+| `qags` | Finite | Functions with integrable singularities or discontinuities |  
+| `qagp` | Finite | Known singular or discontinuity points |  
+| `qagi` | Infinite | Integration over the entire real line |  
+| `qagiu` | Semi-infinite | Integration from a finite lower bound to positive infinity |  
+| `qagil` | Semi-infinite | Integration from negative infinity to a finite upper bound |  
+| `qawc` | Finite | Cauchy principal value with a known singular point |  
+| `qaws` | Finite | Algebraic and logarithmic endpoint singularities |  
+| `qawo` | Finite | Sine- or cosine-weighted oscillatory integrals |  
+| `qawf` | Semi-infinite | Sine- or cosine-weighted Fourier integrals |  
+| `cquad` | Finite | Difficult integrands and endpoint singularities |  
+| `romberg` | Finite | Smooth functions with extrapolated trapezoidal integration |  
+| `glfixed` | Finite | Fixed-order Gauss–Legendre integration of smooth functions |  
 
-For example, use `qag` to integrate a function over a finite interval:
+See [Integration routines](docs/routines.md) for parameters and examples.  
 
-```ruby
-result, error = Numo::GSL::Integration.qag(0.0, 1.0) do |x|
-  x * x
-end
-```
+## Documentation  
 
-## Supported routines
+- [Integration routines](docs/routines.md)  
+- [GSL error handling](docs/error-handling.md)  
+- [Development](docs/development.md)  
 
-| Method | Interval | Intended use |
-| --- | --- | --- |
-| `qag` | Finite | General-purpose adaptive integration |
-| `qng` | Finite | Non-adaptive integration of smooth functions |
-| `qags` | Finite | Functions with integrable singularities or discontinuities |
-| `qagp` | Finite | Known singular or discontinuity points |
-| `qagi` | Infinite | Integration over the entire real line |
-| `qagiu` | Semi-infinite | Integration from a finite lower bound to positive infinity |
-| `qagil` | Semi-infinite | Integration from negative infinity to a finite upper bound |
-| `qawc` | Finite | Cauchy principal value with a known singular point |
-| `qaws` | Finite | Algebraic and logarithmic endpoint singularities |
-| `qawo` | Finite | Sine- or cosine-weighted oscillatory integrals |
-| `qawf` | Semi-infinite | Sine- or cosine-weighted Fourier integrals |
-| `cquad` | Finite | Difficult integrands and endpoint singularities |
-| `romberg` | Finite | Smooth functions with extrapolated trapezoidal integration |
-| `glfixed` | Finite | Fixed-order Gauss–Legendre integration of smooth functions |
-
-See [Integration routines](docs/routines.md) for parameters and examples.
-
-## Documentation
-
-- [Integration routines](docs/routines.md)
-- [GSL error handling](docs/error-handling.md)
-- [Development](docs/development.md)
-
-## License
+## License  
 
 This project is licensed under the [GNU General Public License version 3 or later](https://www.gnu.org/licenses/gpl-3.0.html). See the [LICENSE](LICENSE) file for the full license text.

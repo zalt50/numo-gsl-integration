@@ -1,19 +1,10 @@
-# GSL error handling
-
-`numo-gsl-alt` installs the process-wide GSL error handler that converts GSL errors to `Numo::GSL::GslError`. `numo-gsl-integration` neither replaces nor temporarily disables that handler.
-
-Errors reported by GSL are raised directly as `Numo::GSL::GslError` by the handler installed by `numo-gsl-alt`. `numo-gsl-integration` does not convert integration return statuses into separate exceptions.
-
-The workspaces used by QAG, QAGS, QAGP, QAGI, QAGIU, QAGIL, QAWC, QAWS, QAWO, QAWF, CQUAD, and Romberg are released when a call completes normally or raises an exception. QAWS, QAWO, and QAWF also release their weight tables, GLFIXED releases its Gauss–Legendre table, and QAGP releases its temporary copy of the point array.
-
-`Numo::GSL::Integration::Error` is reserved for validation or state errors detected by `numo-gsl-integration` itself. It inherits from `Numo::GSL::GslError`:
-
-```mermaid
-flowchart BT
-  IntegrationError["Numo::GSL::Integration::Error"] -->|inherits from| GslError["Numo::GSL::GslError"]
-  GslError -->|inherits from| StandardError
-```
-
-Code can rescue all GSL-related errors with `Numo::GSL::GslError`, or rescue `Numo::GSL::Integration::Error` when it needs to handle only errors detected by the integration wrapper.
-
-The GSL error handler is shared by the entire process. This gem leaves its ownership with `numo-gsl-alt` and does not switch the handler around individual integration calls.
+# GSL error handling  
+`numo-gsl-integration` defines `Numo::GSL::GslError` as a subclass of `StandardError` and installs a process-wide GSL error handler when the native extension is loaded.  
+Errors reported by GSL are raised directly as `Numo::GSL::GslError`. The message contains the GSL source file, line number, reason, and numeric error code:  
+```text  
+file:line: reason (GSL error code)  
+```  
+`numo-gsl-integration` does not convert integration return statuses into separate exceptions.  
+The workspaces used by QAG, QAGS, QAGP, QAGI, QAGIU, QAGIL, QAWC, QAWS, QAWO, QAWF, CQUAD, and Romberg are released when a call completes normally or raises an exception. QAWS, QAWO, and QAWF also release their weight tables, GLFIXED releases its Gauss–Legendre table, and QAGP releases its temporary copy of the point array.  
+Invalid argument types raise `TypeError`. Invalid values, counts, or ordering raise `ArgumentError`. Exceptions raised by the integrand are propagated unchanged.  
+The GSL error handler is shared by the entire process. Loading this gem replaces the previously registered handler. If another GSL binding is loaded afterward, that binding may replace this gem's handler in turn.  

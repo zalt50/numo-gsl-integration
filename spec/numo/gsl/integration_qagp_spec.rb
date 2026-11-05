@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 RSpec.describe Numo::GSL::Integration do
   describe ".qagp" do
-
     let(:integrate) do
       -> (&block) { described_class.qagp([0.0, 0.5, 1.0], &block) }
     end
 
     it_behaves_like("an integration callback")
-
     it(
       "integrates a function with a known interior singularity",
       :aggregate_failures
@@ -61,7 +59,7 @@ RSpec.describe Numo::GSL::Integration do
       end
         .to(
           raise_error(
-            described_class::Error,
+            TypeError,
             "points must be an Array"
           )
         )
@@ -73,7 +71,7 @@ RSpec.describe Numo::GSL::Integration do
       end
         .to(
           raise_error(
-            described_class::Error,
+            ArgumentError,
             "points must contain at least two values"
           )
         )
@@ -85,7 +83,7 @@ RSpec.describe Numo::GSL::Integration do
       end
         .to(
           raise_error(
-            described_class::Error,
+            TypeError,
             "points must contain only numeric values"
           )
         )
@@ -98,7 +96,7 @@ RSpec.describe Numo::GSL::Integration do
         end
           .to(
             raise_error(
-              described_class::Error,
+              ArgumentError,
               "points must contain only finite values"
             )
           )
@@ -112,7 +110,7 @@ RSpec.describe Numo::GSL::Integration do
         end
           .to(
             raise_error(
-              described_class::Error,
+              ArgumentError,
               "points must be strictly increasing"
             )
           )
