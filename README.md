@@ -6,7 +6,8 @@
 
 - [Ruby](https://www.ruby-lang.org/) 3.2 or later
 - GNU Scientific Library (GSL)
-- `gsl-config` available in `PATH`  
+- `gsl-config` available in `PATH`
+
   GSL itself must be installed separately.
 
 ## Installation
@@ -43,22 +44,23 @@ end
 
 ## Supported routines
 
-| Method    | Interval      | Intended use                                               |
-| --------- | ------------- | ---------------------------------------------------------- |
-| `qng`     | Finite        | Non-adaptive integration of smooth functions               |
-| `qag`     | Finite        | General-purpose adaptive integration                       |
-| `qags`    | Finite        | Functions with integrable singularities or discontinuities |
-| `qagp`    | Finite        | Known singular or discontinuity points                     |
-| `qagi`    | Infinite      | Integration over the entire real line                      |
-| `qagiu`   | Semi-infinite | Integration from a finite lower bound to positive infinity |
-| `qagil`   | Semi-infinite | Integration from negative infinity to a finite upper bound |
-| `qawc`    | Finite        | Cauchy principal value with a known singular point         |
-| `qaws`    | Finite        | Algebraic and logarithmic endpoint singularities           |
-| `qawo`    | Finite        | Sine- or cosine-weighted oscillatory integrals             |
-| `qawf`    | Semi-infinite | Sine- or cosine-weighted Fourier integrals                 |
-| `cquad`   | Finite        | Difficult integrands and endpoint singularities            |
-| `romberg` | Finite        | Smooth functions with extrapolated trapezoidal integration |
-| `glfixed` | Finite        | Fixed-order Gauss–Legendre integration of smooth functions |
+| Method    | Interval       | Intended use                                                     |
+| --------- | -------------- | ---------------------------------------------------------------- |
+| `qng`     | Finite         | Non-adaptive integration of smooth functions                     |
+| `qag`     | Finite         | General-purpose adaptive integration                             |
+| `qags`    | Finite         | Functions with integrable singularities or discontinuities       |
+| `qagp`    | Finite         | Known singular or discontinuity points                           |
+| `qagi`    | Infinite       | Integration over the entire real line                            |
+| `qagiu`   | Semi-infinite  | Integration from a finite lower bound to positive infinity       |
+| `qagil`   | Semi-infinite  | Integration from negative infinity to a finite upper bound       |
+| `qawc`    | Finite         | Cauchy principal value with a known singular point               |
+| `qaws`    | Finite         | Algebraic and logarithmic endpoint singularities                 |
+| `qawo`    | Finite         | Sine- or cosine-weighted oscillatory integrals                   |
+| `qawf`    | Semi-infinite  | Sine- or cosine-weighted Fourier integrals                       |
+| `cquad`   | Finite         | Difficult integrands and endpoint singularities                  |
+| `romberg` | Finite         | Smooth functions with extrapolated trapezoidal integration       |
+| `glfixed` | Finite         | Fixed-order Gauss-Legendre integration of smooth functions       |
+| `fixed`   | Rule-dependent | Fixed-order Gaussian quadrature with selectable weight functions |
 
 See [Integration routines](docs/routines.md) for parameters and examples.
 

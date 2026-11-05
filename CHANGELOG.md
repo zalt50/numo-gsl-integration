@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added in Unreleased
+
+- Added fixed point quadrature with Legendre, first- and second-kind Chebyshev, Gegenbauer, Jacobi, Laguerre, Hermite, exponential, and rational rules.
+
 ## [0.2.0] - 2026-11-05
 
 ### Changed in 0.2.0
@@ -22,7 +26,7 @@
 
 ### Added in 0.1.0
 
-- Added fixed-order Gauss–Legendre integration for smooth functions.
+- Added fixed-order Gauss-Legendre integration for smooth functions.
 - Added Romberg integration for smooth functions with function-evaluation counts.
 - Added CQUAD doubly-adaptive integration with function-evaluation counts.
 - Added QAWF adaptive integration for sine- and cosine-weighted Fourier integrals over a semi-infinite interval.

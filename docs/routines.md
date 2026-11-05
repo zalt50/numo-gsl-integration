@@ -94,7 +94,7 @@ result, error = Numo::GSL::Integration.qagp(
 end
 ```
 
-The points must be finite numeric values in strictly increasing order. The array must contain at least two values. A non-array argument or a non-numeric element raises `TypeError`. Too few points, non-finite values, or values that are not strictly increasing raise `ArgumentError` before GSL is called.  
+The points must be finite numeric values in strictly increasing order. The array must contain at least two values. A non-array argument or a non-numeric element raises `TypeError`. Too few points, non-finite values, or values that are not strictly increasing raise `ArgumentError` before GSL is called.
 The `epsabs`, `epsrel`, and `limit` keyword arguments control the requested error limits and maximum number of subintervals:
 
 ```ruby
@@ -181,17 +181,17 @@ end
 GSL [QAWC](https://www.gnu.org/software/gsl/doc/html/integration.html#qawc-adaptive-integration-for-cauchy-principal-values) computes the Cauchy principal value (PV) of an integral over a finite interval with a singularity at $c$:
 
 ```math
-PV \int_a^b \frac{f(x)}{x-c}\,dx
+PV \\int_a^b \\frac{f(x)}{x-c}\\,dx
 =
-\lim_{\varepsilon\to 0^+}
-\left(
-\int_a^{c-\varepsilon}\frac{f(x)}{x-c}\,dx
-+
-\int_{c+\varepsilon}^b\frac{f(x)}{x-c}\,dx
-\right)
+\\lim_{\\varepsilon\\to 0^+}
+\\left(
+\\int_a^{c-\\varepsilon}\\frac{f(x)}{x-c}\\,dx
+\+
+\\int_{c+\\varepsilon}^b\\frac{f(x)}{x-c}\\,dx
+\\right)
 ```
 
-The block passed to `Numo::GSL::Integration.qawc` returns $f(x)$. Do not divide the block result by $x - c$; QAWC applies that weight internally.  
+The block passed to `Numo::GSL::Integration.qawc` returns $f(x)$. Do not divide the block result by $x - c$; QAWC applies that weight internally.
 The following example uses the default integration options and computes the principal value of `x / (x - 1.0)` over the interval from `0.0` to `2.0`, whose exact value is `2.0`:
 
 ```ruby
@@ -220,15 +220,15 @@ end
 GSL [QAWS](https://www.gnu.org/software/gsl/doc/html/integration.html#qaws-adaptive-integration-for-singular-functions) provides adaptive integration for functions with algebraic or logarithmic singularities at the endpoints of a finite interval. It computes an integral with the weight
 
 ```math
-(x-a)^\alpha (b-x)^\beta
-\log^\mu(x-a) \log^\nu(b-x).
+(x-a)^\\alpha (b-x)^\\beta
+\\log^\\mu(x-a) \\log^\\nu(b-x).
 ```
 
-Call `Numo::GSL::Integration.qaws` with the endpoints `a` and `b`, followed by `alpha`, `beta`, `mu`, and `nu`. The exponents `alpha` and `beta` must be greater than `-1.0`. The logarithmic powers `mu` and `nu` must each be `0` or `1`.  
+Call `Numo::GSL::Integration.qaws` with the endpoints `a` and `b`, followed by `alpha`, `beta`, `mu`, and `nu`. The exponents `alpha` and `beta` must be greater than `-1.0`. The logarithmic powers `mu` and `nu` must each be `0` or `1`.
 The block returns the unweighted function $f(x)$. QAWS applies the endpoint weight internally. The following example integrates
 
 ```math
-\frac{1}{\sqrt{x(1-x)}}
+\\frac{1}{\\sqrt{x(1-x)}}
 ```
 
 over the interval from `0.0` to `1.0`. Its exact value is `Math::PI`:
@@ -321,12 +321,12 @@ result, evaluations = Numo::GSL::Integration.romberg(0.0, Math::PI) do |x|
 end
 ```
 
-The example integral has an exact value of `2.0`. The `epsabs` and `epsrel` keyword arguments control the requested error limits. The `limit` keyword controls the maximum number of Romberg levels and defaults to `20`. GSL requires at least one level and limits the effective workspace to 30 levels.  
+The example integral has an exact value of `2.0`. The `epsabs` and `epsrel` keyword arguments control the requested error limits. The `limit` keyword controls the maximum number of Romberg levels and defaults to `20`. GSL requires at least one level and limits the effective workspace to 30 levels.
 Romberg integration does not return an estimated absolute error. Use CQUAD, QAG, QAGS, or another routine that returns an error estimate when the caller needs one.
 
 ## GLFIXED integration
 
-GSL [fixed-order Gauss–Legendre integration](https://www.gnu.org/software/gsl/doc/html/integration.html#gauss-legendre-integration) provides fast integration of smooth functions when an appropriate polynomial order is known. An `n`-point rule integrates polynomials of degree `2 * n - 1` or less exactly, subject to floating-point precision.
+GSL [fixed-order Gauss-Legendre integration](https://www.gnu.org/software/gsl/doc/html/integration.html#gauss-legendre-integration) provides fast integration of smooth functions when an appropriate polynomial order is known. An `n`-point rule integrates polynomials of degree `2 * n - 1` or less exactly, subject to floating-point precision.
 
 ```ruby
 result = Numo::GSL::Integration.glfixed(
@@ -338,5 +338,55 @@ result = Numo::GSL::Integration.glfixed(
 end
 ```
 
-The example integral has an exact value of `1.0 / 5.0`. The `order` keyword controls the number of Gauss–Legendre points and defaults to `10`. It must be a positive integer.  
+The example integral has an exact value of `1.0 / 5.0`. The `order` keyword controls the number of Gauss-Legendre points and defaults to `10`. It must be a positive integer.
 GLFIXED returns only the integral. It does not accept absolute or relative error bounds and does not return an error estimate. Use an adaptive routine when the required fixed order is not known in advance.
+
+## Fixed point quadratures
+
+GSL [fixed point quadratures](https://www.gnu.org/software/gsl/doc/html/integration.html#fixed-point-quadratures) provide fixed-order Gaussian quadrature rules for several weight functions. `Numo::GSL::Integration.fixed` takes a quadrature type, the number of points, and the GSL rule parameters:
+
+```ruby
+result = Numo::GSL::Integration.fixed(
+  :legendre,
+  order: 3,
+  a: 0.0,
+  b: 1.0
+) do |x|
+  x ** 4
+end
+```
+
+The example has an exact value of `1.0 / 5.0`. The block returns the unweighted function. For weighted rules, GSL applies the selected weight internally.
+
+The supported types and required keyword arguments are:
+
+| Type           | Required rule parameters | Description                                                  |
+| -------------- | ------------------------ | ------------------------------------------------------------ |
+| `:legendre`    | —                        | Gauss-Legendre rule over the finite interval from `a` to `b` |
+| `:chebyshev`   | —                        | First-kind Chebyshev rule over the finite interval           |
+| `:chebyshev2`  | —                        | Second-kind Chebyshev rule over the finite interval          |
+| `:gegenbauer`  | `alpha`                  | Gegenbauer rule                                              |
+| `:jacobi`      | `alpha`, `beta`          | Jacobi rule                                                  |
+| `:laguerre`    | `alpha`                  | Generalized Laguerre rule                                    |
+| `:hermite`     | `alpha`                  | Generalized Hermite rule                                     |
+| `:exponential` | `alpha`                  | Exponential rule over a finite interval                      |
+| `:rational`    | `alpha`, `beta`          | Rational rule                                                |
+
+`order` must be a positive integer. The keywords `a` and `b` are required for every type because they are passed to `gsl_integration_fixed_alloc`; their exact role and valid range depend on the selected GSL rule. The `alpha` and `beta` values must also satisfy the constraints imposed by that rule. Invalid numerical parameters are reported as `Numo::GSL::GslError` by GSL.
+
+The following example uses the rational rule. Its parameters satisfy the rule's order-dependent constraints for `order: 3`:
+
+```ruby
+result = Numo::GSL::Integration.fixed(
+  :rational,
+  order: 3,
+  a: 0.0,
+  b: 1.0,
+  alpha: 0.0,
+  beta: -7.0
+) do |_x|
+  1.0
+end
+```
+
+The example result is `1.0 / 6.0`. Fixed point quadratures return only the integral. They do not accept absolute or relative error bounds and do not return an error estimate. Use an adaptive routine when the required order is not known in advance.
