@@ -1,74 +1,74 @@
-# Numo::GSL::Integration  
+# Numo::GSL::Integration
 
-`numo-gsl-integration` provides numerical integration routines from the [GNU Scientific Library (GSL)](https://www.gnu.org/software/gsl/) under the `Numo::GSL::Integration` namespace. It can be installed and loaded without `numo-gsl` or `numo-gsl-alt`.  
+`numo-gsl-integration` provides numerical integration routines from the [GNU Scientific Library (GSL)](https://www.gnu.org/software/gsl/) under the `Numo::GSL::Integration` namespace. It can be installed and loaded without `numo-gsl` or `numo-gsl-alt`.
 
-## Requirements  
+## Requirements
 
-- [Ruby](https://www.ruby-lang.org/) 3.2 or later  
-- GNU Scientific Library (GSL)  
+- [Ruby](https://www.ruby-lang.org/) 3.2 or later
+- GNU Scientific Library (GSL)
 - `gsl-config` available in `PATH`  
-GSL itself must be installed separately.  
+  GSL itself must be installed separately.
 
-## Installation  
+## Installation
 
-Add the gem to your Gemfile:  
+Add the gem to your Gemfile:
 
-```ruby  
-gem "numo-gsl-integration"  
-```  
+```ruby
+gem "numo-gsl-integration"
+```
 
-Then run:  
+Then run:
 
-```bash  
-bundle install  
-```  
+```bash
+bundle install
+```
 
-The native extension uses `gsl-config` to locate the GSL headers and libraries.  
+The native extension uses `gsl-config` to locate the GSL headers and libraries.
 
-## Usage  
+## Usage
 
-Load the library:  
+Load the library:
 
-```ruby  
-require "numo/gsl/integration"  
-```  
+```ruby
+require "numo/gsl/integration"
+```
 
 The native extension defines `Numo::GSL::GslError` and installs a process-wide GSL error handler when it is loaded.  
-For example, use `qag` to integrate a function over a finite interval:  
+For example, use `qag` to integrate a function over a finite interval:
 
-```ruby  
-result, error = Numo::GSL::Integration.qag(0.0, 1.0) do |x|  
-  x * x  
-end  
-```  
+```ruby
+result, error = Numo::GSL::Integration.qag(0.0, 1.0) do |x|
+  x * x
+end
+```
 
-## Supported routines  
+## Supported routines
 
-| Method | Interval | Intended use |  
-| --- | --- | --- |  
-| `qag` | Finite | General-purpose adaptive integration |  
-| `qng` | Finite | Non-adaptive integration of smooth functions |  
-| `qags` | Finite | Functions with integrable singularities or discontinuities |  
-| `qagp` | Finite | Known singular or discontinuity points |  
-| `qagi` | Infinite | Integration over the entire real line |  
-| `qagiu` | Semi-infinite | Integration from a finite lower bound to positive infinity |  
-| `qagil` | Semi-infinite | Integration from negative infinity to a finite upper bound |  
-| `qawc` | Finite | Cauchy principal value with a known singular point |  
-| `qaws` | Finite | Algebraic and logarithmic endpoint singularities |  
-| `qawo` | Finite | Sine- or cosine-weighted oscillatory integrals |  
-| `qawf` | Semi-infinite | Sine- or cosine-weighted Fourier integrals |  
-| `cquad` | Finite | Difficult integrands and endpoint singularities |  
-| `romberg` | Finite | Smooth functions with extrapolated trapezoidal integration |  
-| `glfixed` | Finite | Fixed-order Gauss–Legendre integration of smooth functions |  
+| Method    | Interval      | Intended use                                               |
+| --------- | ------------- | ---------------------------------------------------------- |
+| `qng`     | Finite        | Non-adaptive integration of smooth functions               |
+| `qag`     | Finite        | General-purpose adaptive integration                       |
+| `qags`    | Finite        | Functions with integrable singularities or discontinuities |
+| `qagp`    | Finite        | Known singular or discontinuity points                     |
+| `qagi`    | Infinite      | Integration over the entire real line                      |
+| `qagiu`   | Semi-infinite | Integration from a finite lower bound to positive infinity |
+| `qagil`   | Semi-infinite | Integration from negative infinity to a finite upper bound |
+| `qawc`    | Finite        | Cauchy principal value with a known singular point         |
+| `qaws`    | Finite        | Algebraic and logarithmic endpoint singularities           |
+| `qawo`    | Finite        | Sine- or cosine-weighted oscillatory integrals             |
+| `qawf`    | Semi-infinite | Sine- or cosine-weighted Fourier integrals                 |
+| `cquad`   | Finite        | Difficult integrands and endpoint singularities            |
+| `romberg` | Finite        | Smooth functions with extrapolated trapezoidal integration |
+| `glfixed` | Finite        | Fixed-order Gauss–Legendre integration of smooth functions |
 
-See [Integration routines](docs/routines.md) for parameters and examples.  
+See [Integration routines](docs/routines.md) for parameters and examples.
 
-## Documentation  
+## Documentation
 
-- [Integration routines](docs/routines.md)  
-- [GSL error handling](docs/error-handling.md)  
-- [Development](docs/development.md)  
+- [Integration routines](docs/routines.md)
+- [GSL error handling](docs/error-handling.md)
+- [Development](docs/development.md)
 
-## License  
+## License
 
 This project is licensed under the [GNU General Public License version 3 or later](https://www.gnu.org/licenses/gpl-3.0.html). See the [LICENSE](LICENSE) file for the full license text.
