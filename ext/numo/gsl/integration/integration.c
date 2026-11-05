@@ -19,6 +19,7 @@ void Init_integration(void) {
   mIntegration = rb_define_module_under(mGSL, "Integration");
   numo_eGslError = rb_define_class_under(mGSL, "GslError", rb_eStandardError);
   gsl_set_error_handler(&integration_gsl_error_handler);
+  integration_fixed_init();
 
   rb_define_const(mIntegration, "GAUSS15", INT2NUM(GSL_INTEG_GAUSS15));
   rb_define_const(mIntegration, "GAUSS21", INT2NUM(GSL_INTEG_GAUSS21));
