@@ -1,0 +1,108 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Test and release gem
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: release
+
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes clang-format libgsl-dev
+          clang-format --version
+          gsl-config --version
+
+      - name: Install markdown tools
+        run: |
+          npm install --global markdownlint-cli2 prettier
+          prettier --version
+          markdownlint-cli2 --version
+
+      - name: Install rubyfmt
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew install rubyfmt
+          echo "/home/linuxbrew/.linuxbrew/bin" >> "$GITHUB_PATH"
+          rubyfmt --version
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '4.0.9'
+          bundler-cache: true
+
+      - name: Verify tag matches gem version
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag_version="${GITHUB_REF_NAME#v}"
+          gem_version="$(ruby -Ilib -r numo/gsl/integration/version -e 'print Numo::GSL::Integration::VERSION')"
+
+          if [[ "$tag_version" != "$gem_version" ]]; then
+            echo "Tag version $tag_version does not match gem version $gem_version." >&2
+            exit 1
+          fi
+
+      - name: Run verification suite
+        run: bundle exec rake
+
+      - name: Build gem
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p pkg
+          gem build numo-gsl-integration.gemspec \
+            --output "pkg/numo-gsl-integration-${GITHUB_REF_NAME#v}.gem"
+
+      - name: Create draft GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gem_file="pkg/numo-gsl-integration-${GITHUB_REF_NAME#v}.gem"
+
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "$gem_file" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" "$gem_file" \
+              --draft \
+              --generate-notes \
+              --verify-tag
+          fi
+
+      - name: Configure RubyGems credentials
+        uses: rubygems/configure-rubygems-credentials@v2.1.0
+
+      - name: Publish to RubyGems.org
+        shell: bash
+        run: |
+          set -euo pipefail
+          gem push "pkg/numo-gsl-integration-${GITHUB_REF_NAME#v}.gem"
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release edit "$GITHUB_REF_NAME" --draft=false --latest

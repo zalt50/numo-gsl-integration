@@ -22,14 +22,23 @@ jobs:
           - '4.0.9'
 
     steps:
-      - uses: actions/checkout@v6
+      - name: Check out repository
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
 
-      - name: Install GSL
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgsl-dev
+          sudo apt-get install -y clang-format libgsl-dev
+          clang-format --version
+          gsl-config --version
+
+      - name: Install markdown tools
+        run: |
+          npm install --global prettier markdownlint-cli2
+          prettier --version
+          markdownlint-cli2 --version
 
       - name: Install rubyfmt
         run: |
@@ -37,12 +46,6 @@ jobs:
           brew install rubyfmt
           echo "/home/linuxbrew/.linuxbrew/bin" >> "$GITHUB_PATH"
           rubyfmt --version
-
-      - name: Install markdown tools
-        run: |
-          npm install --global prettier markdownlint-cli2
-          prettier --version
-          markdownlint-cli2 --version
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
