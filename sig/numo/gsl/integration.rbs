@@ -108,6 +108,12 @@ module Numo
         Numeric b,
         ?order: Integer
       ) { (Float) -> Numeric } -> Float
+      def self.fixed: (
+        :legendre type,
+        order: Integer,
+        a: Numeric,
+        b: Numeric
+      ) { (Float) -> Numeric } -> Float
     end
   end
 end

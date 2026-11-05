@@ -17,7 +17,6 @@ void Init_integration(void) {
   mNumo = rb_define_module("Numo");
   mGSL = rb_define_module_under(mNumo, "GSL");
   mIntegration = rb_define_module_under(mGSL, "Integration");
-
   numo_eGslError = rb_define_class_under(mGSL, "GslError", rb_eStandardError);
   gsl_set_error_handler(&integration_gsl_error_handler);
 
@@ -44,4 +43,5 @@ void Init_integration(void) {
   rb_define_singleton_method(mIntegration, "cquad", integration_cquad, -1);
   rb_define_singleton_method(mIntegration, "romberg", integration_romberg, -1);
   rb_define_singleton_method(mIntegration, "glfixed", integration_glfixed, -1);
+  rb_define_singleton_method(mIntegration, "fixed", integration_fixed, -1);
 }

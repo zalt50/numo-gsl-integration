@@ -10,6 +10,7 @@ typedef struct {
   double epsrel;
   size_t limit;
 } integration_options;
+
 void integration_options_parse(VALUE options, integration_options *parsed,
                                double default_epsabs, double default_epsrel,
                                size_t default_limit);
@@ -48,5 +49,6 @@ VALUE integration_qawf(int argc, VALUE *argv, VALUE self);
 VALUE integration_cquad(int argc, VALUE *argv, VALUE self);
 VALUE integration_romberg(int argc, VALUE *argv, VALUE self);
 VALUE integration_glfixed(int argc, VALUE *argv, VALUE self);
+VALUE integration_fixed(int argc, VALUE *argv, VALUE self);
 
 #endif
