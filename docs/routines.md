@@ -181,14 +181,7 @@ end
 GSL [QAWC](https://www.gnu.org/software/gsl/doc/html/integration.html#qawc-adaptive-integration-for-cauchy-principal-values) computes the Cauchy principal value (PV) of an integral over a finite interval with a singularity at $c$:
 
 ```math
-PV \\int_a^b \\frac{f(x)}{x-c}\\,dx
-=
-\\lim_{\\varepsilon\\to 0^+}
-\\left(
-\\int_a^{c-\\varepsilon}\\frac{f(x)}{x-c}\\,dx
-\+
-\\int_{c+\\varepsilon}^b\\frac{f(x)}{x-c}\\,dx
-\\right)
+PV \int_a^b \frac{f(x)}{x-c}\,dx = \lim_{\varepsilon\to 0^{+}} \left( \int_a^{c-\varepsilon}\frac{f(x)}{x-c}\,dx + \int_{c+\varepsilon}^b\frac{f(x)}{x-c}\,dx \right)
 ```
 
 The block passed to `Numo::GSL::Integration.qawc` returns $f(x)$. Do not divide the block result by $x - c$; QAWC applies that weight internally.
