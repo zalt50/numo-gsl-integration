@@ -2,19 +2,25 @@
 
 ## [Unreleased]
 
-### Changed since 0.1.0
+## [0.2.0] - 2026-11-05
 
-- Removed the runtime dependency on `numo-gsl-alt`; the native extension now defines `Numo::GSL::GslError` and installs its own process-wide GSL error handler.
+### Changed in 0.2.0
+
+- Removed the runtime dependency on `numo-gsl-alt`.
+- Defined `Numo::GSL::GslError` and installed the process-wide GSL error handler in the native extension.
 - Added the numeric GSL error code to messages raised by the integration GSL error handler.
-- Replaced `Numo::GSL::Integration::Error` with `TypeError` and `ArgumentError` for wrapper-side input validation.
+- Replaced wrapper-side validation errors with `TypeError` and `ArgumentError`.
+- Changed Markdown formatting from `markdownlint-cli2 --fix` to Prettier while retaining `markdownlint-cli2` for linting.
+- Extended Markdown formatting and linting to all Markdown files under the project root and `docs`.
+- Added Prettier installation to the CI workflow.
 
-### Removed since 0.1.0
+### Removed in 0.2.0
 
 - Removed `Numo::GSL::Integration::Error`.
 
 ## [0.1.0] - 2026-11-04
 
-### Added
+### Added in 0.1.0
 
 - Added fixed-order Gauss–Legendre integration for smooth functions.
 - Added Romberg integration for smooth functions with function-evaluation counts.
@@ -34,8 +40,8 @@
 - Added RBS declarations for the public integration API and RBS validation to the default Rake task.
 - Added automated rubyfmt, clang-format, and Markdown checks, with `format:check` and `format:apply` tasks.
 
-### Changed
+### Changed in 0.1.0
 
-- Load `numo/gsl` before the integration native extension and make `Numo::GSL::Integration::Error` inherit from `Numo::GSL::GslError`.
-- Delegate GSL-reported integration errors to the process-wide handler installed by `numo-gsl-alt` instead of converting return statuses to `Integration::Error`.
-- Ensure integration workspaces, weight tables, and temporary arrays are released when integration completes normally or raises an exception.
+- Loaded `numo/gsl` before the integration native extension and made `Numo::GSL::Integration::Error` inherit from `Numo::GSL::GslError`.
+- Delegated GSL-reported integration errors to the process-wide handler installed by `numo-gsl-alt` instead of converting return statuses to `Integration::Error`.
+- Ensured integration workspaces, weight tables, and temporary arrays are released when integration completes normally or raises an exception.
