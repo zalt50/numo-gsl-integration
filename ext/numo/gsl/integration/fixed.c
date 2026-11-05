@@ -7,6 +7,7 @@ typedef struct {
   double a;
   double b;
   double alpha;
+  double beta;
   gsl_integration_fixed_workspace *workspace;
   double *result;
 } integration_fixed_params;
@@ -31,6 +32,9 @@ static const gsl_integration_fixed_type *integration_fixed_type(VALUE type) {
   if (type_id == rb_intern("gegenbauer")) {
     return gsl_integration_fixed_gegenbauer;
   }
+  if (type_id == rb_intern("jacobi")) {
+    return gsl_integration_fixed_jacobi;
+  }
 
   rb_raise(rb_eArgError, "unsupported fixed quadrature type: %s",
            rb_id2name(type_id));
@@ -49,8 +53,9 @@ static VALUE integration_free_fixed_workspace(VALUE data) {
 static VALUE integration_run_fixed(VALUE data) {
   integration_fixed_params *params = (integration_fixed_params *)data;
 
-  params->workspace = gsl_integration_fixed_alloc(
-      params->type, params->order, params->a, params->b, params->alpha, 0.0);
+  params->workspace =
+      gsl_integration_fixed_alloc(params->type, params->order, params->a,
+                                  params->b, params->alpha, params->beta);
   if (params->workspace == NULL) {
     rb_memerror();
   }
@@ -69,10 +74,11 @@ VALUE integration_fixed(int argc, VALUE *argv, VALUE self) {
   VALUE type;
   VALUE options;
   ID keywords[] = {rb_intern("order"), rb_intern("a"), rb_intern("b"),
-                   rb_intern("alpha")};
-  VALUE keyword_values[4];
+                   rb_intern("alpha"), rb_intern("beta")};
+  VALUE keyword_values[5];
   VALUE order_value;
   VALUE alpha_value;
+  VALUE beta_value;
   size_t order;
   gsl_function function;
   integration_callback_params params;
@@ -86,9 +92,10 @@ VALUE integration_fixed(int argc, VALUE *argv, VALUE self) {
   if (NIL_P(options)) {
     options = rb_hash_new();
   }
-  rb_get_kwargs(options, keywords, 3, 1, keyword_values);
+  rb_get_kwargs(options, keywords, 3, 2, keyword_values);
   order_value = keyword_values[0];
   alpha_value = keyword_values[3];
+  beta_value = keyword_values[4];
 
   if (!RB_INTEGER_TYPE_P(order_value)) {
     rb_raise(rb_eTypeError, "order must be an Integer");
@@ -108,8 +115,19 @@ VALUE integration_fixed(int argc, VALUE *argv, VALUE self) {
       rb_raise(rb_eArgError, "alpha is required for gegenbauer");
     }
     fixed_params.alpha = NUM2DBL(alpha_value);
+    fixed_params.beta = 0.0;
+  } else if (fixed_params.type == gsl_integration_fixed_jacobi) {
+    if (alpha_value == Qundef) {
+      rb_raise(rb_eArgError, "alpha is required for jacobi");
+    }
+    if (beta_value == Qundef) {
+      rb_raise(rb_eArgError, "beta is required for jacobi");
+    }
+    fixed_params.alpha = NUM2DBL(alpha_value);
+    fixed_params.beta = NUM2DBL(beta_value);
   } else {
     fixed_params.alpha = 0.0;
+    fixed_params.beta = 0.0;
   }
   fixed_params.workspace = NULL;
   fixed_params.result = &result;
