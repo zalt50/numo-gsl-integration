@@ -109,7 +109,7 @@ module Numo
         ?order: Integer
       ) { (Float) -> Numeric } -> Float
       def self.fixed: (
-        :legendre type,
+        (:legendre | :chebyshev) type,
         order: Integer,
         a: Numeric,
         b: Numeric

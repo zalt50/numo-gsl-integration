@@ -21,6 +21,9 @@ static const gsl_integration_fixed_type *integration_fixed_type(VALUE type) {
   if (type_id == rb_intern("legendre")) {
     return gsl_integration_fixed_legendre;
   }
+  if (type_id == rb_intern("chebyshev")) {
+    return gsl_integration_fixed_chebyshev;
+  }
 
   rb_raise(rb_eArgError, "unsupported fixed quadrature type: %s",
            rb_id2name(type_id));
