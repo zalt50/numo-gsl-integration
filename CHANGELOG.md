@@ -2,7 +2,9 @@
 
 ## [Unreleased]
 
-### Added in Unreleased
+## [0.3.0] - 2026-11-05
+
+### Added in 0.3.0
 
 - Added fixed point quadrature with Legendre, first- and second-kind Chebyshev, Gegenbauer, Jacobi, Laguerre, Hermite, exponential, and rational rules.
 
