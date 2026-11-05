@@ -33,7 +33,6 @@ Load the library:
 require "numo/gsl/integration"
 ```
 
-The native extension defines `Numo::GSL::GslError` and installs a process-wide GSL error handler when it is loaded.  
 For example, use `qag` to integrate a function over a finite interval:
 
 ```ruby
