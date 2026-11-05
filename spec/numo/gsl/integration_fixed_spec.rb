@@ -157,6 +157,29 @@ RSpec.describe Numo::GSL::Integration do
         .to(raise_error(ArgumentError, "alpha is required for hermite"))
     end
 
+    it "applies the exponential weight" do
+      result = described_class.fixed(
+        :exponential,
+        order: 3,
+        a: -1.0,
+        b: 1.0,
+        alpha: 1.0
+      ) do |_x|
+        1.0
+      end
+
+      expect(result).to(be_within(1e-14).of(1.0))
+    end
+
+    it "requires alpha for exponential quadrature" do
+      expect do
+        described_class.fixed(:exponential, order: 3, a: -1.0, b: 1.0) do |x|
+          x
+        end
+      end
+        .to(raise_error(ArgumentError, "alpha is required for exponential"))
+    end
+
     it "integrates a polynomial exactly for a sufficient order" do
       result = described_class.fixed(
         :legendre,
@@ -202,14 +225,14 @@ RSpec.describe Numo::GSL::Integration do
 
     it "rejects an unsupported quadrature type" do
       expect do
-        described_class.fixed(:exponential, order: 3, a: 0.0, b: 1.0) do |x|
+        described_class.fixed(:rational, order: 3, a: 0.0, b: 1.0) do |x|
           x
         end
       end
         .to(
           raise_error(
             ArgumentError,
-            "unsupported fixed quadrature type: exponential"
+            "unsupported fixed quadrature type: rational"
           )
         )
     end

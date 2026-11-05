@@ -37,6 +37,9 @@ static const gsl_integration_fixed_type *integration_fixed_type(VALUE type) {
   if (type_id == rb_intern("hermite")) {
     return gsl_integration_fixed_hermite;
   }
+  if (type_id == rb_intern("exponential")) {
+    return gsl_integration_fixed_exponential;
+  }
   rb_raise(rb_eArgError, "unsupported fixed quadrature type: %s",
            rb_id2name(type_id));
 }
@@ -124,6 +127,12 @@ VALUE integration_fixed(int argc, VALUE *argv, VALUE self) {
   } else if (fixed_params.type == gsl_integration_fixed_hermite) {
     if (alpha_value == Qundef) {
       rb_raise(rb_eArgError, "alpha is required for hermite");
+    }
+    fixed_params.alpha = NUM2DBL(alpha_value);
+    fixed_params.beta = 0.0;
+  } else if (fixed_params.type == gsl_integration_fixed_exponential) {
+    if (alpha_value == Qundef) {
+      rb_raise(rb_eArgError, "alpha is required for exponential");
     }
     fixed_params.alpha = NUM2DBL(alpha_value);
     fixed_params.beta = 0.0;
