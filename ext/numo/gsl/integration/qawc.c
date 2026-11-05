@@ -15,14 +15,17 @@ typedef struct {
 
 static VALUE integration_run_qawc(VALUE data) {
   integration_qawc_params *params = (integration_qawc_params *)data;
+
   (void)gsl_integration_qawc(params->function, params->a, params->b, params->c,
                              params->epsabs, params->epsrel, params->limit,
                              params->workspace, params->result, params->error);
+
   return Qnil;
 }
 
 static VALUE integration_run_qawc_with_workspace(VALUE data) {
   integration_qawc_params *params = (integration_qawc_params *)data;
+
   return rb_ensure(integration_run_qawc, data, integration_free_workspace,
                    (VALUE)params->workspace);
 }
@@ -43,11 +46,13 @@ VALUE integration_qawc(int argc, VALUE *argv, VALUE self) {
   double result;
   double error;
   int state = 0;
+
   (void)self;
 
   rb_scan_args(argc, argv, "3:", &a, &b, &c, &options);
 
   integration_options_parse(options, &parsed_options, 0.0, 1e-8, 1000);
+
   epsabs = parsed_options.epsabs;
   epsrel = parsed_options.epsrel;
   limit = parsed_options.limit;
@@ -55,6 +60,7 @@ VALUE integration_qawc(int argc, VALUE *argv, VALUE self) {
   integration_function_init(&function, &params);
 
   workspace = gsl_integration_workspace_alloc(limit);
+
   qawc_params.function = &function;
   qawc_params.a = NUM2DBL(a);
   qawc_params.b = NUM2DBL(b);
@@ -67,8 +73,10 @@ VALUE integration_qawc(int argc, VALUE *argv, VALUE self) {
   qawc_params.error = &error;
 
   rb_protect(integration_run_qawc_with_workspace, (VALUE)&qawc_params, &state);
+
   RB_GC_GUARD(params.block);
   RB_GC_GUARD(params.exception);
+
   integration_finish_callback(&params, state);
 
   return rb_ary_new_from_args(2, DBL2NUM(result), DBL2NUM(error));

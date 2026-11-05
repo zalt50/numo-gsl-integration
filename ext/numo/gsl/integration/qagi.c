@@ -46,6 +46,7 @@ VALUE integration_qagi(int argc, VALUE *argv, VALUE self) {
   rb_scan_args(argc, argv, "0:", &options);
 
   integration_options_parse(options, &parsed_options, 0.0, 1e-8, 1000);
+
   epsabs = parsed_options.epsabs;
   epsrel = parsed_options.epsrel;
   limit = parsed_options.limit;

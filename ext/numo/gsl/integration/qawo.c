@@ -5,6 +5,7 @@ typedef struct {
   double a;
   double b;
   double omega;
+
   enum gsl_integration_qawo_enum sine;
   double epsabs;
   double epsrel;
@@ -21,6 +22,7 @@ static VALUE integration_free_qawo_resources(VALUE data) {
   if (params->table != NULL) {
     gsl_integration_qawo_table_free(params->table);
   }
+
   if (params->workspace != NULL) {
     gsl_integration_workspace_free(params->workspace);
   }
@@ -69,6 +71,7 @@ VALUE integration_qawo(int argc, VALUE *argv, VALUE self) {
   rb_scan_args(argc, argv, "4:", &a, &b, &omega, &sine, &options);
 
   integration_options_parse(options, &parsed_options, 0.0, 1e-8, 1000);
+
   epsabs = parsed_options.epsabs;
   epsrel = parsed_options.epsrel;
   limit = parsed_options.limit;

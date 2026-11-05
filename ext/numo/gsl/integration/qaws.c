@@ -23,6 +23,7 @@ static VALUE integration_free_qaws_resources(VALUE data) {
   if (params->table != NULL) {
     gsl_integration_qaws_table_free(params->table);
   }
+
   if (params->workspace != NULL) {
     gsl_integration_workspace_free(params->workspace);
   }
@@ -36,6 +37,7 @@ static VALUE integration_run_qaws(VALUE data) {
   params->table = gsl_integration_qaws_table_alloc(params->alpha, params->beta,
                                                    params->mu, params->nu);
   params->workspace = gsl_integration_workspace_alloc(params->limit);
+
   (void)gsl_integration_qaws(params->function, params->a, params->b,
                              params->table, params->epsabs, params->epsrel,
                              params->limit, params->workspace, params->result,
@@ -69,9 +71,11 @@ VALUE integration_qaws(int argc, VALUE *argv, VALUE self) {
   int state = 0;
 
   (void)self;
+
   rb_scan_args(argc, argv, "6:", &a, &b, &alpha, &beta, &mu, &nu, &options);
 
   integration_options_parse(options, &parsed_options, 0.0, 1e-8, 1000);
+
   epsabs = parsed_options.epsabs;
   epsrel = parsed_options.epsrel;
   limit = parsed_options.limit;
@@ -94,8 +98,10 @@ VALUE integration_qaws(int argc, VALUE *argv, VALUE self) {
   qaws_params.error = &error;
 
   rb_protect(integration_run_qaws_with_resources, (VALUE)&qaws_params, &state);
+
   RB_GC_GUARD(params.block);
   RB_GC_GUARD(params.exception);
+
   integration_finish_callback(&params, state);
 
   return rb_ary_new_from_args(2, DBL2NUM(result), DBL2NUM(error));

@@ -4,6 +4,7 @@ typedef struct {
   gsl_function *function;
   double a;
   double omega;
+
   enum gsl_integration_qawo_enum sine;
   double epsabs;
   size_t limit;
@@ -20,9 +21,11 @@ static VALUE integration_free_qawf_resources(VALUE data) {
   if (params->table != NULL) {
     gsl_integration_qawo_table_free(params->table);
   }
+
   if (params->cycle_workspace != NULL) {
     gsl_integration_workspace_free(params->cycle_workspace);
   }
+
   if (params->workspace != NULL) {
     gsl_integration_workspace_free(params->workspace);
   }

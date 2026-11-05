@@ -50,6 +50,7 @@ VALUE integration_romberg(int argc, VALUE *argv, VALUE self) {
   rb_scan_args(argc, argv, "2:", &a, &b, &options);
 
   integration_options_parse(options, &parsed_options, 0.0, 1e-8, 20);
+
   epsabs = parsed_options.epsabs;
   epsrel = parsed_options.epsrel;
   limit = parsed_options.limit;
