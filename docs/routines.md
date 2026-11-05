@@ -213,15 +213,15 @@ end
 GSL [QAWS](https://www.gnu.org/software/gsl/doc/html/integration.html#qaws-adaptive-integration-for-singular-functions) provides adaptive integration for functions with algebraic or logarithmic singularities at the endpoints of a finite interval. It computes an integral with the weight
 
 ```math
-(x-a)^\\alpha (b-x)^\\beta
-\\log^\\mu(x-a) \\log^\\nu(b-x).
+(x-a)^\alpha (b-x)^\beta
+\log^\mu(x-a) \log^\nu(b-x).
 ```
 
 Call `Numo::GSL::Integration.qaws` with the endpoints `a` and `b`, followed by `alpha`, `beta`, `mu`, and `nu`. The exponents `alpha` and `beta` must be greater than `-1.0`. The logarithmic powers `mu` and `nu` must each be `0` or `1`.
 The block returns the unweighted function $f(x)$. QAWS applies the endpoint weight internally. The following example integrates
 
 ```math
-\\frac{1}{\\sqrt{x(1-x)}}
+\frac{1}{\sqrt{x(1-x)}}
 ```
 
 over the interval from `0.0` to `1.0`. Its exact value is `Math::PI`:
