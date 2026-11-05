@@ -1,6 +1,6 @@
 # Numo::GSL::Integration
 
-`numo-gsl-integration` provides numerical integration routines from the [GNU Scientific Library (GSL)](https://www.gnu.org/software/gsl/) under the `Numo::GSL::Integration` namespace. It can be installed and loaded without `numo-gsl` or `numo-gsl-alt`.
+`numo-gsl-integration` provides numerical integration routines from the [GNU Scientific Library (GSL)](https://www.gnu.org/software/gsl/) under the `Numo::GSL::Integration` namespace. It can be installed and loaded without [`numo-gsl`](https://github.com/ruby-numo/numo-gsl) or [`numo-gsl-alt`](https://github.com/mvz/numo-gsl-alt).
 
 ## Requirements
 
