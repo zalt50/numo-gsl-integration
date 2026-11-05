@@ -42,6 +42,19 @@ RSpec.describe Numo::GSL::Integration do
       expect(result).to(be_within(1e-14).of(Math::PI))
     end
 
+    it "applies the second-kind Chebyshev weight" do
+      result = described_class.fixed(
+        :chebyshev2,
+        order: 3,
+        a: -1.0,
+        b: 1.0
+      ) do |_x|
+        1.0
+      end
+
+      expect(result).to(be_within(1e-14).of(Math::PI / 2.0))
+    end
+
     it "integrates a polynomial exactly for a sufficient order" do
       result = described_class.fixed(
         :legendre,
