@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-11-06
+
+### Changed in 0.3.1
+
+- Simplified the internal handling of fixed quadrature rules without changing the public API.
+
 ## [0.3.0] - 2026-11-05
 
 ### Added in 0.3.0
