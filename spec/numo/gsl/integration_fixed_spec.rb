@@ -55,6 +55,29 @@ RSpec.describe Numo::GSL::Integration do
       expect(result).to(be_within(1e-14).of(Math::PI / 2.0))
     end
 
+    it "applies the Gegenbauer weight" do
+      result = described_class.fixed(
+        :gegenbauer,
+        order: 3,
+        a: -1.0,
+        b: 1.0,
+        alpha: 1.0
+      ) do |_x|
+        1.0
+      end
+
+      expect(result).to(be_within(1e-14).of(4.0 / 3.0))
+    end
+
+    it "requires alpha for Gegenbauer quadrature" do
+      expect do
+        described_class.fixed(:gegenbauer, order: 3, a: -1.0, b: 1.0) do |x|
+          x
+        end
+      end
+        .to(raise_error(ArgumentError, "alpha is required for gegenbauer"))
+    end
+
     it "integrates a polynomial exactly for a sufficient order" do
       result = described_class.fixed(
         :legendre,

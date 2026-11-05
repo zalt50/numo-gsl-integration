@@ -6,6 +6,7 @@ typedef struct {
   size_t order;
   double a;
   double b;
+  double alpha;
   gsl_integration_fixed_workspace *workspace;
   double *result;
 } integration_fixed_params;
@@ -27,6 +28,9 @@ static const gsl_integration_fixed_type *integration_fixed_type(VALUE type) {
   if (type_id == rb_intern("chebyshev2")) {
     return gsl_integration_fixed_chebyshev2;
   }
+  if (type_id == rb_intern("gegenbauer")) {
+    return gsl_integration_fixed_gegenbauer;
+  }
 
   rb_raise(rb_eArgError, "unsupported fixed quadrature type: %s",
            rb_id2name(type_id));
@@ -46,7 +50,7 @@ static VALUE integration_run_fixed(VALUE data) {
   integration_fixed_params *params = (integration_fixed_params *)data;
 
   params->workspace = gsl_integration_fixed_alloc(
-      params->type, params->order, params->a, params->b, 0.0, 0.0);
+      params->type, params->order, params->a, params->b, params->alpha, 0.0);
   if (params->workspace == NULL) {
     rb_memerror();
   }
@@ -64,9 +68,11 @@ static VALUE integration_run_fixed_with_workspace(VALUE data) {
 VALUE integration_fixed(int argc, VALUE *argv, VALUE self) {
   VALUE type;
   VALUE options;
-  ID keywords[] = {rb_intern("order"), rb_intern("a"), rb_intern("b")};
-  VALUE keyword_values[3];
+  ID keywords[] = {rb_intern("order"), rb_intern("a"), rb_intern("b"),
+                   rb_intern("alpha")};
+  VALUE keyword_values[4];
   VALUE order_value;
+  VALUE alpha_value;
   size_t order;
   gsl_function function;
   integration_callback_params params;
@@ -80,8 +86,9 @@ VALUE integration_fixed(int argc, VALUE *argv, VALUE self) {
   if (NIL_P(options)) {
     options = rb_hash_new();
   }
-  rb_get_kwargs(options, keywords, 3, 0, keyword_values);
+  rb_get_kwargs(options, keywords, 3, 1, keyword_values);
   order_value = keyword_values[0];
+  alpha_value = keyword_values[3];
 
   if (!RB_INTEGER_TYPE_P(order_value)) {
     rb_raise(rb_eTypeError, "order must be an Integer");
@@ -96,6 +103,14 @@ VALUE integration_fixed(int argc, VALUE *argv, VALUE self) {
   fixed_params.order = order;
   fixed_params.a = NUM2DBL(keyword_values[1]);
   fixed_params.b = NUM2DBL(keyword_values[2]);
+  if (fixed_params.type == gsl_integration_fixed_gegenbauer) {
+    if (alpha_value == Qundef) {
+      rb_raise(rb_eArgError, "alpha is required for gegenbauer");
+    }
+    fixed_params.alpha = NUM2DBL(alpha_value);
+  } else {
+    fixed_params.alpha = 0.0;
+  }
   fixed_params.workspace = NULL;
   fixed_params.result = &result;
 
