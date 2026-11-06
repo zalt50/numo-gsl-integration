@@ -8,7 +8,25 @@ RSpec.describe Numo::GSL::Integration do
       end
     end
 
+    let(:workspace_expected_result) { 1.0 }
+
+    let(:integrate_with_workspace) do
+      lambda do |workspace, **options|
+        described_class.qaws(
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0,
+          0,
+          workspace: workspace,
+          **options
+        ) { 1.0 }
+      end
+    end
+
     it_behaves_like("an integration callback")
+    it_behaves_like("a reusable integration workspace")
 
     it "integrates a function with algebraic endpoint singularities", :aggregate_failures do
       result, error = described_class.qaws(
