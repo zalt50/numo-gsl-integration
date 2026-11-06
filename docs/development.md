@@ -1,5 +1,13 @@
 # Development
 
+Development and builds require GSL 2.8 or later. Confirm the installed version before building:
+
+```bash
+gsl-config --version
+```
+
+The extension configuration stops with an error if `gsl-config` reports an older version or if the Lebedev integration API is unavailable.
+
 After checking out the repository, install the dependencies:
 
 ```bash

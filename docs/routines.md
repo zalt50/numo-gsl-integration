@@ -383,3 +383,28 @@ end
 ```
 
 The example result is `1.0 / 6.0`. Fixed point quadratures return only the integral. They do not accept absolute or relative error bounds and do not return an error estimate. Use an adaptive routine when the required order is not known in advance.
+
+## Lebedev integration on the unit sphere
+
+GSL [Lebedev quadrature](https://www.gnu.org/software/gsl/doc/html/integration.html#integrating-on-the-unit-sphere) approximates a surface integral over the unit sphere. `Numo::GSL::Integration.lebedev` passes the Cartesian coordinates of each quadrature point to the block:
+
+```ruby
+result = Numo::GSL::Integration.lebedev(26) do |x, y, z|
+  (x * x) + (y * y) + (z * z)
+end
+```
+
+Every point satisfies `x * x + y * y + z * z == 1` within floating-point precision, so the example integral has an exact value of `4.0 * Math::PI`.
+
+The argument is the number of Lebedev nodes. GSL 2.8 provides the following node counts:
+
+```text
+6, 14, 26, 38, 50, 74, 86, 110,
+146, 170, 194, 230, 266, 302, 350, 434,
+590, 770, 974, 1202, 1454, 1730, 2030, 2354,
+2702, 3074, 3470, 3890, 4334, 4802, 5294, 5810
+```
+
+The node count must be a positive integer and must identify one of the rules supplied by GSL. Unsupported node counts are reported as `Numo::GSL::GslError`.
+
+Lebedev integration returns only the surface integral. It does not accept an error tolerance and does not return an error estimate. Increasing the node count selects a rule that integrates spherical harmonics to a higher degree exactly.

@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-06
+
+### Added in 0.4.0
+
+- Added Lebedev quadrature for surface integration over the unit sphere.
+
+### Changed in 0.4.0
+
+- Required GNU Scientific Library 2.8 or later.
+
 ## [0.3.1] - 2026-11-06
 
 ### Changed in 0.3.1

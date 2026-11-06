@@ -3,6 +3,7 @@
 
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_integration.h>
+#include <gsl/gsl_math.h>
 #include <ruby.h>
 
 typedef struct {
@@ -52,5 +53,6 @@ VALUE integration_cquad(int argc, VALUE *argv, VALUE self);
 VALUE integration_romberg(int argc, VALUE *argv, VALUE self);
 VALUE integration_glfixed(int argc, VALUE *argv, VALUE self);
 VALUE integration_fixed(int argc, VALUE *argv, VALUE self);
+VALUE integration_lebedev(VALUE self, VALUE n_value);
 
 #endif

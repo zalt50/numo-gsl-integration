@@ -45,4 +45,5 @@ void Init_integration(void) {
   rb_define_singleton_method(mIntegration, "romberg", integration_romberg, -1);
   rb_define_singleton_method(mIntegration, "glfixed", integration_glfixed, -1);
   rb_define_singleton_method(mIntegration, "fixed", integration_fixed, -1);
+  rb_define_singleton_method(mIntegration, "lebedev", integration_lebedev, 1);
 }

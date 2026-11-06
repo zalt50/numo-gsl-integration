@@ -116,6 +116,9 @@ module Numo
         ?alpha: Numeric,
         ?beta: Numeric
       ) { (Float) -> Numeric } -> Float
+      def self.lebedev: (Integer n) {
+        (Float, Float, Float) -> Numeric
+      } -> Float
     end
   end
 end

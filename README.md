@@ -5,7 +5,7 @@
 ## Requirements
 
 - [Ruby](https://www.ruby-lang.org/) 3.2 or later
-- GNU Scientific Library (GSL)
+- GNU Scientific Library (GSL) 2.8 or later
 - `gsl-config` available in `PATH`
 
   GSL itself must be installed separately.
@@ -61,6 +61,7 @@ end
 | `romberg` | Finite         | Smooth functions with extrapolated trapezoidal integration       |
 | `glfixed` | Finite         | Fixed-order Gauss-Legendre integration of smooth functions       |
 | `fixed`   | Rule-dependent | Fixed-order Gaussian quadrature with selectable weight functions |
+| `lebedev` | Unit sphere    | Lebedev quadrature over the surface of the unit sphere           |
 
 See [Integration routines](docs/routines.md) for parameters and examples.
 
