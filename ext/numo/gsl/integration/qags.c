@@ -22,25 +22,22 @@ static VALUE integration_run_qags(VALUE data) {
   return Qnil;
 }
 
-static VALUE integration_run_qags_with_workspace(VALUE data) {
-  integration_qags_params *params = (integration_qags_params *)data;
-
-  return rb_ensure(integration_run_qags, data, integration_free_workspace,
-                   (VALUE)params->workspace);
-}
-
 VALUE integration_qags(int argc, VALUE *argv, VALUE self) {
   VALUE a;
   VALUE b;
   VALUE options;
+  VALUE workspace_value;
   integration_options parsed_options;
+  double a_double;
+  double b_double;
   double epsabs;
   double epsrel;
   size_t limit;
-  gsl_integration_workspace *workspace;
+  int limit_given;
   gsl_function function;
   integration_callback_params params;
   integration_qags_params qags_params;
+  integration_workspace_use workspace_use;
   double result;
   double error;
   int state = 0;
@@ -48,29 +45,35 @@ VALUE integration_qags(int argc, VALUE *argv, VALUE self) {
   (void)self;
 
   rb_scan_args(argc, argv, "2:", &a, &b, &options);
+  integration_options_parse_with_workspace(options, &parsed_options, 0.0, 1e-8,
+                                           1000, &workspace_value,
+                                           &limit_given);
 
-  integration_options_parse(options, &parsed_options, 0.0, 1e-8, 1000);
-
+  a_double = NUM2DBL(a);
+  b_double = NUM2DBL(b);
   epsabs = parsed_options.epsabs;
   epsrel = parsed_options.epsrel;
   limit = parsed_options.limit;
 
   integration_function_init(&function, &params);
 
-  workspace = gsl_integration_workspace_alloc(limit);
+  integration_workspace_use_begin(workspace_value, &limit, limit_given,
+                                  &workspace_use);
 
   qags_params.function = &function;
-  qags_params.a = NUM2DBL(a);
-  qags_params.b = NUM2DBL(b);
+  qags_params.a = a_double;
+  qags_params.b = b_double;
   qags_params.epsabs = epsabs;
   qags_params.epsrel = epsrel;
   qags_params.limit = limit;
-  qags_params.workspace = workspace;
+  qags_params.workspace = workspace_use.workspace;
   qags_params.result = &result;
   qags_params.error = &error;
 
-  rb_protect(integration_run_qags_with_workspace, (VALUE)&qags_params, &state);
+  rb_protect(integration_run_qags, (VALUE)&qags_params, &state);
+  integration_workspace_use_end((VALUE)&workspace_use);
 
+  RB_GC_GUARD(workspace_value);
   RB_GC_GUARD(params.block);
   RB_GC_GUARD(params.exception);
 

@@ -20,23 +20,18 @@ static VALUE integration_run_qagi(VALUE data) {
   return Qnil;
 }
 
-static VALUE integration_run_qagi_with_workspace(VALUE data) {
-  integration_qagi_params *params = (integration_qagi_params *)data;
-
-  return rb_ensure(integration_run_qagi, data, integration_free_workspace,
-                   (VALUE)params->workspace);
-}
-
 VALUE integration_qagi(int argc, VALUE *argv, VALUE self) {
   VALUE options;
+  VALUE workspace_value;
   integration_options parsed_options;
   double epsabs;
   double epsrel;
   size_t limit;
-  gsl_integration_workspace *workspace;
+  int limit_given;
   gsl_function function;
   integration_callback_params params;
   integration_qagi_params qagi_params;
+  integration_workspace_use workspace_use;
   double result;
   double error;
   int state = 0;
@@ -44,8 +39,9 @@ VALUE integration_qagi(int argc, VALUE *argv, VALUE self) {
   (void)self;
 
   rb_scan_args(argc, argv, "0:", &options);
-
-  integration_options_parse(options, &parsed_options, 0.0, 1e-8, 1000);
+  integration_options_parse_with_workspace(options, &parsed_options, 0.0, 1e-8,
+                                           1000, &workspace_value,
+                                           &limit_given);
 
   epsabs = parsed_options.epsabs;
   epsrel = parsed_options.epsrel;
@@ -53,18 +49,21 @@ VALUE integration_qagi(int argc, VALUE *argv, VALUE self) {
 
   integration_function_init(&function, &params);
 
-  workspace = gsl_integration_workspace_alloc(limit);
+  integration_workspace_use_begin(workspace_value, &limit, limit_given,
+                                  &workspace_use);
 
   qagi_params.function = &function;
   qagi_params.epsabs = epsabs;
   qagi_params.epsrel = epsrel;
   qagi_params.limit = limit;
-  qagi_params.workspace = workspace;
+  qagi_params.workspace = workspace_use.workspace;
   qagi_params.result = &result;
   qagi_params.error = &error;
 
-  rb_protect(integration_run_qagi_with_workspace, (VALUE)&qagi_params, &state);
+  rb_protect(integration_run_qagi, (VALUE)&qagi_params, &state);
+  integration_workspace_use_end((VALUE)&workspace_use);
 
+  RB_GC_GUARD(workspace_value);
   RB_GC_GUARD(params.block);
   RB_GC_GUARD(params.exception);
 

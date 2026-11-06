@@ -15,6 +15,27 @@ typedef struct {
 void integration_options_parse(VALUE options, integration_options *parsed,
                                double default_epsabs, double default_epsrel,
                                size_t default_limit);
+void integration_options_parse_with_workspace(
+    VALUE options, integration_options *parsed, double default_epsabs,
+    double default_epsrel, size_t default_limit, VALUE *workspace_value,
+    int *limit_given);
+
+typedef struct {
+  gsl_integration_workspace *workspace;
+  size_t limit;
+  int busy;
+} integration_workspace;
+
+typedef struct {
+  gsl_integration_workspace *workspace;
+  integration_workspace *owner;
+} integration_workspace_use;
+
+void integration_workspace_init(VALUE integration_module);
+void integration_workspace_use_begin(VALUE workspace_value, size_t *limit,
+                                     int limit_given,
+                                     integration_workspace_use *use);
+VALUE integration_workspace_use_end(VALUE data);
 
 typedef struct {
   VALUE block;

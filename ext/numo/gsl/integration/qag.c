@@ -32,59 +32,70 @@ VALUE integration_qag(int argc, VALUE *argv, VALUE self) {
   VALUE epsrel_value = Qundef;
   VALUE limit_value = Qundef;
   VALUE key_value = Qundef;
+  VALUE workspace_value = Qundef;
   ID keywords[] = {rb_intern("epsabs"), rb_intern("epsrel"), rb_intern("limit"),
-                   rb_intern("key")};
-  VALUE keyword_values[4];
+                   rb_intern("key"), rb_intern("workspace")};
+  VALUE keyword_values[5];
+  double a_double;
+  double b_double;
   double epsabs;
   double epsrel;
   size_t limit;
+  int limit_given;
   int key;
-  gsl_integration_workspace *workspace;
   gsl_function function;
   integration_callback_params params;
   integration_qag_params qag_params;
+  integration_workspace_use workspace_use;
   double result;
   double error;
+  int state = 0;
 
   (void)self;
 
   rb_scan_args(argc, argv, "2:", &a, &b, &options);
 
   if (!NIL_P(options)) {
-    rb_get_kwargs(options, keywords, 0, 4, keyword_values);
+    rb_get_kwargs(options, keywords, 0, 5, keyword_values);
     epsabs_value = keyword_values[0];
     epsrel_value = keyword_values[1];
     limit_value = keyword_values[2];
     key_value = keyword_values[3];
+    workspace_value = keyword_values[4];
   }
 
+  a_double = NUM2DBL(a);
+  b_double = NUM2DBL(b);
   epsabs = epsabs_value == Qundef ? 0.0 : NUM2DBL(epsabs_value);
   epsrel = epsrel_value == Qundef ? 1e-8 : NUM2DBL(epsrel_value);
   limit = limit_value == Qundef ? 1000 : NUM2SIZET(limit_value);
+  limit_given = limit_value != Qundef;
   key = key_value == Qundef ? GSL_INTEG_GAUSS61 : NUM2INT(key_value);
 
   integration_function_init(&function, &params);
 
-  workspace = gsl_integration_workspace_alloc(limit);
+  integration_workspace_use_begin(workspace_value, &limit, limit_given,
+                                  &workspace_use);
 
   qag_params.function = &function;
-  qag_params.a = NUM2DBL(a);
-  qag_params.b = NUM2DBL(b);
+  qag_params.a = a_double;
+  qag_params.b = b_double;
   qag_params.epsabs = epsabs;
   qag_params.epsrel = epsrel;
   qag_params.limit = limit;
   qag_params.key = key;
-  qag_params.workspace = workspace;
+  qag_params.workspace = workspace_use.workspace;
   qag_params.result = &result;
   qag_params.error = &error;
 
-  rb_ensure(integration_run_qag, (VALUE)&qag_params, integration_free_workspace,
-            (VALUE)workspace);
+  rb_protect(integration_run_qag, (VALUE)&qag_params, &state);
+  integration_workspace_use_end((VALUE)&workspace_use);
 
+  RB_GC_GUARD(workspace_value);
   RB_GC_GUARD(params.block);
   RB_GC_GUARD(params.exception);
 
-  integration_finish_callback(&params, 0);
+  integration_finish_callback(&params, state);
 
   return rb_ary_new_from_args(2, DBL2NUM(result), DBL2NUM(error));
 }

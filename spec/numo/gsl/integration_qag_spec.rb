@@ -6,8 +6,7 @@ RSpec.describe Numo::GSL::Integration do
       -> (&block) { described_class.qag(0.0, 1.0, &block) }
     end
 
-    it_behaves_like("an integration callback")
-
+    let(:workspace_expected_result) { 1.0 / 3.0 }
     let(:integrate_with_workspace) do
       lambda do |workspace, **options|
         described_class.qag(
@@ -19,7 +18,7 @@ RSpec.describe Numo::GSL::Integration do
       end
     end
 
-    let(:workspace_expected_result) { 1.0 / 3.0 }
+    it_behaves_like("an integration callback")
 
     it_behaves_like("a reusable integration workspace")
 

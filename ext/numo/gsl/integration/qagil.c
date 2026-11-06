@@ -21,24 +21,20 @@ static VALUE integration_run_qagil(VALUE data) {
   return Qnil;
 }
 
-static VALUE integration_run_qagil_with_workspace(VALUE data) {
-  integration_qagil_params *params = (integration_qagil_params *)data;
-
-  return rb_ensure(integration_run_qagil, data, integration_free_workspace,
-                   (VALUE)params->workspace);
-}
-
 VALUE integration_qagil(int argc, VALUE *argv, VALUE self) {
   VALUE b;
   VALUE options;
+  VALUE workspace_value;
   integration_options parsed_options;
+  double b_double;
   double epsabs;
   double epsrel;
   size_t limit;
-  gsl_integration_workspace *workspace;
+  int limit_given;
   gsl_function function;
   integration_callback_params params;
   integration_qagil_params qagil_params;
+  integration_workspace_use workspace_use;
   double result;
   double error;
   int state = 0;
@@ -46,29 +42,33 @@ VALUE integration_qagil(int argc, VALUE *argv, VALUE self) {
   (void)self;
 
   rb_scan_args(argc, argv, "1:", &b, &options);
+  integration_options_parse_with_workspace(options, &parsed_options, 0.0, 1e-8,
+                                           1000, &workspace_value,
+                                           &limit_given);
 
-  integration_options_parse(options, &parsed_options, 0.0, 1e-8, 1000);
-
+  b_double = NUM2DBL(b);
   epsabs = parsed_options.epsabs;
   epsrel = parsed_options.epsrel;
   limit = parsed_options.limit;
 
   integration_function_init(&function, &params);
 
-  workspace = gsl_integration_workspace_alloc(limit);
+  integration_workspace_use_begin(workspace_value, &limit, limit_given,
+                                  &workspace_use);
 
   qagil_params.function = &function;
-  qagil_params.b = NUM2DBL(b);
+  qagil_params.b = b_double;
   qagil_params.epsabs = epsabs;
   qagil_params.epsrel = epsrel;
   qagil_params.limit = limit;
-  qagil_params.workspace = workspace;
+  qagil_params.workspace = workspace_use.workspace;
   qagil_params.result = &result;
   qagil_params.error = &error;
 
-  rb_protect(integration_run_qagil_with_workspace, (VALUE)&qagil_params,
-             &state);
+  rb_protect(integration_run_qagil, (VALUE)&qagil_params, &state);
+  integration_workspace_use_end((VALUE)&workspace_use);
 
+  RB_GC_GUARD(workspace_value);
   RB_GC_GUARD(params.block);
   RB_GC_GUARD(params.exception);
 

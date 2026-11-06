@@ -41,7 +41,7 @@ RSpec.describe Numo::GSL::Integration::Workspace do
       expect(yielded_workspace).to(be_closed)
     end
 
-    it "closes the workspace when the block raises" do
+    it "closes the workspace when the block raises", :aggregate_failures do
       yielded_workspace = nil
       error_class = Class.new(StandardError)
 
@@ -65,7 +65,7 @@ RSpec.describe Numo::GSL::Integration::Workspace do
       expect(workspace).to(be_closed)
     end
 
-    it "is idempotent" do
+    it "is idempotent", :aggregate_failures do
       workspace = described_class.new(limit: 100)
 
       expect do
@@ -78,6 +78,16 @@ RSpec.describe Numo::GSL::Integration::Workspace do
 
   describe "use by an integration routine" do
     let(:workspace) { described_class.new(limit: 100) }
+
+    let(:integrate_quadratic) do
+      lambda do
+        Numo::GSL::Integration.qag(
+          0.0,
+          1.0,
+          workspace: workspace
+        ) { |x| x * x }
+      end
+    end
 
     after do
       workspace.close
@@ -127,11 +137,7 @@ RSpec.describe Numo::GSL::Integration::Workspace do
       end
         .to(raise_error(error_class, "failed"))
 
-      result, error = Numo::GSL::Integration.qag(
-        0.0,
-        1.0,
-        workspace: workspace
-      ) { |x| x * x }
+      result, error = integrate_quadratic.call
 
       expect(result).to(be_within(1e-10).of(1.0 / 3.0))
       expect(error).to(be >= 0.0)
@@ -149,11 +155,7 @@ RSpec.describe Numo::GSL::Integration::Workspace do
       end
         .to(raise_error(Numo::GSL::GslError))
 
-      result, error = Numo::GSL::Integration.qag(
-        0.0,
-        1.0,
-        workspace: workspace
-      ) { |x| x * x }
+      result, error = integrate_quadratic.call
 
       expect(result).to(be_within(1e-10).of(1.0 / 3.0))
       expect(error).to(be >= 0.0)

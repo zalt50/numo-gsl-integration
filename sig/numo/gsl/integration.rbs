@@ -10,13 +10,21 @@ module Numo
       GAUSS61: Integer
       COSINE: Integer
       SINE: Integer
+      class Workspace
+        def self.open: [T] (limit: Integer) { (Workspace) -> T } -> T
+        def initialize: (limit: Integer) -> void
+        def limit: () -> Integer
+        def close: () -> nil
+        def closed?: () -> bool
+      end
       def self.qag: (
         Numeric a,
         Numeric b,
         ?epsabs: Numeric,
         ?epsrel: Numeric,
         ?limit: Integer,
-        ?key: Integer
+        ?key: Integer,
+        ?workspace: Workspace
       ) { (Float) -> Numeric } -> [Float, Float]
       def self.qng: (
         Numeric a,
@@ -29,7 +37,8 @@ module Numo
         Numeric b,
         ?epsabs: Numeric,
         ?epsrel: Numeric,
-        ?limit: Integer
+        ?limit: Integer,
+        ?workspace: Workspace
       ) { (Float) -> Numeric } -> [Float, Float]
       def self.qagp: (
         Array[Numeric] points,
@@ -40,19 +49,22 @@ module Numo
       def self.qagi: (
         ?epsabs: Numeric,
         ?epsrel: Numeric,
-        ?limit: Integer
+        ?limit: Integer,
+        ?workspace: Workspace
       ) { (Float) -> Numeric } -> [Float, Float]
       def self.qagiu: (
         Numeric a,
         ?epsabs: Numeric,
         ?epsrel: Numeric,
-        ?limit: Integer
+        ?limit: Integer,
+        ?workspace: Workspace
       ) { (Float) -> Numeric } -> [Float, Float]
       def self.qagil: (
         Numeric b,
         ?epsabs: Numeric,
         ?epsrel: Numeric,
-        ?limit: Integer
+        ?limit: Integer,
+        ?workspace: Workspace
       ) { (Float) -> Numeric } -> [Float, Float]
       def self.qawc: (
         Numeric a,
