@@ -78,20 +78,63 @@ jobs:
           gem build numo-gsl-integration.gemspec \
             --output "pkg/numo-gsl-integration-${GITHUB_REF_NAME#v}.gem"
 
+      - name: Extract release notes from changelog
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          heading="## [${version}]"
+          notes_file="pkg/release-notes.md"
+
+          awk -v heading="$heading" '
+            index($0, heading) == 1 {
+              found = 1
+              next
+            }
+
+            found && /^## \[/ {
+              exit
+            }
+
+            found {
+              if ($0 ~ /^### /) {
+                sub(/^### /, "## ")
+              }
+              print
+            }
+
+            END {
+              if (!found) {
+                exit 2
+              }
+            }
+          ' CHANGELOG.md > "$notes_file"
+
+          if [[ ! -s "$notes_file" ]]; then
+            echo "Release notes for ${version} were not found in CHANGELOG.md." >&2
+            exit 1
+          fi
+
+          cat "$notes_file"
+
       - name: Create draft GitHub release
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gem_file="pkg/numo-gsl-integration-${GITHUB_REF_NAME#v}.gem"
+          version="${GITHUB_REF_NAME#v}"
+          gem_file="pkg/numo-gsl-integration-${version}.gem"
+          notes_file="pkg/release-notes.md"
 
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
             gh release upload "$GITHUB_REF_NAME" "$gem_file" --clobber
+            gh release edit "$GITHUB_REF_NAME" \
+              --notes-file "$notes_file"
           else
             gh release create "$GITHUB_REF_NAME" "$gem_file" \
               --draft \
-              --generate-notes \
+              --notes-file "$notes_file" \
               --verify-tag
           fi
 
