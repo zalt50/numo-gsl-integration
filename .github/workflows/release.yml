@@ -30,22 +30,22 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install --yes clang-format libgsl-dev
+          sudo apt-get install --yes clang-format
           clang-format --version
+
+      - name: Install Homebrew dependencies
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew install gsl rubyfmt
+          echo "/home/linuxbrew/.linuxbrew/bin" >> "$GITHUB_PATH"
           gsl-config --version
+          rubyfmt --version
 
       - name: Install markdown tools
         run: |
           npm install --global markdownlint-cli2 prettier
           prettier --version
           markdownlint-cli2 --version
-
-      - name: Install rubyfmt
-        run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew install rubyfmt
-          echo "/home/linuxbrew/.linuxbrew/bin" >> "$GITHUB_PATH"
-          rubyfmt --version
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
