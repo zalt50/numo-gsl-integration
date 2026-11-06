@@ -58,7 +58,7 @@ Numo::GSL::Integration::Workspace.open(limit: 100) do |workspace|
 end
 ```
 
-Reusable workspaces are supported by `qag`, `qags`, `qagp`, `qagi`, `qagiu`, `qagil`, and `qawc`. See [Integration routines](docs/routines.md) for lifecycle and capacity details.
+Reusable workspaces are supported by `qag`, `qags`, `qagp`, `qagi`, `qagiu`, `qagil`, `qawc`, and `qaws`. See [Integration routines](docs/routines.md) for lifecycle and capacity details.
 
 ## Supported routines
 
