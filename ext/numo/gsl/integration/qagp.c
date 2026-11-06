@@ -3,13 +3,16 @@
 
 typedef struct {
   VALUE points_array;
+  VALUE workspace_value;
   gsl_function *function;
   double *points;
   size_t point_count;
   double epsabs;
   double epsrel;
   size_t limit;
+  int limit_given;
   gsl_integration_workspace *workspace;
+  integration_workspace_use workspace_use;
   double *result;
   double *error;
 } integration_qagp_params;
@@ -62,7 +65,9 @@ static VALUE integration_run_qagp(VALUE data) {
         NUM2DBL(rb_ary_entry(params->points_array, (long)index));
   }
 
-  params->workspace = gsl_integration_workspace_alloc(params->limit);
+  integration_workspace_use_begin(params->workspace_value, &params->limit,
+                                  params->limit_given, &params->workspace_use);
+  params->workspace = params->workspace_use.workspace;
 
   (void)gsl_integration_qagp(params->function, params->points,
                              params->point_count, params->epsabs,
@@ -75,12 +80,11 @@ static VALUE integration_run_qagp(VALUE data) {
 static VALUE integration_free_qagp_resources(VALUE data) {
   integration_qagp_params *params = (integration_qagp_params *)data;
 
-  if (params->workspace != NULL) {
-    gsl_integration_workspace_free(params->workspace);
-  }
+  integration_workspace_use_end((VALUE)&params->workspace_use);
 
   if (params->points != NULL) {
     xfree(params->points);
+    params->points = NULL;
   }
 
   return Qnil;
@@ -94,13 +98,15 @@ static VALUE integration_run_qagp_with_resources(VALUE data) {
 VALUE integration_qagp(int argc, VALUE *argv, VALUE self) {
   VALUE points;
   VALUE options;
+  VALUE workspace_value;
   integration_options parsed_options;
   double epsabs;
   double epsrel;
   size_t limit;
+  int limit_given;
   gsl_function function;
   integration_callback_params params;
-  integration_qagp_params qagp_params;
+  integration_qagp_params qagp_params = {0};
   double result;
   double error;
   int state = 0;
@@ -111,7 +117,9 @@ VALUE integration_qagp(int argc, VALUE *argv, VALUE self) {
 
   integration_validate_qagp_points(points);
 
-  integration_options_parse(options, &parsed_options, 0.0, 1e-8, 1000);
+  integration_options_parse_with_workspace(options, &parsed_options, 0.0, 1e-8,
+                                           1000, &workspace_value,
+                                           &limit_given);
 
   epsabs = parsed_options.epsabs;
   epsrel = parsed_options.epsrel;
@@ -120,19 +128,20 @@ VALUE integration_qagp(int argc, VALUE *argv, VALUE self) {
   integration_function_init(&function, &params);
 
   qagp_params.points_array = points;
+  qagp_params.workspace_value = workspace_value;
   qagp_params.function = &function;
-  qagp_params.points = NULL;
   qagp_params.point_count = (size_t)RARRAY_LEN(points);
   qagp_params.epsabs = epsabs;
   qagp_params.epsrel = epsrel;
   qagp_params.limit = limit;
-  qagp_params.workspace = NULL;
+  qagp_params.limit_given = limit_given;
   qagp_params.result = &result;
   qagp_params.error = &error;
 
   rb_protect(integration_run_qagp_with_resources, (VALUE)&qagp_params, &state);
 
   RB_GC_GUARD(points);
+  RB_GC_GUARD(workspace_value);
   RB_GC_GUARD(params.block);
   RB_GC_GUARD(params.exception);
 

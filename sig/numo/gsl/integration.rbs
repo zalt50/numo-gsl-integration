@@ -44,7 +44,8 @@ module Numo
         Array[Numeric] points,
         ?epsabs: Numeric,
         ?epsrel: Numeric,
-        ?limit: Integer
+        ?limit: Integer,
+        ?workspace: Workspace
       ) { (Float) -> Numeric } -> [Float, Float]
       def self.qagi: (
         ?epsabs: Numeric,
