@@ -10,7 +10,7 @@ Exceptions raised by an integrand are propagated to the caller. A non-numeric re
 
 ## Reusable integration workspaces
 
-`Numo::GSL::Integration::Workspace` retains a GSL adaptive-integration workspace so repeated calls can reuse the same allocation. It is supported by `qag`, `qags`, `qagi`, `qagiu`, and `qagil`. Other routines continue to manage their own routine-specific workspaces.
+`Numo::GSL::Integration::Workspace` retains a GSL adaptive-integration workspace so repeated calls can reuse the same allocation. It is supported by `qag`, `qags`, `qagp`, `qagi`, `qagiu`, `qagil`, and `qawc`. Other routines continue to manage their own routine-specific workspaces.
 
 Use `.open` when the workspace should be closed automatically after a block:
 
