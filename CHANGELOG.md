@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added `Numo::GSL::Integration::Workspace` for reusing adaptive-integration workspace allocations across `qag`, `qags`, `qagi`, `qagiu`, and `qagil` calls.
+- Added block-scoped workspace management with `Workspace.open`, explicit lifecycle methods with `close` and `closed?`, and workspace capacity reporting with `limit`.
+
+### Changed
+
+- Added an optional `workspace:` keyword to `qag`, `qags`, `qagi`, `qagiu`, and `qagil`. Calls that omit it retain the previous allocate-per-call behavior.
+
 ## [0.4.0] - 2026-11-06
 
 ### Added in 0.4.0

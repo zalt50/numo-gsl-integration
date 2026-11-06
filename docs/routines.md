@@ -8,6 +8,48 @@ require "numo/gsl/integration"
 
 Exceptions raised by an integrand are propagated to the caller. A non-numeric return value from an integrand raises `TypeError`.
 
+## Reusable integration workspaces
+
+`Numo::GSL::Integration::Workspace` retains a GSL adaptive-integration workspace so repeated calls can reuse the same allocation. It is supported by `qag`, `qags`, `qagi`, `qagiu`, and `qagil`. Other routines continue to manage their own routine-specific workspaces.
+
+Use `.open` when the workspace should be closed automatically after a block:
+
+```ruby
+Numo::GSL::Integration::Workspace.open(limit: 100) do |workspace|
+  result, error = Numo::GSL::Integration.qag(
+    0.0,
+    1.0,
+    workspace: workspace
+  ) do |x|
+    x * x
+  end
+end
+```
+
+Alternatively, create and close a workspace explicitly:
+
+```ruby
+workspace = Numo::GSL::Integration::Workspace.new(limit: 100)
+
+begin
+  result, error = Numo::GSL::Integration.qags(
+    0.0,
+    1.0,
+    workspace: workspace
+  ) do |x|
+    Math.log(x) / Math.sqrt(x)
+  end
+ensure
+  workspace.close
+end
+```
+
+`Workspace#limit` returns the allocated capacity, and `Workspace#closed?` reports whether the workspace has been closed. Calling `close` more than once is allowed. If a workspace is not closed explicitly, Ruby's garbage collector releases it when the object is collected.
+
+When `workspace:` is omitted, each integration call allocates and releases a temporary workspace as before. When a reusable workspace is supplied and `limit:` is omitted, the call uses the workspace capacity. An explicit `limit:` must not exceed that capacity.
+
+A workspace cannot be used recursively or by overlapping integration calls. It also cannot be closed while an integration is using it. These cases raise `RuntimeError`. Passing a closed workspace raises `RuntimeError`, and passing an object that is not an integration workspace raises `TypeError`.
+
 ## QNG integration
 
 GSL [QNG](https://www.gnu.org/software/gsl/doc/html/integration.html#qng-non-adaptive-gauss-kronrod-integration) provides non-adaptive integration for smooth functions over a finite interval. It applies increasingly accurate Gauss-Kronrod-Patterson rules and evaluates the integrand at up to 87 points.
@@ -95,6 +137,7 @@ end
 ```
 
 The points must be finite numeric values in strictly increasing order. The array must contain at least two values. A non-array argument or a non-numeric element raises `TypeError`. Too few points, non-finite values, or values that are not strictly increasing raise `ArgumentError` before GSL is called.
+
 The `epsabs`, `epsrel`, and `limit` keyword arguments control the requested error limits and maximum number of subintervals:
 
 ```ruby
@@ -185,6 +228,7 @@ PV \int_a^b \frac{f(x)}{x-c}\,dx = \lim_{\varepsilon\to 0^{+}} \left( \int_a^{c-
 ```
 
 The block passed to `Numo::GSL::Integration.qawc` returns $f(x)$. Do not divide the block result by $x - c$; QAWC applies that weight internally.
+
 The following example uses the default integration options and computes the principal value of `x / (x - 1.0)` over the interval from `0.0` to `2.0`, whose exact value is `2.0`:
 
 ```ruby
@@ -218,6 +262,7 @@ GSL [QAWS](https://www.gnu.org/software/gsl/doc/html/integration.html#qaws-adapt
 ```
 
 Call `Numo::GSL::Integration.qaws` with the endpoints `a` and `b`, followed by `alpha`, `beta`, `mu`, and `nu`. The exponents `alpha` and `beta` must be greater than `-1.0`. The logarithmic powers `mu` and `nu` must each be `0` or `1`.
+
 The block returns the unweighted function $f(x)$. QAWS applies the endpoint weight internally. The following example integrates
 
 ```math
@@ -315,6 +360,7 @@ end
 ```
 
 The example integral has an exact value of `2.0`. The `epsabs` and `epsrel` keyword arguments control the requested error limits. The `limit` keyword controls the maximum number of Romberg levels and defaults to `20`. GSL requires at least one level and limits the effective workspace to 30 levels.
+
 Romberg integration does not return an estimated absolute error. Use CQUAD, QAG, QAGS, or another routine that returns an error estimate when the caller needs one.
 
 ## GLFIXED integration
@@ -332,6 +378,7 @@ end
 ```
 
 The example integral has an exact value of `1.0 / 5.0`. The `order` keyword controls the number of Gauss-Legendre points and defaults to `10`. It must be a positive integer.
+
 GLFIXED returns only the integral. It does not accept absolute or relative error bounds and does not return an error estimate. Use an adaptive routine when the required fixed order is not known in advance.
 
 ## Fixed point quadratures

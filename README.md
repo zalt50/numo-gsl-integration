@@ -42,6 +42,24 @@ result, error = Numo::GSL::Integration.qag(0.0, 1.0) do |x|
 end
 ```
 
+To reuse the allocation across repeated adaptive integrations, create an integration workspace and pass it with the `workspace:` keyword:
+
+```ruby
+Numo::GSL::Integration::Workspace.open(limit: 100) do |workspace|
+  2.times do
+    result, error = Numo::GSL::Integration.qag(
+      0.0,
+      1.0,
+      workspace: workspace
+    ) do |x|
+      x * x
+    end
+  end
+end
+```
+
+Reusable workspaces are supported by `qag`, `qags`, `qagi`, `qagiu`, and `qagil`. See [Integration routines](docs/routines.md) for lifecycle and capacity details.
+
 ## Supported routines
 
 | Method    | Interval       | Intended use                                                     |
