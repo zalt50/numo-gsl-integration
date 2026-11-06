@@ -5,7 +5,20 @@ RSpec.describe Numo::GSL::Integration do
       -> (&block) { described_class.qagp([0.0, 0.5, 1.0], &block) }
     end
 
+    let(:workspace_expected_result) { 1.0 / 3.0 }
+
+    let(:integrate_with_workspace) do
+      lambda do |workspace, **options|
+        described_class.qagp(
+          [0.0, 0.25, 0.75, 1.0],
+          workspace: workspace,
+          **options
+        ) { |x| x * x }
+      end
+    end
+
     it_behaves_like("an integration callback")
+    it_behaves_like("a reusable integration workspace")
     it(
       "integrates a function with a known interior singularity",
       :aggregate_failures
