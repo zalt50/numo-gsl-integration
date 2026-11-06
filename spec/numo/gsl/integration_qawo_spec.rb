@@ -15,7 +15,23 @@ RSpec.describe Numo::GSL::Integration do
       end
     end
 
+    let(:workspace_expected_result) { 2.0 }
+
+    let(:integrate_with_workspace) do
+      lambda do |workspace, **options|
+        described_class.qawo(
+          0.0,
+          Math::PI,
+          1.0,
+          described_class::SINE,
+          workspace: workspace,
+          **options
+        ) { 1.0 }
+      end
+    end
+
     it_behaves_like("an integration callback")
+    it_behaves_like("a reusable integration workspace")
 
     it "integrates with a cosine weight", :aggregate_failures do
       result, error = described_class.qawo(
