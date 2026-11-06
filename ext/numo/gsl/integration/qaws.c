@@ -2,6 +2,7 @@
 
 typedef struct {
   gsl_function *function;
+  VALUE workspace_value;
   double a;
   double b;
   double alpha;
@@ -11,7 +12,9 @@ typedef struct {
   double epsabs;
   double epsrel;
   size_t limit;
+  int limit_given;
   gsl_integration_workspace *workspace;
+  integration_workspace_use workspace_use;
   gsl_integration_qaws_table *table;
   double *result;
   double *error;
@@ -22,11 +25,10 @@ static VALUE integration_free_qaws_resources(VALUE data) {
 
   if (params->table != NULL) {
     gsl_integration_qaws_table_free(params->table);
+    params->table = NULL;
   }
 
-  if (params->workspace != NULL) {
-    gsl_integration_workspace_free(params->workspace);
-  }
+  integration_workspace_use_end((VALUE)&params->workspace_use);
 
   return Qnil;
 }
@@ -36,7 +38,9 @@ static VALUE integration_run_qaws(VALUE data) {
 
   params->table = gsl_integration_qaws_table_alloc(params->alpha, params->beta,
                                                    params->mu, params->nu);
-  params->workspace = gsl_integration_workspace_alloc(params->limit);
+  integration_workspace_use_begin(params->workspace_value, &params->limit,
+                                  params->limit_given, &params->workspace_use);
+  params->workspace = params->workspace_use.workspace;
 
   (void)gsl_integration_qaws(params->function, params->a, params->b,
                              params->table, params->epsabs, params->epsrel,
@@ -59,13 +63,21 @@ VALUE integration_qaws(int argc, VALUE *argv, VALUE self) {
   VALUE mu;
   VALUE nu;
   VALUE options;
+  VALUE workspace_value;
   integration_options parsed_options;
+  double a_double;
+  double b_double;
+  double alpha_double;
+  double beta_double;
+  int mu_integer;
+  int nu_integer;
   double epsabs;
   double epsrel;
   size_t limit;
+  int limit_given;
   gsl_function function;
   integration_callback_params params;
-  integration_qaws_params qaws_params;
+  integration_qaws_params qaws_params = {0};
   double result;
   double error;
   int state = 0;
@@ -74,8 +86,16 @@ VALUE integration_qaws(int argc, VALUE *argv, VALUE self) {
 
   rb_scan_args(argc, argv, "6:", &a, &b, &alpha, &beta, &mu, &nu, &options);
 
-  integration_options_parse(options, &parsed_options, 0.0, 1e-8, 1000);
+  integration_options_parse_with_workspace(options, &parsed_options, 0.0, 1e-8,
+                                           1000, &workspace_value,
+                                           &limit_given);
 
+  a_double = NUM2DBL(a);
+  b_double = NUM2DBL(b);
+  alpha_double = NUM2DBL(alpha);
+  beta_double = NUM2DBL(beta);
+  mu_integer = NUM2INT(mu);
+  nu_integer = NUM2INT(nu);
   epsabs = parsed_options.epsabs;
   epsrel = parsed_options.epsrel;
   limit = parsed_options.limit;
@@ -83,22 +103,23 @@ VALUE integration_qaws(int argc, VALUE *argv, VALUE self) {
   integration_function_init(&function, &params);
 
   qaws_params.function = &function;
-  qaws_params.a = NUM2DBL(a);
-  qaws_params.b = NUM2DBL(b);
-  qaws_params.alpha = NUM2DBL(alpha);
-  qaws_params.beta = NUM2DBL(beta);
-  qaws_params.mu = NUM2INT(mu);
-  qaws_params.nu = NUM2INT(nu);
+  qaws_params.workspace_value = workspace_value;
+  qaws_params.a = a_double;
+  qaws_params.b = b_double;
+  qaws_params.alpha = alpha_double;
+  qaws_params.beta = beta_double;
+  qaws_params.mu = mu_integer;
+  qaws_params.nu = nu_integer;
   qaws_params.epsabs = epsabs;
   qaws_params.epsrel = epsrel;
   qaws_params.limit = limit;
-  qaws_params.workspace = NULL;
-  qaws_params.table = NULL;
+  qaws_params.limit_given = limit_given;
   qaws_params.result = &result;
   qaws_params.error = &error;
 
   rb_protect(integration_run_qaws_with_resources, (VALUE)&qaws_params, &state);
 
+  RB_GC_GUARD(workspace_value);
   RB_GC_GUARD(params.block);
   RB_GC_GUARD(params.exception);
 

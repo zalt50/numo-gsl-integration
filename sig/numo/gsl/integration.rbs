@@ -85,7 +85,8 @@ module Numo
         Integer nu,
         ?epsabs: Numeric,
         ?epsrel: Numeric,
-        ?limit: Integer
+        ?limit: Integer,
+        ?workspace: Workspace
       ) { (Float) -> Numeric } -> [Float, Float]
       def self.qawo: (
         Numeric a,
