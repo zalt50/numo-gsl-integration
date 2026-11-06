@@ -8,6 +8,21 @@ RSpec.describe Numo::GSL::Integration do
 
     it_behaves_like("an integration callback")
 
+    let(:integrate_with_workspace) do
+      lambda do |workspace, **options|
+        described_class.qag(
+          0.0,
+          1.0,
+          workspace: workspace,
+          **options
+        ) { |x| x * x }
+      end
+    end
+
+    let(:workspace_expected_result) { 1.0 / 3.0 }
+
+    it_behaves_like("a reusable integration workspace")
+
     it "integrates a function over a finite interval", :aggregate_failures do
       result, error = described_class.qag(0.0, 1.0) do |x|
         x * x

@@ -3,6 +3,7 @@
 require "numo/gsl/integration"
 
 require_relative "support/integration_callback_examples"
+require_relative "support/integration_workspace_examples"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

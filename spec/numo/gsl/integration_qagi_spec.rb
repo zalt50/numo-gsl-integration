@@ -8,6 +8,19 @@ RSpec.describe Numo::GSL::Integration do
 
     it_behaves_like("an integration callback")
 
+    let(:integrate_with_workspace) do
+      lambda do |workspace, **options|
+        described_class.qagi(
+          workspace: workspace,
+          **options
+        ) { |x| 1.0 / (1.0 + (x * x)) }
+      end
+    end
+
+    let(:workspace_expected_result) { Math::PI }
+
+    it_behaves_like("a reusable integration workspace")
+
     it "integrates a function over an infinite interval", :aggregate_failures do
       result, error = described_class.qagi do |x|
         Math.exp(-(x * x))
