@@ -26,20 +26,6 @@ RSpec.describe Numo::GSL::Integration do
       end
     end
 
-    let(:integrate_with_invalid_table) do
-      lambda do
-        described_class.qaws(
-          0.0,
-          1.0,
-          -0.5,
-          -0.5,
-          0,
-          0,
-          table: Object.new
-        ) { 1.0 }
-      end
-    end
-
     it_behaves_like("an integration callback")
     it_behaves_like("a reusable integration workspace")
 
@@ -170,16 +156,32 @@ RSpec.describe Numo::GSL::Integration do
       end
     end
 
-    it "requires table to be an Integration::QAWSTable" do
-      expect do
-        integrate_with_invalid_table.call
+    context("with an invalid table") do
+      let(:integrate_with_invalid_table) do
+        lambda do
+          described_class.qaws(
+            0.0,
+            1.0,
+            -0.5,
+            -0.5,
+            0,
+            0,
+            table: Object.new
+          ) { 1.0 }
+        end
       end
-        .to(
-          raise_error(
-            TypeError,
-            "table must be a Numo::GSL::Integration::QAWSTable"
+
+      it "requires table to be an Integration::QAWSTable" do
+        expect do
+          integrate_with_invalid_table.call
+        end
+          .to(
+            raise_error(
+              TypeError,
+              "table must be a Numo::GSL::Integration::QAWSTable"
+            )
           )
-        )
+      end
     end
 
     it "integrates a function with algebraic endpoint singularities", :aggregate_failures do

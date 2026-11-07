@@ -3,6 +3,7 @@
 typedef struct {
   gsl_function *function;
   VALUE workspace_value;
+  VALUE table_value;
   double a;
   double b;
   double alpha;
@@ -16,6 +17,7 @@ typedef struct {
   gsl_integration_workspace *workspace;
   integration_workspace_use workspace_use;
   gsl_integration_qaws_table *table;
+  integration_qaws_table_use table_use;
   double *result;
   double *error;
 } integration_qaws_params;
@@ -23,11 +25,7 @@ typedef struct {
 static VALUE integration_free_qaws_resources(VALUE data) {
   integration_qaws_params *params = (integration_qaws_params *)data;
 
-  if (params->table != NULL) {
-    gsl_integration_qaws_table_free(params->table);
-    params->table = NULL;
-  }
-
+  integration_qaws_table_use_end((VALUE)&params->table_use);
   integration_workspace_use_end((VALUE)&params->workspace_use);
 
   return Qnil;
@@ -36,11 +34,13 @@ static VALUE integration_free_qaws_resources(VALUE data) {
 static VALUE integration_run_qaws(VALUE data) {
   integration_qaws_params *params = (integration_qaws_params *)data;
 
-  params->table = gsl_integration_qaws_table_alloc(params->alpha, params->beta,
-                                                   params->mu, params->nu);
   integration_workspace_use_begin(params->workspace_value, &params->limit,
                                   params->limit_given, &params->workspace_use);
   params->workspace = params->workspace_use.workspace;
+  integration_qaws_table_use_begin(params->table_value, params->alpha,
+                                   params->beta, params->mu, params->nu,
+                                   &params->table_use);
+  params->table = params->table_use.table;
 
   (void)gsl_integration_qaws(params->function, params->a, params->b,
                              params->table, params->epsabs, params->epsrel,
@@ -63,8 +63,14 @@ VALUE integration_qaws(int argc, VALUE *argv, VALUE self) {
   VALUE mu;
   VALUE nu;
   VALUE options;
-  VALUE workspace_value;
-  integration_options parsed_options;
+  VALUE epsabs_value = Qundef;
+  VALUE epsrel_value = Qundef;
+  VALUE limit_value = Qundef;
+  VALUE workspace_value = Qundef;
+  VALUE table_value = Qundef;
+  ID keywords[] = {rb_intern("epsabs"), rb_intern("epsrel"), rb_intern("limit"),
+                   rb_intern("workspace"), rb_intern("table")};
+  VALUE keyword_values[5];
   double a_double;
   double b_double;
   double alpha_double;
@@ -86,9 +92,14 @@ VALUE integration_qaws(int argc, VALUE *argv, VALUE self) {
 
   rb_scan_args(argc, argv, "6:", &a, &b, &alpha, &beta, &mu, &nu, &options);
 
-  integration_options_parse_with_workspace(options, &parsed_options, 0.0, 1e-8,
-                                           1000, &workspace_value,
-                                           &limit_given);
+  if (!NIL_P(options)) {
+    rb_get_kwargs(options, keywords, 0, 5, keyword_values);
+    epsabs_value = keyword_values[0];
+    epsrel_value = keyword_values[1];
+    limit_value = keyword_values[2];
+    workspace_value = keyword_values[3];
+    table_value = keyword_values[4];
+  }
 
   a_double = NUM2DBL(a);
   b_double = NUM2DBL(b);
@@ -96,14 +107,16 @@ VALUE integration_qaws(int argc, VALUE *argv, VALUE self) {
   beta_double = NUM2DBL(beta);
   mu_integer = NUM2INT(mu);
   nu_integer = NUM2INT(nu);
-  epsabs = parsed_options.epsabs;
-  epsrel = parsed_options.epsrel;
-  limit = parsed_options.limit;
+  epsabs = epsabs_value == Qundef ? 0.0 : NUM2DBL(epsabs_value);
+  epsrel = epsrel_value == Qundef ? 1e-8 : NUM2DBL(epsrel_value);
+  limit = limit_value == Qundef ? 1000 : NUM2SIZET(limit_value);
+  limit_given = limit_value != Qundef;
 
   integration_function_init(&function, &params);
 
   qaws_params.function = &function;
   qaws_params.workspace_value = workspace_value;
+  qaws_params.table_value = table_value;
   qaws_params.a = a_double;
   qaws_params.b = b_double;
   qaws_params.alpha = alpha_double;
@@ -120,6 +133,7 @@ VALUE integration_qaws(int argc, VALUE *argv, VALUE self) {
   rb_protect(integration_run_qaws_with_resources, (VALUE)&qaws_params, &state);
 
   RB_GC_GUARD(workspace_value);
+  RB_GC_GUARD(table_value);
   RB_GC_GUARD(params.block);
   RB_GC_GUARD(params.exception);
 

@@ -37,6 +37,26 @@ module Numo
         def close: () -> nil
         def closed?: () -> bool
       end
+      class QAWSTable
+        def self.open: [T] (
+          alpha: Numeric,
+          beta: Numeric,
+          mu: Integer,
+          nu: Integer
+        ) { (QAWSTable) -> T } -> T
+        def initialize: (
+          alpha: Numeric,
+          beta: Numeric,
+          mu: Integer,
+          nu: Integer
+        ) -> void
+        def alpha: () -> Float
+        def beta: () -> Float
+        def mu: () -> Integer
+        def nu: () -> Integer
+        def close: () -> nil
+        def closed?: () -> bool
+      end
       def self.qag: (
         Numeric a,
         Numeric b,
@@ -106,7 +126,8 @@ module Numo
         ?epsabs: Numeric,
         ?epsrel: Numeric,
         ?limit: Integer,
-        ?workspace: Workspace
+        ?workspace: Workspace,
+        ?table: QAWSTable
       ) { (Float) -> Numeric } -> [Float, Float]
       def self.qawo: (
         Numeric a,

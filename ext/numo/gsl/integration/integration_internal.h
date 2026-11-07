@@ -60,6 +60,26 @@ void integration_qawo_table_use_begin(VALUE table_value, double omega,
 VALUE integration_qawo_table_use_end(VALUE data);
 
 typedef struct {
+  gsl_integration_qaws_table *table;
+  double alpha;
+  double beta;
+  int mu;
+  int nu;
+  int busy;
+} integration_qaws_table;
+
+typedef struct {
+  gsl_integration_qaws_table *table;
+  integration_qaws_table *owner;
+} integration_qaws_table_use;
+
+void integration_qaws_table_init(VALUE integration_module);
+void integration_qaws_table_use_begin(VALUE table_value, double alpha,
+                                      double beta, int mu, int nu,
+                                      integration_qaws_table_use *use);
+VALUE integration_qaws_table_use_end(VALUE data);
+
+typedef struct {
   VALUE block;
   VALUE x;
   VALUE exception;

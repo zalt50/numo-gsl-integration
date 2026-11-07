@@ -21,6 +21,7 @@ void Init_integration(void) {
   gsl_set_error_handler(&integration_gsl_error_handler);
   integration_workspace_init(mIntegration);
   integration_qawo_table_init(mIntegration);
+  integration_qaws_table_init(mIntegration);
   integration_fixed_init();
 
   rb_define_const(mIntegration, "GAUSS15", INT2NUM(GSL_INTEG_GAUSS15));
