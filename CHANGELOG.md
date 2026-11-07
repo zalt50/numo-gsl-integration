@@ -4,12 +4,14 @@
 
 ### Added
 
-- Added `Numo::GSL::Integration::Workspace` for reusing adaptive-integration workspace allocations across `qag`, `qags`, `qagp`, `qagi`, `qagiu`, `qagil`, `qawc`, and `qaws` calls.
+- Added `Numo::GSL::Integration::Workspace` for reusing adaptive-integration workspace allocations across `qag`, `qags`, `qagp`, `qagi`, `qagiu`, `qagil`, `qawc`, `qaws`, and `qawo` calls.
 - Added block-scoped workspace management with `Workspace.open`, explicit lifecycle methods with `close` and `closed?`, and workspace capacity reporting with `limit`.
+- Added `Numo::GSL::Integration::QAWOTable` for reusing QAWO Chebyshev-moment tables with fixed angular frequency, interval length, weight, and level count.
 
 ### Changed
 
-- Added an optional `workspace:` keyword to `qag`, `qags`, `qagp`, `qagi`, `qagiu`, `qagil`, `qawc`, and `qaws`. Calls that omit it retain the previous allocate-per-call behavior.
+- Added an optional `table:` keyword to `qawo`. Calls that omit it continue to allocate and release a temporary QAWO table.
+- Added an optional `workspace:` keyword to `qag`, `qags`, `qagp`, `qagi`, `qagiu`, `qagil`, `qawc`, `qaws`, and `qawo`. Calls that omit it retain the previous allocate-per-call behavior.
 
 ## [0.4.0] - 2026-11-06
 

@@ -58,7 +58,9 @@ Numo::GSL::Integration::Workspace.open(limit: 100) do |workspace|
 end
 ```
 
-Reusable workspaces are supported by `qag`, `qags`, `qagp`, `qagi`, `qagiu`, `qagil`, `qawc`, and `qaws`. See [Integration routines](docs/routines.md) for lifecycle and capacity details.
+Reusable workspaces are supported by `qag`, `qags`, `qagp`, `qagi`, `qagiu`, `qagil`, `qawc`, `qaws`, and `qawo`. See [Integration routines](docs/routines.md) for lifecycle and capacity details.
+
+For repeated `qawo` calls with the same angular frequency, interval length, and sine or cosine weight, `Numo::GSL::Integration::QAWOTable` can also retain the precomputed Chebyshev moments. Pass it with the `table:` keyword; omitting `table:` retains the allocate-per-call behavior.
 
 ## Supported routines
 

@@ -10,7 +10,7 @@ Exceptions raised by an integrand are propagated to the caller. A non-numeric re
 
 ## Reusable integration workspaces
 
-`Numo::GSL::Integration::Workspace` retains a GSL adaptive-integration workspace so repeated calls can reuse the same allocation. It is supported by `qag`, `qags`, `qagp`, `qagi`, `qagiu`, `qagil`, `qawc`, and `qaws`. Other routines continue to manage their own routine-specific workspaces.
+`Numo::GSL::Integration::Workspace` retains a GSL adaptive-integration workspace so repeated calls can reuse the same allocation. It is supported by `qag`, `qags`, `qagp`, `qagi`, `qagiu`, `qagil`, `qawc`, `qaws`, and `qawo`. Other routines continue to manage their own routine-specific workspaces.
 
 Use `.open` when the workspace should be closed automatically after a block:
 
@@ -321,7 +321,31 @@ result, error = Numo::GSL::Integration.qawo(
 end
 ```
 
-The `epsabs`, `epsrel`, and `limit` keyword arguments control the requested error limits and workspace capacity.
+The `epsabs`, `epsrel`, and `limit` keyword arguments control the requested error limits and workspace capacity. QAWO also precomputes Chebyshev moments for the angular frequency, interval length, and sine or cosine weight. Reuse those moments by creating a `Numo::GSL::Integration::QAWOTable` with the same fixed parameters and passing it with `table:`:
+
+```ruby
+Numo::GSL::Integration::Workspace.open(limit: 100) do |workspace|
+  Numo::GSL::Integration::QAWOTable.open(
+    omega: 1.0,
+    length: Math::PI,
+    sine: Numo::GSL::Integration::SINE,
+    levels: 100
+  ) do |table|
+    result, error = Numo::GSL::Integration.qawo(
+      0.0,
+      Math::PI,
+      1.0,
+      Numo::GSL::Integration::SINE,
+      workspace: workspace,
+      table: table
+    ) { |_x| 1.0 }
+  end
+end
+```
+
+`QAWOTable#omega`, `#length`, `#sine`, and `#levels` return the fixed table parameters. `levels` is the number of precomputed bisection levels, not the integration workspace capacity. A supplied table must match the call's angular frequency, interval length, and weight. It cannot be used recursively or by overlapping calls, and it cannot be closed while in use. Use `QAWOTable.open` for block-scoped cleanup, or call `close` explicitly. Calling `close` more than once is allowed, and Ruby's garbage collector releases an unclosed table.
+
+When `table:` is omitted, `qawo` allocates and releases a temporary QAWO table for the call. A reusable `table:` may be used with or without a reusable `workspace:`.
 
 ## QAWF integration
 
