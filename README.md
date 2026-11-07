@@ -7,7 +7,6 @@
 - [Ruby](https://www.ruby-lang.org/) 3.2 or later
 - GNU Scientific Library (GSL) 2.8 or later
 - `gsl-config` available in `PATH`
-
   GSL itself must be installed separately.
 
 ## Installation
@@ -60,7 +59,7 @@ end
 
 Reusable workspaces are supported by `qag`, `qags`, `qagp`, `qagi`, `qagiu`, `qagil`, `qawc`, `qaws`, and `qawo`. See [Integration routines](docs/routines.md) for lifecycle and capacity details.
 
-For repeated `qawo` calls with the same angular frequency, interval length, and sine or cosine weight, `Numo::GSL::Integration::QAWOTable` can also retain the precomputed Chebyshev moments. Pass it with the `table:` keyword; omitting `table:` retains the allocate-per-call behavior.
+For repeated weighted integrations, reusable moment tables can also retain precomputed coefficients. `Numo::GSL::Integration::QAWSTable` is used by `qaws` with fixed `alpha`, `beta`, `mu`, and `nu` parameters, while `Numo::GSL::Integration::QAWOTable` is used by `qawo` with fixed angular frequency, interval length, sine or cosine weight, and level count. Pass either object with the `table:` keyword; omitting `table:` retains the allocate-per-call behavior.
 
 ## Supported routines
 

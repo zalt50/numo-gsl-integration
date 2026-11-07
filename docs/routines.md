@@ -30,7 +30,6 @@ Alternatively, create and close a workspace explicitly:
 
 ```ruby
 workspace = Numo::GSL::Integration::Workspace.new(limit: 100)
-
 begin
   result, error = Numo::GSL::Integration.qags(
     0.0,
@@ -304,7 +303,33 @@ end
 
 This example computes the integral of `log(x)` from `0.0` to `1.0`, whose exact value is `-1.0`.
 
-The QAWS moment table is currently allocated and released for each call, even when `workspace:` is supplied. Reusing this small parameter-dependent table may be considered in a future API if benchmarks show a material benefit.
+QAWS precomputes Chebyshev moments for the algebraic and logarithmic weight parameters. Reuse those moments by creating a `Numo::GSL::Integration::QAWSTable` with fixed `alpha`, `beta`, `mu`, and `nu` parameters and passing it with `table:`:
+
+```ruby
+Numo::GSL::Integration::Workspace.open(limit: 100) do |workspace|
+  Numo::GSL::Integration::QAWSTable.open(
+    alpha: -0.5,
+    beta: -0.5,
+    mu: 0,
+    nu: 0
+  ) do |table|
+    result, error = Numo::GSL::Integration.qaws(
+      0.0,
+      1.0,
+      -0.5,
+      -0.5,
+      0,
+      0,
+      workspace: workspace,
+      table: table
+    ) { |_x| 1.0 }
+  end
+end
+```
+
+`QAWSTable#alpha`, `#beta`, `#mu`, and `#nu` return the fixed weight parameters. A supplied table must match the corresponding `qaws` arguments, but it can be reused for different integration intervals because the endpoints are not part of the table. It cannot be used recursively or by overlapping calls, and it cannot be closed while in use. Use `QAWSTable.open` for block-scoped cleanup, or call `close` explicitly. Calling `close` more than once is allowed, and Ruby's garbage collector releases an unclosed table.
+
+When `table:` is omitted, `qaws` allocates and releases a temporary QAWS table for the call. A reusable `table:` may be used with or without a reusable `workspace:`.
 
 ## QAWO integration
 
