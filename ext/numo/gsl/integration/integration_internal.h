@@ -38,6 +38,28 @@ void integration_workspace_use_begin(VALUE workspace_value, size_t *limit,
 VALUE integration_workspace_use_end(VALUE data);
 
 typedef struct {
+  gsl_integration_qawo_table *table;
+  double omega;
+  double length;
+  enum gsl_integration_qawo_enum sine;
+  size_t levels;
+  int busy;
+} integration_qawo_table;
+
+typedef struct {
+  gsl_integration_qawo_table *table;
+  integration_qawo_table *owner;
+} integration_qawo_table_use;
+
+void integration_qawo_table_init(VALUE integration_module);
+void integration_qawo_table_use_begin(VALUE table_value, double omega,
+                                      double length,
+                                      enum gsl_integration_qawo_enum sine,
+                                      size_t levels,
+                                      integration_qawo_table_use *use);
+VALUE integration_qawo_table_use_end(VALUE data);
+
+typedef struct {
   VALUE block;
   VALUE x;
   VALUE exception;

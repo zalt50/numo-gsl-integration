@@ -35,7 +35,7 @@ RSpec.describe Numo::GSL::Integration do
 
     context("with a reusable QAWO table") do
       let(:qawo_table) do
-        @qawo_table = described_class::QAWOTable.new(
+        described_class::QAWOTable.new(
           omega: 1.0,
           length: Math::PI,
           sine: described_class::SINE,
@@ -43,26 +43,25 @@ RSpec.describe Numo::GSL::Integration do
         )
       end
 
-      after do
-        @qawo_table&.close unless @qawo_table&.closed?
-      end
-
-      it "reuses the same QAWO table across calls", :aggregate_failures do
-        first_result, first_error = described_class.qawo(
-          0.0,
-          Math::PI,
-          1.0,
-          described_class::SINE,
-          table: qawo_table
-        ) { 1.0 }
-        second_result, second_error = described_class
-          .qawo(
+      let(:integrate_with_table) do
+        lambda do
+          described_class.qawo(
             0.0,
             Math::PI,
             1.0,
             described_class::SINE,
             table: qawo_table
           ) { 1.0 }
+        end
+      end
+
+      after do
+        qawo_table.close unless qawo_table.closed?
+      end
+
+      it "reuses the same QAWO table across calls", :aggregate_failures do
+        first_result, first_error = integrate_with_table.call
+        second_result, second_error = integrate_with_table.call
 
         expect(first_result).to(be_within(1e-10).of(2.0))
         expect(second_result).to(be_within(1e-10).of(2.0))
@@ -92,33 +91,9 @@ RSpec.describe Numo::GSL::Integration do
         qawo_table.close
 
         expect do
-          described_class.qawo(
-            0.0,
-            Math::PI,
-            1.0,
-            described_class::SINE,
-            table: qawo_table
-          ) { 1.0 }
+          integrate_with_table.call
         end
           .to(raise_error(RuntimeError, "table is closed"))
-      end
-
-      it "requires table to be an Integration::QAWOTable" do
-        expect do
-          described_class.qawo(
-            0.0,
-            Math::PI,
-            1.0,
-            described_class::SINE,
-            table: Object.new
-          ) { 1.0 }
-        end
-          .to(
-            raise_error(
-              TypeError,
-              "table must be a Numo::GSL::Integration::QAWOTable"
-            )
-          )
       end
 
       it "requires omega to match the QAWO table" do
@@ -164,6 +139,24 @@ RSpec.describe Numo::GSL::Integration do
         end
           .to(raise_error(ArgumentError, "sine does not match QAWO table"))
       end
+    end
+
+    it "requires table to be an Integration::QAWOTable" do
+      expect do
+        described_class.qawo(
+          0.0,
+          Math::PI,
+          1.0,
+          described_class::SINE,
+          table: Object.new
+        ) { 1.0 }
+      end
+        .to(
+          raise_error(
+            TypeError,
+            "table must be a Numo::GSL::Integration::QAWOTable"
+          )
+        )
     end
 
     it "integrates with a cosine weight", :aggregate_failures do

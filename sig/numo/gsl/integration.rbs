@@ -17,6 +17,26 @@ module Numo
         def close: () -> nil
         def closed?: () -> bool
       end
+      class QAWOTable
+        def self.open: [T] (
+          omega: Numeric,
+          length: Numeric,
+          sine: Integer,
+          levels: Integer
+        ) { (QAWOTable) -> T } -> T
+        def initialize: (
+          omega: Numeric,
+          length: Numeric,
+          sine: Integer,
+          levels: Integer
+        ) -> void
+        def omega: () -> Float
+        def length: () -> Float
+        def sine: () -> Integer
+        def levels: () -> Integer
+        def close: () -> nil
+        def closed?: () -> bool
+      end
       def self.qag: (
         Numeric a,
         Numeric b,
@@ -96,7 +116,8 @@ module Numo
         ?epsabs: Numeric,
         ?epsrel: Numeric,
         ?limit: Integer,
-        ?workspace: Workspace
+        ?workspace: Workspace,
+        ?table: QAWOTable
       ) { (Float) -> Numeric } -> [Float, Float]
       def self.qawf: (
         Numeric a,

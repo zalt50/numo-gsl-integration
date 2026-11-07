@@ -27,14 +27,14 @@ RSpec.describe Numo::GSL::Integration do
 
       it "requires omega to be Numeric" do
         expect do
-          table_class.new(**table_options.merge(omega: Object.new))
+          table_class.new(**table_options, omega: Object.new)
         end
           .to(raise_error(TypeError, "omega must be Numeric"))
       end
 
       it "requires length to be Numeric" do
         expect do
-          table_class.new(**table_options.merge(length: Object.new))
+          table_class.new(**table_options, length: Object.new)
         end
           .to(raise_error(TypeError, "length must be Numeric"))
       end
@@ -42,7 +42,7 @@ RSpec.describe Numo::GSL::Integration do
       it "requires a positive length" do
         [0.0, -1.0].each do |length|
           expect do
-            table_class.new(**table_options.merge(length: length))
+            table_class.new(**table_options, length: length)
           end
             .to(raise_error(ArgumentError, "length must be positive"))
         end
@@ -50,14 +50,14 @@ RSpec.describe Numo::GSL::Integration do
 
       it "requires sine to be SINE or COSINE" do
         expect do
-          table_class.new(**table_options.merge(sine: -1))
+          table_class.new(**table_options, sine: -1)
         end
           .to(raise_error(ArgumentError, "sine must be SINE or COSINE"))
       end
 
       it "requires levels to be an Integer" do
         expect do
-          table_class.new(**table_options.merge(levels: 50.0))
+          table_class.new(**table_options, levels: 50.0)
         end
           .to(raise_error(TypeError, "levels must be an Integer"))
       end
@@ -65,7 +65,7 @@ RSpec.describe Numo::GSL::Integration do
       it "requires positive levels" do
         [0, -1].each do |levels|
           expect do
-            table_class.new(**table_options.merge(levels: levels))
+            table_class.new(**table_options, levels: levels)
           end
             .to(raise_error(ArgumentError, "levels must be positive"))
         end
@@ -133,12 +133,8 @@ RSpec.describe Numo::GSL::Integration do
         end
       end
 
-      after do
-        table.close unless table.closed?
-      end
-
-      it "rejects reentrant use of the same table" do
-        expect do
+      let(:integrate_reentrantly) do
+        lambda do
           described_class.qawo(
             0.0,
             Math::PI,
@@ -146,15 +142,19 @@ RSpec.describe Numo::GSL::Integration do
             described_class::SINE,
             table: table
           ) do
-            described_class.qawo(
-              0.0,
-              Math::PI,
-              1.0,
-              described_class::SINE,
-              table: table
-            ) { 1.0 }
+            integrate_constant.call
             1.0
           end
+        end
+      end
+
+      after do
+        table.close unless table.closed?
+      end
+
+      it "rejects reentrant use of the same table" do
+        expect do
+          integrate_reentrantly.call
         end
           .to(raise_error(RuntimeError, "table is already in use"))
       end
@@ -200,6 +200,38 @@ RSpec.describe Numo::GSL::Integration do
           .to(raise_error(Numo::GSL::GslError))
         result, error = integrate_constant.call
         expect(result).to(be_within(1e-10).of(2.0))
+        expect(error).to(be >= 0.0)
+      end
+    end
+
+    describe "floating-point parameter matching" do
+      let(:table) do
+        table_class.new(
+          omega: 1.0,
+          length: 0.3,
+          sine: described_class::SINE,
+          levels: 50
+        )
+      end
+
+      after do
+        table.close unless table.closed?
+      end
+
+      it(
+        "accepts an equivalent rounded interval length",
+        :aggregate_failures
+      ) do
+        result, error = described_class.qawo(
+          0.1,
+          0.4,
+          1.0,
+          described_class::SINE,
+          table: table
+        ) { 1.0 }
+        expected = Math.cos(0.1) - Math.cos(0.4)
+
+        expect(result).to(be_within(1e-10).of(expected))
         expect(error).to(be >= 0.0)
       end
     end
