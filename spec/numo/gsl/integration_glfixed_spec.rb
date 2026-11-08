@@ -45,5 +45,79 @@ RSpec.describe Numo::GSL::Integration do
           .to(raise_error(ArgumentError, "order must be positive"))
       end
     end
+
+    it "uses order ten when order and table are omitted" do
+      result = described_class.glfixed(0.0, 1.0) { |x| x ** 18 }
+
+      expect(result).to(be_within(1e-14).of(1.0 / 19.0))
+    end
+
+    context("with a reusable table") do
+      let(:table) { described_class::GLFixedTable.new(order: 3) }
+
+      after do
+        table.close unless table.closed?
+      end
+
+      it "uses the table order when order is omitted" do
+        result = described_class.glfixed(
+          0.0,
+          1.0,
+          table: table
+        ) { |x| x ** 4 }
+
+        expect(result).to(be_within(1e-14).of(1.0 / 5.0))
+      end
+
+      it "accepts an order matching the table" do
+        result = described_class.glfixed(
+          0.0,
+          1.0,
+          order: 3,
+          table: table
+        ) { |x| x ** 4 }
+
+        expect(result).to(be_within(1e-14).of(1.0 / 5.0))
+      end
+
+      it "rejects an order that does not match the table" do
+        expect do
+          described_class.glfixed(
+            0.0,
+            1.0,
+            order: 4,
+            table: table
+          ) { |x| x ** 4 }
+        end
+          .to(raise_error(ArgumentError, "order does not match GLFixed table"))
+      end
+
+      it "rejects a closed table" do
+        table.close
+
+        expect do
+          described_class.glfixed(0.0, 1.0, table: table) { |x| x }
+        end
+          .to(raise_error(RuntimeError, "table is closed"))
+      end
+
+      it "requires table to be a GLFixedTable" do
+        [nil, Object.new].each do |invalid_table|
+          expect do
+            described_class.glfixed(
+              0.0,
+              1.0,
+              table: invalid_table
+            ) { |x| x }
+          end
+            .to(
+              raise_error(
+                TypeError,
+                "table must be a Numo::GSL::Integration::GLFixedTable"
+              )
+            )
+        end
+      end
+    end
   end
 end
