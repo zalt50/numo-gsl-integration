@@ -25,6 +25,16 @@ RSpec.describe Numo::GSL::Integration do
         table&.close
       end
 
+      it "rejects reinitializing an open table" do
+        table = table_class.new(**table_options)
+        expect do
+          table.send(:initialize, **table_options)
+        end
+          .to(raise_error(RuntimeError, "table is already initialized"))
+      ensure
+        table&.close
+      end
+
       it "requires omega to be Numeric" do
         expect do
           table_class.new(**table_options, omega: Object.new)

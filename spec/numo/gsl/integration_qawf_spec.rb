@@ -67,6 +67,20 @@ RSpec.describe Numo::GSL::Integration do
       expect(error).to(be >= 0.0)
     end
 
+    it "requires sine to be an Integer" do
+      expect do
+        described_class.qawf(0.0, 1.0, 1.0) { |x| Math.exp(-x) }
+      end
+        .to(raise_error(TypeError, "sine must be an Integer"))
+    end
+
+    it "requires sine to be SINE or COSINE" do
+      expect do
+        described_class.qawf(0.0, 1.0, -1) { |x| Math.exp(-x) }
+      end
+        .to(raise_error(ArgumentError, "sine must be SINE or COSINE"))
+    end
+
     context("with reusable workspaces") do
       let(:workspace) { described_class::Workspace.new(limit: 50) }
       let(:cycle_workspace) { described_class::Workspace.new(limit: 50) }

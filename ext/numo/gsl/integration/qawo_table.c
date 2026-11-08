@@ -118,6 +118,9 @@ static VALUE integration_qawo_table_initialize(int argc, VALUE *argv,
   levels = NUM2SIZET(levels_value);
   TypedData_Get_Struct(self, integration_qawo_table,
                        &integration_qawo_table_type, table);
+  if (table->table != NULL) {
+    rb_raise(rb_eRuntimeError, "table is already initialized");
+  }
   table->omega = omega;
   table->length = length;
   table->sine = (enum gsl_integration_qawo_enum)sine;

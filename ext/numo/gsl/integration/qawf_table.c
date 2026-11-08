@@ -7,8 +7,15 @@ static VALUE integration_cQAWFTable;
 
 static double integration_qawf_cycle_length(double omega) {
   double absolute_omega = fabs(omega);
+  double length =
+      (2.0 * (floor(absolute_omega) / absolute_omega) + 1.0 / absolute_omega) *
+      M_PI;
 
-  return (2.0 * floor(absolute_omega) + 1.0) * M_PI / absolute_omega;
+  if (!isfinite(length) || length <= 0.0) {
+    rb_raise(rb_eArgError, "omega produces a non-finite cycle length");
+  }
+
+  return length;
 }
 
 static int integration_qawf_table_double_equal(double left, double right) {

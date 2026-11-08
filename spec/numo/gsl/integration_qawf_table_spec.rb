@@ -25,6 +25,16 @@ RSpec.describe Numo::GSL::Integration do
         table&.close
       end
 
+      it "rejects reinitializing an open table" do
+        table = table_class.new(**table_options)
+        expect do
+          table.send(:initialize, **table_options)
+        end
+          .to(raise_error(RuntimeError, "table is already initialized"))
+      ensure
+        table&.close
+      end
+
       it "calculates the cycle length from omega" do
         table = table_class.new(**table_options, omega: 2.5)
 
@@ -39,6 +49,26 @@ RSpec.describe Numo::GSL::Integration do
         expect(table.length).to(eq(3.0 * Math::PI))
       ensure
         table&.close
+      end
+
+      it "calculates a finite cycle length for a large omega", :aggregate_failures do
+        table = table_class.new(**table_options, omega: Float::MAX / 4.0)
+        expect(table.length).to(be_finite)
+        expect(table.length).to(be_within(1e-14).of(2.0 * Math::PI))
+      ensure
+        table&.close
+      end
+
+      it "rejects an omega whose cycle length is not finite" do
+        expect do
+          table_class.new(**table_options, omega: Float::MIN / 2.0)
+        end
+          .to(
+            raise_error(
+              ArgumentError,
+              "omega produces a non-finite cycle length"
+            )
+          )
       end
 
       it "requires omega to be Numeric" do

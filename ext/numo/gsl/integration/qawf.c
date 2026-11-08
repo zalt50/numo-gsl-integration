@@ -111,7 +111,14 @@ VALUE integration_qawf(int argc, VALUE *argv, VALUE self) {
 
   qawf_params.a = NUM2DBL(a);
   qawf_params.omega = NUM2DBL(omega);
+  if (!RB_INTEGER_TYPE_P(sine)) {
+    rb_raise(rb_eTypeError, "sine must be an Integer");
+  }
   qawf_params.sine = (enum gsl_integration_qawo_enum)NUM2INT(sine);
+  if (qawf_params.sine != GSL_INTEG_SINE &&
+      qawf_params.sine != GSL_INTEG_COSINE) {
+    rb_raise(rb_eArgError, "sine must be SINE or COSINE");
+  }
   epsabs = epsabs_value == Qundef ? 1e-10 : NUM2DBL(epsabs_value);
   limit_given = limit_value != Qundef;
   if (limit_given) {
