@@ -57,7 +57,7 @@ Numo::GSL::Integration::Workspace.open(limit: 100) do |workspace|
 end
 ```
 
-Reusable `Workspace` objects are supported by `qag`, `qags`, `qagp`, `qagi`, `qagiu`, `qagil`, `qawc`, `qaws`, `qawo`, and `qawf`. CQUAD uses its routine-specific `CQUADWorkspace`. See [Integration routines](docs/routines.md) for lifecycle and capacity details.
+Reusable `Workspace` objects are supported by `qag`, `qags`, `qagp`, `qagi`, `qagiu`, `qagil`, `qawc`, `qaws`, `qawo`, and `qawf`. CQUAD and Romberg use their routine-specific `CQUADWorkspace` and `RombergWorkspace` classes. See [Integration routines](docs/routines.md) for lifecycle and capacity details.
 
 For `qawf`, pass separate `workspace:` and `cycle_workspace:` objects. The first retains Fourier-cycle results and extrapolation state, while the second is used for QAWO integration within each cycle.
 

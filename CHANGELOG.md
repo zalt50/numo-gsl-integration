@@ -5,10 +5,12 @@
 ### Added
 
 - Added `Numo::GSL::Integration::CQUADWorkspace` and an optional `workspace:` keyword for reusing CQUAD workspace allocations across calls.
+- Added `Numo::GSL::Integration::RombergWorkspace` and an optional `workspace:` keyword for reusing Romberg workspace allocations across calls.
 
 ### Changed
 
 - Validated that the CQUAD `limit` is at least `3`. When a reusable CQUAD workspace and an explicit `limit:` are supplied together, the limit must equal the workspace capacity.
+- Validated that the Romberg `limit` is between `1` and `30`. When a reusable Romberg workspace and an explicit `limit:` are supplied together, the limit must equal the workspace capacity.
 
 ## [0.6.0] - 2026-11-08
 

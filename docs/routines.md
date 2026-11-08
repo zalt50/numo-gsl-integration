@@ -10,7 +10,7 @@ Exceptions raised by an integrand are propagated to the caller. A non-numeric re
 
 ## Reusable integration workspaces
 
-`Numo::GSL::Integration::Workspace` retains a GSL adaptive-integration workspace so repeated calls can reuse the same allocation. It is supported by `qag`, `qags`, `qagp`, `qagi`, `qagiu`, `qagil`, `qawc`, `qaws`, `qawo`, and `qawf`. CQUAD uses the separate `Numo::GSL::Integration::CQUADWorkspace` class described in the CQUAD section. Other routines continue to manage their own routine-specific workspaces.
+`Numo::GSL::Integration::Workspace` retains a GSL adaptive-integration workspace so repeated calls can reuse the same allocation. It is supported by `qag`, `qags`, `qagp`, `qagi`, `qagiu`, `qagil`, `qawc`, `qaws`, `qawo`, and `qawf`. CQUAD and Romberg use the separate `Numo::GSL::Integration::CQUADWorkspace` and `Numo::GSL::Integration::RombergWorkspace` classes described in their routine sections. Other routines continue to manage their own routine-specific workspaces.
 
 Use `.open` when the workspace should be closed automatically after a block:
 
@@ -468,6 +468,26 @@ end
 The example integral has an exact value of `2.0`. The `epsabs` and `epsrel` keyword arguments control the requested error limits. The `limit` keyword controls the maximum number of Romberg levels and defaults to `20`. GSL requires at least one level and limits the effective workspace to 30 levels.
 
 Romberg integration does not return an estimated absolute error. Use CQUAD, QAG, QAGS, or another routine that returns an error estimate when the caller needs one.
+
+To reuse the Romberg allocation across calls, pass a `Numo::GSL::Integration::RombergWorkspace`:
+
+```ruby
+Numo::GSL::Integration::RombergWorkspace.open(limit: 20) do |workspace|
+  result, evaluations = Numo::GSL::Integration.romberg(
+    0.0,
+    Math::PI,
+    workspace: workspace
+  ) do |x|
+    Math.sin(x)
+  end
+end
+```
+
+`RombergWorkspace#limit` returns the allocated capacity, which must be between `1` and `30`. `RombergWorkspace#closed?` reports whether the workspace has been closed. Use `.open` for block-scoped cleanup, or call `close` explicitly. Calling `close` more than once is allowed, and Ruby's garbage collector releases an unclosed workspace.
+
+When `workspace:` is omitted, `romberg` allocates and releases a temporary workspace for the call. When a reusable workspace is supplied and `limit:` is omitted, the call uses the workspace capacity. Because GSL receives the capacity when the Romberg workspace is allocated rather than when the integration runs, an explicitly supplied `limit:` must equal the reusable workspace capacity.
+
+A Romberg workspace cannot be used recursively or by overlapping calls, and it cannot be closed while in use. Passing a closed workspace raises `RuntimeError`; passing another object, including `nil`, raises `TypeError`.
 
 ## GLFIXED integration
 
