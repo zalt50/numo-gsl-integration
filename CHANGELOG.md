@@ -2,13 +2,15 @@
 
 ## [Unreleased]
 
-### Added
+## [0.7.0] - 2026-11-08
+
+### Added in 0.7.0
 
 - Added `Numo::GSL::Integration::CQUADWorkspace` and an optional `workspace:` keyword for reusing CQUAD workspace allocations across calls.
 - Added `Numo::GSL::Integration::RombergWorkspace` and an optional `workspace:` keyword for reusing Romberg workspace allocations across calls.
 - Added `Numo::GSL::Integration::GLFixedTable` and an optional `table:` keyword for reusing fixed-order Gauss-Legendre tables across calls.
 
-### Changed
+### Changed in 0.7.0
 
 - Validated that the CQUAD `limit` is at least `3`. When a reusable CQUAD workspace and an explicit `limit:` are supplied together, the limit must equal the workspace capacity.
 - Validated that the Romberg `limit` is between `1` and `30`. When a reusable Romberg workspace and an explicit `limit:` are supplied together, the limit must equal the workspace capacity.
