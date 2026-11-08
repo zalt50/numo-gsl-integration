@@ -57,6 +57,13 @@ module Numo
         def close: () -> nil
         def closed?: () -> bool
       end
+      class LebedevWorkspace
+        def self.open: [T] (n: Integer) { (LebedevWorkspace) -> T } -> T
+        def initialize: (n: Integer) -> void
+        def n: () -> Integer
+        def close: () -> nil
+        def closed?: () -> bool
+      end
       class GLFixedTable
         def self.open: [T] (order: Integer) { (GLFixedTable) -> T } -> T
         def initialize: (order: Integer) -> void
@@ -243,6 +250,9 @@ module Numo
       def self.lebedev: (Integer n) {
         (Float, Float, Float) -> Numeric
       } -> Float
+                      | (workspace: LebedevWorkspace) {
+                          (Float, Float, Float) -> Numeric
+                        } -> Float
     end
   end
 end

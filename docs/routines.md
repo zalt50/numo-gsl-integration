@@ -618,6 +618,25 @@ end
 
 Every point satisfies `x * x + y * y + z * z == 1` within floating-point precision, so the example integral has an exact value of `4.0 * Math::PI`.
 
+To reuse the spherical nodes and weights across calls, create a `Numo::GSL::Integration::LebedevWorkspace` with a supported node count:
+
+```ruby
+Numo::GSL::Integration::LebedevWorkspace.open(n: 26) do |workspace|
+  first_result = Numo::GSL::Integration.lebedev(
+    workspace: workspace
+  ) { |x, _y, _z| x * x }
+  second_result = Numo::GSL::Integration.lebedev(
+    workspace: workspace
+  ) { |_x, y, _z| y * y }
+end
+```
+
+`LebedevWorkspace#n` returns the node count fixed at allocation. Use `.open` for block-scoped cleanup, or call `close` explicitly. Calling `close` more than once is allowed, and Ruby's garbage collector releases an unclosed workspace.
+
+A Lebedev workspace cannot be used recursively or by overlapping calls, and it cannot be closed while in use. Passing a closed workspace raises `RuntimeError`; passing another object, including `nil`, raises `TypeError`.
+
+`lebedev` accepts exactly two call forms: either supply a node count, or supply only `workspace:`. A node count and `workspace:` cannot be combined. When `workspace:` is omitted, `lebedev` allocates and releases a temporary GSL workspace for the call.
+
 The argument is the number of Lebedev nodes. GSL 2.8 provides the following node counts:
 
 ```text

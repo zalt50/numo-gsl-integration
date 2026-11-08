@@ -79,6 +79,18 @@ end
 
 `fixed` accepts either a quadrature type with its complete rule parameters or a `workspace:` by itself. These two forms cannot be combined.
 
+Lebedev quadrature can reuse its spherical nodes and weights through `Numo::GSL::Integration::LebedevWorkspace`. Create it with a supported node count, then call `lebedev` with only `workspace:`:
+
+```ruby
+Numo::GSL::Integration::LebedevWorkspace.open(n: 26) do |workspace|
+  result = Numo::GSL::Integration.lebedev(workspace: workspace) do |x, y, z|
+    (x * x) + (y * y) + (z * z)
+  end
+end
+```
+
+`lebedev` accepts either a node count or a `workspace:` by itself. These two forms cannot be combined.
+
 For repeated integrations, reusable tables can retain precomputed data. `Numo::GSL::Integration::GLFixedTable` is used by `glfixed` with a fixed order and can be reused across integration intervals. `Numo::GSL::Integration::QAWSTable` is used by `qaws` with fixed `alpha`, `beta`, `mu`, and `nu` parameters, while `Numo::GSL::Integration::QAWOTable` is used by `qawo` with fixed angular frequency, interval length, sine or cosine weight, and level count. `Numo::GSL::Integration::QAWFTable` is used by `qawf`; it computes and retains the Fourier-cycle moments for a fixed angular frequency, sine or cosine weight, and level count. Pass the corresponding object with the `table:` keyword; omitting `table:` retains the allocate-per-call behavior.
 
 ## Supported routines

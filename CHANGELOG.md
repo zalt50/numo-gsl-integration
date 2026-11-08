@@ -6,11 +6,14 @@
 
 - Added `Numo::GSL::Integration::FixedWorkspace` for reusing fixed-point quadrature nodes and weights across calls.
 - Added block-scoped workspace management with `FixedWorkspace.open`, explicit lifecycle methods with `close` and `closed?`, and accessors for the fixed quadrature parameters.
+- Added `Numo::GSL::Integration::LebedevWorkspace` for reusing Lebedev spherical nodes and weights across calls, with block-scoped and explicit lifecycle management.
 
 ### Changed
 
 - Added a `workspace:` keyword to `fixed`. The method accepts either a quadrature type with its complete rule parameters or a reusable `FixedWorkspace` by itself. Calls that omit `workspace:` retain the previous allocate-per-call behavior.
 - Rejected calls that combine `workspace:` with explicit fixed quadrature parameters or supply rule parameters without a quadrature type.
+- Added a `workspace:` keyword to `lebedev`. The method accepts either a node count or a reusable `LebedevWorkspace` by itself; calls that omit `workspace:` retain the previous allocate-per-call behavior.
+- Rejected `lebedev` calls that combine a node count with `workspace:`.
 
 ## [0.7.0] - 2026-11-08
 
