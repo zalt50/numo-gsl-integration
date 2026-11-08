@@ -32,6 +32,7 @@ void Init_integration(void) {
   integration_qawf_table_init(mIntegration);
   integration_qaws_table_init(mIntegration);
   integration_fixed_init(mIntegration);
+  integration_lebedev_init(mIntegration);
 
   rb_define_const(mIntegration, "GAUSS15", INT2NUM(GSL_INTEG_GAUSS15));
   rb_define_const(mIntegration, "GAUSS21", INT2NUM(GSL_INTEG_GAUSS21));
@@ -57,5 +58,5 @@ void Init_integration(void) {
   rb_define_singleton_method(mIntegration, "romberg", integration_romberg, -1);
   rb_define_singleton_method(mIntegration, "glfixed", integration_glfixed, -1);
   rb_define_singleton_method(mIntegration, "fixed", integration_fixed, -1);
-  rb_define_singleton_method(mIntegration, "lebedev", integration_lebedev, 1);
+  rb_define_singleton_method(mIntegration, "lebedev", integration_lebedev, -1);
 }
