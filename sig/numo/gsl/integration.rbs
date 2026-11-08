@@ -31,6 +31,32 @@ module Numo
         def close: () -> nil
         def closed?: () -> bool
       end
+      class FixedWorkspace
+        def self.open: [T] (
+          (:legendre | :chebyshev | :chebyshev2 | :gegenbauer | :jacobi | :laguerre | :hermite | :exponential | :rational) type,
+          order: Integer,
+          a: Numeric,
+          b: Numeric,
+          ?alpha: Numeric,
+          ?beta: Numeric
+        ) { (FixedWorkspace) -> T } -> T
+        def initialize: (
+          (:legendre | :chebyshev | :chebyshev2 | :gegenbauer | :jacobi | :laguerre | :hermite | :exponential | :rational) type,
+          order: Integer,
+          a: Numeric,
+          b: Numeric,
+          ?alpha: Numeric,
+          ?beta: Numeric
+        ) -> void
+        def type: () -> (:legendre | :chebyshev | :chebyshev2 | :gegenbauer | :jacobi | :laguerre | :hermite | :exponential | :rational)
+        def order: () -> Integer
+        def a: () -> Float
+        def b: () -> Float
+        def alpha: () -> Float?
+        def beta: () -> Float?
+        def close: () -> nil
+        def closed?: () -> bool
+      end
       class GLFixedTable
         def self.open: [T] (order: Integer) { (GLFixedTable) -> T } -> T
         def initialize: (order: Integer) -> void
@@ -213,6 +239,7 @@ module Numo
         ?alpha: Numeric,
         ?beta: Numeric
       ) { (Float) -> Numeric } -> Float
+                    | (workspace: FixedWorkspace) { (Float) -> Numeric } -> Float
       def self.lebedev: (Integer n) {
         (Float, Float, Float) -> Numeric
       } -> Float

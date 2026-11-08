@@ -451,8 +451,10 @@ Numo::GSL::Integration::CQUADWorkspace.open(limit: 100) do |workspace|
 end
 ```
 
-`CQUADWorkspace#limit` returns the allocated capacity, and `CQUADWorkspace#closed?` reports whether the workspace has been closed. Use `.open` for block-scoped cleanup, or call `close` explicitly. Calling `close` more than once is allowed, and Ruby's garbage collector releases an unclosed workspace.  
-When `workspace:` is omitted, `cquad` allocates and releases a temporary workspace for the call. When a reusable workspace is supplied and `limit:` is omitted, the call uses the workspace capacity. Because GSL receives the capacity when the CQUAD workspace is allocated rather than when the integration runs, an explicitly supplied `limit:` must equal the reusable workspace capacity.  
+`CQUADWorkspace#limit` returns the allocated capacity, and `CQUADWorkspace#closed?` reports whether the workspace has been closed. Use `.open` for block-scoped cleanup, or call `close` explicitly. Calling `close` more than once is allowed, and Ruby's garbage collector releases an unclosed workspace.
+
+When `workspace:` is omitted, `cquad` allocates and releases a temporary workspace for the call. When a reusable workspace is supplied and `limit:` is omitted, the call uses the workspace capacity. Because GSL receives the capacity when the CQUAD workspace is allocated rather than when the integration runs, an explicitly supplied `limit:` must equal the reusable workspace capacity.
+
 A CQUAD workspace cannot be used recursively or by overlapping calls, and it cannot be closed while in use. Passing a closed workspace raises `RuntimeError`; passing another object, including `nil`, raises `TypeError`.
 
 ## Romberg integration
@@ -546,6 +548,30 @@ end
 ```
 
 The example has an exact value of `1.0 / 5.0`. The block returns the unweighted function. For weighted rules, GSL applies the selected weight internally.
+
+To reuse the nodes and weights across calls, create a `Numo::GSL::Integration::FixedWorkspace` with the quadrature type and all rule parameters:
+
+```ruby
+Numo::GSL::Integration::FixedWorkspace.open(
+  :legendre,
+  order: 10,
+  a: 0.0,
+  b: Math::PI
+) do |workspace|
+  first_result = Numo::GSL::Integration.fixed(
+    workspace: workspace
+  ) { |x| Math.sin(x) }
+  second_result = Numo::GSL::Integration.fixed(
+    workspace: workspace
+  ) { |x| Math.cos(x) }
+end
+```
+
+`FixedWorkspace#type`, `#order`, `#a`, and `#b` return the parameters fixed at allocation. `#alpha` and `#beta` return their fixed values when the selected rule uses them, and `nil` otherwise. Use `.open` for block-scoped cleanup, or call `close` explicitly. Calling `close` more than once is allowed, and Ruby's garbage collector releases an unclosed workspace.
+
+A fixed workspace cannot be used recursively or by overlapping calls, and it cannot be closed while in use. Passing a closed workspace raises `RuntimeError`; passing another object, including `nil`, raises `TypeError`.
+
+`fixed` accepts exactly two call forms: either supply the quadrature type with the complete rule parameters, or supply only `workspace:`. Explicit rule parameters and `workspace:` cannot be combined. Supplying `order:`, `a:`, `b:`, `alpha:`, or `beta:` without a quadrature type is also rejected. When `workspace:` is omitted, `fixed` allocates and releases a temporary GSL workspace for the call.
 
 The supported types and required keyword arguments are:
 
