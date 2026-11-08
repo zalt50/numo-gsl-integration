@@ -120,7 +120,7 @@ RSpec.describe Numo::GSL::Integration::GLFixedTable do
         .to(raise_error(RuntimeError, "table is already in use"))
     end
 
-    it "can be reused after the integrand raises" do
+    it "can be reused after the integrand raises", :aggregate_failures do
       error_class = Class.new(StandardError)
 
       expect do

@@ -71,6 +71,20 @@ void integration_romberg_workspace_use_begin(
     integration_romberg_workspace_use *use);
 VALUE integration_romberg_workspace_use_end(VALUE data);
 typedef struct {
+  gsl_integration_glfixed_table *table;
+  size_t order;
+  int busy;
+} integration_glfixed_table;
+typedef struct {
+  gsl_integration_glfixed_table *table;
+  integration_glfixed_table *owner;
+} integration_glfixed_table_use;
+void integration_glfixed_table_init(VALUE integration_module);
+void integration_glfixed_table_use_begin(VALUE table_value, size_t *order,
+                                         int order_given,
+                                         integration_glfixed_table_use *use);
+VALUE integration_glfixed_table_use_end(VALUE data);
+typedef struct {
   gsl_integration_qawo_table *table;
   double omega;
   double length;

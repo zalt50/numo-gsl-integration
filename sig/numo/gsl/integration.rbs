@@ -31,6 +31,13 @@ module Numo
         def close: () -> nil
         def closed?: () -> bool
       end
+      class GLFixedTable
+        def self.open: [T] (order: Integer) { (GLFixedTable) -> T } -> T
+        def initialize: (order: Integer) -> void
+        def order: () -> Integer
+        def close: () -> nil
+        def closed?: () -> bool
+      end
       class QAWOTable
         def self.open: [T] (
           omega: Numeric,
@@ -195,7 +202,8 @@ module Numo
       def self.glfixed: (
         Numeric a,
         Numeric b,
-        ?order: Integer
+        ?order: Integer,
+        ?table: GLFixedTable
       ) { (Float) -> Numeric } -> Float
       def self.fixed: (
         (:legendre | :chebyshev | :chebyshev2 | :gegenbauer | :jacobi | :laguerre | :hermite | :exponential | :rational) type,
