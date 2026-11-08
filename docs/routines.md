@@ -10,7 +10,7 @@ Exceptions raised by an integrand are propagated to the caller. A non-numeric re
 
 ## Reusable integration workspaces
 
-`Numo::GSL::Integration::Workspace` retains a GSL adaptive-integration workspace so repeated calls can reuse the same allocation. It is supported by `qag`, `qags`, `qagp`, `qagi`, `qagiu`, `qagil`, `qawc`, `qaws`, `qawo`, and `qawf`. Other routines continue to manage their own routine-specific workspaces.
+`Numo::GSL::Integration::Workspace` retains a GSL adaptive-integration workspace so repeated calls can reuse the same allocation. It is supported by `qag`, `qags`, `qagp`, `qagi`, `qagiu`, `qagil`, `qawc`, `qaws`, `qawo`, and `qawf`. CQUAD uses the separate `Numo::GSL::Integration::CQUADWorkspace` class described in the CQUAD section. Other routines continue to manage their own routine-specific workspaces.
 
 Use `.open` when the workspace should be closed automatically after a block:
 
@@ -436,6 +436,24 @@ end
 ```
 
 The example integral has an endpoint singularity and an exact value of `-4.0`. The `epsabs` and `epsrel` keyword arguments control the requested error limits. The `limit` keyword controls the number of intervals retained in the CQUAD workspace and defaults to `100`; GSL requires at least `3`.
+
+To reuse the CQUAD allocation across calls, pass a `Numo::GSL::Integration::CQUADWorkspace`:
+
+```ruby
+Numo::GSL::Integration::CQUADWorkspace.open(limit: 100) do |workspace|
+  result, error, evaluations = Numo::GSL::Integration.cquad(
+    0.0,
+    1.0,
+    workspace: workspace
+  ) do |x|
+    Math.log(x) / Math.sqrt(x)
+  end
+end
+```
+
+`CQUADWorkspace#limit` returns the allocated capacity, and `CQUADWorkspace#closed?` reports whether the workspace has been closed. Use `.open` for block-scoped cleanup, or call `close` explicitly. Calling `close` more than once is allowed, and Ruby's garbage collector releases an unclosed workspace.  
+When `workspace:` is omitted, `cquad` allocates and releases a temporary workspace for the call. When a reusable workspace is supplied and `limit:` is omitted, the call uses the workspace capacity. Because GSL receives the capacity when the CQUAD workspace is allocated rather than when the integration runs, an explicitly supplied `limit:` must equal the reusable workspace capacity.  
+A CQUAD workspace cannot be used recursively or by overlapping calls, and it cannot be closed while in use. Passing a closed workspace raises `RuntimeError`; passing another object, including `nil`, raises `TypeError`.
 
 ## Romberg integration
 

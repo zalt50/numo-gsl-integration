@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added `Numo::GSL::Integration::CQUADWorkspace` and an optional `workspace:` keyword for reusing CQUAD workspace allocations across calls.
+
+### Changed
+
+- Validated that the CQUAD `limit` is at least `3`. When a reusable CQUAD workspace and an explicit `limit:` are supplied together, the limit must equal the workspace capacity.
+
 ## [0.6.0] - 2026-11-08
 
 ### Added in 0.6.0
