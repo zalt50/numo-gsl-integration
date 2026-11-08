@@ -228,7 +228,7 @@ GSL [QAWC](https://www.gnu.org/software/gsl/doc/html/integration.html#qawc-adapt
 PV \int_a^b \frac{f(x)}{x-c}\,dx = \lim_{\varepsilon\to 0^{+}} \left( \int_a^{c-\varepsilon}\frac{f(x)}{x-c}\,dx + \int_{c+\varepsilon}^b\frac{f(x)}{x-c}\,dx \right)
 ```
 
-The block passed to `Numo::GSL::Integration.qawc` returns $f(x)$. Do not divide the block result by $x - c$; QAWC applies that weight internally.
+The block passed to `Numo::GSL::Integration.qawc` returns $f(x)$. Do not divide the block result by $x-c$; QAWC applies that weight internally.
 
 The following example uses the default integration options and computes the principal value of `x / (x - 1.0)` over the interval from `0.0` to `2.0`, whose exact value is `2.0`:
 
@@ -264,13 +264,7 @@ GSL [QAWS](https://www.gnu.org/software/gsl/doc/html/integration.html#qaws-adapt
 
 Call `Numo::GSL::Integration.qaws` with the endpoints `a` and `b`, followed by `alpha`, `beta`, `mu`, and `nu`. The exponents `alpha` and `beta` must be greater than `-1.0`. The logarithmic powers `mu` and `nu` must each be `0` or `1`.
 
-The block returns the unweighted function $f(x)$. QAWS applies the endpoint weight internally. The following example integrates
-
-```math
-\frac{1}{\sqrt{x(1-x)}}
-```
-
-over the interval from `0.0` to `1.0`. Its exact value is `Math::PI`:
+The block returns the unweighted function $f(x)$. QAWS applies the endpoint weight internally. With `alpha: -0.5`, `beta: -0.5`, `mu: 0`, and `nu: 0`, the following example integrates the resulting weighted function over the interval from `0.0` to `1.0`. Its exact value is `Math::PI`:
 
 ```ruby
 result, error = Numo::GSL::Integration.qaws(
@@ -410,13 +404,7 @@ end
 
 The two workspaces must be different objects. Either keyword can be omitted independently, in which case QAWF allocates and releases only the missing workspace. When `limit:` is omitted, QAWF uses the capacity of the supplied workspace, or the smaller capacity when both are supplied. An explicit `limit:` must not exceed either supplied capacity.
 
-QAWF uses a QAWO moment table whose interval length is the Fourier-cycle width
-
-```math
-c = \frac{(2\lfloor |\omega| \rfloor + 1)\pi}{|\omega|}.
-```
-
-Reuse those moments with `Numo::GSL::Integration::QAWFTable`. The table computes the cycle width automatically, so it does not accept a `length:` keyword:
+QAWF uses a QAWO moment table whose interval length is the Fourier-cycle width defined by GSL. Reuse those moments with `Numo::GSL::Integration::QAWFTable`. The table computes the cycle width automatically, so it does not accept a `length:` keyword:
 
 ```ruby
 Numo::GSL::Integration::QAWFTable.open(
