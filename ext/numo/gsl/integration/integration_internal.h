@@ -151,7 +151,7 @@ VALUE integration_free_cquad_workspace(VALUE data);
 VALUE integration_free_romberg_workspace(VALUE data);
 VALUE integration_free_glfixed_table(VALUE data);
 
-void integration_fixed_init(void);
+void integration_fixed_init(VALUE integration_module);
 
 VALUE integration_qag(int argc, VALUE *argv, VALUE self);
 VALUE integration_qng(int argc, VALUE *argv, VALUE self);

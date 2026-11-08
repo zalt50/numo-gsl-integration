@@ -2,15 +2,13 @@
 
 RSpec.describe Numo::GSL::Integration::FixedWorkspace do
   describe ".new" do
+    let(:legendre_options) { {order: 10, a: 0.0, b: 1.0} }
+    let(:jacobi_options) do
+      {order: 10, a: -1.0, b: 1.0, alpha: 0.5, beta: 1.5}
+    end
+
     it "allocates a workspace with the requested parameters", :aggregate_failures do
-      workspace = described_class.new(
-        :jacobi,
-        order: 10,
-        a: -1.0,
-        b: 1.0,
-        alpha: 0.5,
-        beta: 1.5
-      )
+      workspace = described_class.new(:jacobi, **jacobi_options)
 
       expect(workspace.type).to(eq(:jacobi))
       expect(workspace.order).to(eq(10))
@@ -118,21 +116,10 @@ RSpec.describe Numo::GSL::Integration::FixedWorkspace do
     end
 
     it "rejects reinitializing an open workspace" do
-      workspace = described_class.new(
-        :legendre,
-        order: 10,
-        a: 0.0,
-        b: 1.0
-      )
+      workspace = described_class.new(:legendre, **legendre_options)
 
       expect do
-        workspace.send(
-          :initialize,
-          :legendre,
-          order: 10,
-          a: 0.0,
-          b: 1.0
-        )
+        workspace.send(:initialize, :legendre, **legendre_options)
       end
         .to(raise_error(RuntimeError, "workspace is already initialized"))
     ensure

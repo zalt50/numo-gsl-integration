@@ -31,7 +31,7 @@ void Init_integration(void) {
   integration_qawo_table_init(mIntegration);
   integration_qawf_table_init(mIntegration);
   integration_qaws_table_init(mIntegration);
-  integration_fixed_init();
+  integration_fixed_init(mIntegration);
 
   rb_define_const(mIntegration, "GAUSS15", INT2NUM(GSL_INTEG_GAUSS15));
   rb_define_const(mIntegration, "GAUSS21", INT2NUM(GSL_INTEG_GAUSS21));

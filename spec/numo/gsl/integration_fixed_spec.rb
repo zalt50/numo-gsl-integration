@@ -324,6 +324,14 @@ RSpec.describe Numo::GSL::Integration do
         )
       end
 
+      let(:parameters_without_type) do
+        [{order: 8}, {a: -1.0}, {b: 1.0}, {alpha: 0.5}, {beta: 1.5}]
+      end
+
+      let(:type_required_message) do
+        "type is required when fixed quadrature parameters are specified"
+      end
+
       after do
         workspace.close
       end
@@ -350,68 +358,22 @@ RSpec.describe Numo::GSL::Integration do
         expect(workspace).not_to(be_closed)
       end
 
-      it "accepts matching parameters supplied with the workspace" do
-        result = described_class.fixed(
-          :legendre,
-          order: 10,
-          a: 0.0,
-          b: Math::PI,
-          workspace: workspace
-        ) do |x|
-          Math.sin(x)
-        end
-
-        expect(result).to(be_within(1e-10).of(2.0))
-      end
-
-      it "rejects a different quadrature type" do
+      it "rejects a workspace with explicit quadrature parameters" do
         expect do
           described_class.fixed(
-            :chebyshev,
+            :legendre,
             order: 10,
             a: 0.0,
             b: Math::PI,
             workspace: workspace
           ) { |x| Math.sin(x) }
         end
-          .to(raise_error(ArgumentError, "type does not match fixed workspace"))
-      end
-
-      it "rejects a different order" do
-        expect do
-          described_class.fixed(
-            :legendre,
-            order: 8,
-            a: 0.0,
-            b: Math::PI,
-            workspace: workspace
-          ) { |x| Math.sin(x) }
-        end
-          .to(raise_error(ArgumentError, "order does not match fixed workspace"))
-      end
-
-      it "rejects different interval parameters", :aggregate_failures do
-        expect do
-          described_class.fixed(
-            :legendre,
-            order: 10,
-            a: -1.0,
-            b: Math::PI,
-            workspace: workspace
-          ) { |x| Math.sin(x) }
-        end
-          .to(raise_error(ArgumentError, "a does not match fixed workspace"))
-
-        expect do
-          described_class.fixed(
-            :legendre,
-            order: 10,
-            a: 0.0,
-            b: 1.0,
-            workspace: workspace
-          ) { |x| Math.sin(x) }
-        end
-          .to(raise_error(ArgumentError, "b does not match fixed workspace"))
+          .to(
+            raise_error(
+              ArgumentError,
+              "workspace cannot be specified with fixed quadrature parameters"
+            )
+          )
       end
 
       it "rejects reentrant use of the same workspace" do
@@ -471,54 +433,17 @@ RSpec.describe Numo::GSL::Integration do
             )
           )
       end
-    end
 
-    context("with a parameterized reusable workspace") do
-      let(:workspace) do
-        Numo::GSL::Integration::FixedWorkspace.new(
-          :jacobi,
-          order: 10,
-          a: -1.0,
-          b: 1.0,
-          alpha: 0.5,
-          beta: 1.5
-        )
-      end
-
-      after do
-        workspace.close
-      end
-
-      it "rejects a different alpha" do
-        expect do
-          described_class
-            .fixed(
-              :jacobi,
-              order: 10,
-              a: -1.0,
-              b: 1.0,
-              alpha: 1.0,
-              beta: 1.5,
-              workspace: workspace
-            ) { |x| x }
+      it "rejects quadrature parameters without a type" do
+        parameters_without_type.each do |parameters|
+          expect do
+            described_class.fixed(
+              workspace: workspace,
+              **parameters
+            ) { |x| Math.sin(x) }
+          end
+            .to(raise_error(ArgumentError, type_required_message))
         end
-          .to(raise_error(ArgumentError, "alpha does not match fixed workspace"))
-      end
-
-      it "rejects a different beta" do
-        expect do
-          described_class
-            .fixed(
-              :jacobi,
-              order: 10,
-              a: -1.0,
-              b: 1.0,
-              alpha: 0.5,
-              beta: 1.0,
-              workspace: workspace
-            ) { |x| x }
-        end
-          .to(raise_error(ArgumentError, "beta does not match fixed workspace"))
       end
     end
   end
