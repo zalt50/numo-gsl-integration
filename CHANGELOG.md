@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Added optional `workspace:` and `cycle_workspace:` keywords to `qawf` so its outer Fourier-cycle workspace and per-cycle QAWO workspace can be reused independently. Calls that omit either keyword continue to allocate and release the missing workspace for that call.
+
 ## [0.5.0] - 2026-11-07
 
 ### Added in 0.5.0

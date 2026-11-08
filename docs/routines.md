@@ -10,7 +10,7 @@ Exceptions raised by an integrand are propagated to the caller. A non-numeric re
 
 ## Reusable integration workspaces
 
-`Numo::GSL::Integration::Workspace` retains a GSL adaptive-integration workspace so repeated calls can reuse the same allocation. It is supported by `qag`, `qags`, `qagp`, `qagi`, `qagiu`, `qagil`, `qawc`, `qaws`, and `qawo`. Other routines continue to manage their own routine-specific workspaces.
+`Numo::GSL::Integration::Workspace` retains a GSL adaptive-integration workspace so repeated calls can reuse the same allocation. It is supported by `qag`, `qags`, `qagp`, `qagi`, `qagiu`, `qagil`, `qawc`, `qaws`, `qawo`, and `qawf`. Other routines continue to manage their own routine-specific workspaces.
 
 Use `.open` when the workspace should be closed automatically after a block:
 
@@ -46,6 +46,8 @@ end
 `Workspace#limit` returns the allocated capacity, and `Workspace#closed?` reports whether the workspace has been closed. Calling `close` more than once is allowed. If a workspace is not closed explicitly, Ruby's garbage collector releases it when the object is collected.
 
 When `workspace:` is omitted, each integration call allocates and releases a temporary workspace as before. When a reusable workspace is supplied and `limit:` is omitted, the call uses the workspace capacity. An explicit `limit:` must not exceed that capacity.
+
+QAWF has two independent workspace roles. Its `workspace:` stores Fourier-cycle results and extrapolation state, while `cycle_workspace:` is used by QAWO within each cycle. Either may be omitted independently. When `limit:` is omitted, QAWF uses the supplied workspace capacity, or the smaller capacity when both are supplied. An explicit `limit:` must fit both workspaces, and the two roles must use different `Workspace` objects.
 
 A workspace cannot be used recursively or by overlapping integration calls. It also cannot be closed while an integration is using it. These cases raise `RuntimeError`. Passing a closed workspace raises `RuntimeError`, and passing an object that is not an integration workspace raises `TypeError`.
 
@@ -386,7 +388,27 @@ result, error = Numo::GSL::Integration.qawf(
 end
 ```
 
-The `epsabs` keyword controls the requested absolute error. The `limit` keyword controls the maximum number of Fourier cycles and the allocated workspace capacity.
+The `epsabs` keyword controls the requested absolute error. The `limit` keyword controls both the maximum number of Fourier cycles and the maximum number of QAWO subintervals used within each cycle.
+
+Use two workspaces when repeated QAWF calls should reuse both native allocations:
+
+```ruby
+Numo::GSL::Integration::Workspace.open(limit: 100) do |workspace|
+  Numo::GSL::Integration::Workspace.open(limit: 50) do |cycle_workspace|
+    result, error = Numo::GSL::Integration.qawf(
+      0.0,
+      1.0,
+      Numo::GSL::Integration::COSINE,
+      workspace: workspace,
+      cycle_workspace: cycle_workspace
+    ) do |x|
+      Math.exp(-x)
+    end
+  end
+end
+```
+
+The two workspaces must be different objects. Either keyword can be omitted independently, in which case QAWF allocates and releases only the missing workspace. When `limit:` is omitted, QAWF uses the capacity of the supplied workspace, or the smaller capacity when both are supplied. An explicit `limit:` must not exceed either supplied capacity.
 
 ## CQUAD integration
 
