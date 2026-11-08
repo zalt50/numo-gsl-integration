@@ -2,9 +2,14 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added `Numo::GSL::Integration::QAWFTable` for reusing Fourier-cycle QAWO moment tables with a fixed angular frequency, sine or cosine weight, and level count.
+
 ### Changed
 
 - Added optional `workspace:` and `cycle_workspace:` keywords to `qawf` so its outer Fourier-cycle workspace and per-cycle QAWO workspace can be reused independently. Calls that omit either keyword continue to allocate and release the missing workspace for that call.
+- Added an optional `table:` keyword to `qawf`. Calls that omit it continue to allocate and release a temporary QAWO table.
 
 ## [0.5.0] - 2026-11-07
 

@@ -410,6 +410,33 @@ end
 
 The two workspaces must be different objects. Either keyword can be omitted independently, in which case QAWF allocates and releases only the missing workspace. When `limit:` is omitted, QAWF uses the capacity of the supplied workspace, or the smaller capacity when both are supplied. An explicit `limit:` must not exceed either supplied capacity.
 
+QAWF uses a QAWO moment table whose interval length is the Fourier-cycle width
+
+```math
+c = \frac{(2\lfloor |\omega| \rfloor + 1)\pi}{|\omega|}.
+```
+
+Reuse those moments with `Numo::GSL::Integration::QAWFTable`. The table computes the cycle width automatically, so it does not accept a `length:` keyword:
+
+```ruby
+Numo::GSL::Integration::QAWFTable.open(
+  omega: 1.0,
+  sine: Numo::GSL::Integration::COSINE,
+  levels: 100
+) do |table|
+  result, error = Numo::GSL::Integration.qawf(
+    0.0,
+    1.0,
+    Numo::GSL::Integration::COSINE,
+    table: table
+  ) do |x|
+    Math.exp(-x)
+  end
+end
+```
+
+`QAWFTable` inherits the lifecycle and parameter accessors of `QAWOTable`. Its `length` is the computed Fourier-cycle width. The angular frequency must be finite and nonzero. A supplied table must match the call's angular frequency and sine or cosine weight. It can be combined with both reusable workspaces, and remains usable by QAWO over its fixed cycle-length interval. When `table:` is omitted, QAWF allocates and releases a temporary table for the call.
+
 ## CQUAD integration
 
 GSL [CQUAD](https://www.gnu.org/software/gsl/doc/html/integration.html#cquad-doubly-adaptive-integration) provides doubly-adaptive integration over a finite interval. It is intended for difficult integrands, including functions with integrable singularities. The return value contains the integral, its estimated absolute error, and the number of integrand evaluations.
