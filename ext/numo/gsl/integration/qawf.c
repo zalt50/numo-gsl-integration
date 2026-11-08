@@ -10,11 +10,12 @@ typedef struct {
   size_t limit;
   VALUE workspace_value;
   VALUE cycle_workspace_value;
+  VALUE table_value;
   integration_workspace_use workspace_use;
   integration_workspace_use cycle_workspace_use;
+  integration_qawo_table_use table_use;
   size_t cycle_workspace_native_limit;
   int cycle_workspace_limit_changed;
-  gsl_integration_qawo_table *table;
   double *result;
   double *error;
 } integration_qawf_params;
@@ -22,10 +23,7 @@ typedef struct {
 static VALUE integration_free_qawf_resources(VALUE data) {
   integration_qawf_params *params = (integration_qawf_params *)data;
 
-  if (params->table != NULL) {
-    gsl_integration_qawo_table_free(params->table);
-    params->table = NULL;
-  }
+  integration_qawo_table_use_end((VALUE)&params->table_use);
 
   if (params->cycle_workspace_limit_changed) {
     params->cycle_workspace_use.workspace->limit =
@@ -53,16 +51,14 @@ static VALUE integration_run_qawf(VALUE data) {
   params->cycle_workspace_use.workspace->limit = params->limit;
   params->cycle_workspace_limit_changed = 1;
 
-  params->table = gsl_integration_qawo_table_alloc(params->omega, 1.0,
-                                                   params->sine, params->limit);
-  if (params->table == NULL) {
-    rb_memerror();
-  }
+  integration_qawf_table_use_begin(params->table_value, params->omega,
+                                   params->sine, params->limit,
+                                   &params->table_use);
 
-  (void)gsl_integration_qawf(params->function, params->a, params->epsabs,
-                             params->limit, params->workspace_use.workspace,
-                             params->cycle_workspace_use.workspace,
-                             params->table, params->result, params->error);
+  (void)gsl_integration_qawf(
+      params->function, params->a, params->epsabs, params->limit,
+      params->workspace_use.workspace, params->cycle_workspace_use.workspace,
+      params->table_use.table, params->result, params->error);
 
   return Qnil;
 }
@@ -81,9 +77,11 @@ VALUE integration_qawf(int argc, VALUE *argv, VALUE self) {
   VALUE limit_value = Qundef;
   VALUE workspace_value = Qundef;
   VALUE cycle_workspace_value = Qundef;
+  VALUE table_value = Qundef;
   ID keywords[] = {rb_intern("epsabs"), rb_intern("limit"),
-                   rb_intern("workspace"), rb_intern("cycle_workspace")};
-  VALUE keyword_values[4];
+                   rb_intern("workspace"), rb_intern("cycle_workspace"),
+                   rb_intern("table")};
+  VALUE keyword_values[5];
   double epsabs;
   size_t limit = 1000;
   size_t workspace_capacity = 0;
@@ -103,11 +101,12 @@ VALUE integration_qawf(int argc, VALUE *argv, VALUE self) {
   rb_scan_args(argc, argv, "3:", &a, &omega, &sine, &options);
 
   if (!NIL_P(options)) {
-    rb_get_kwargs(options, keywords, 0, 4, keyword_values);
+    rb_get_kwargs(options, keywords, 0, 5, keyword_values);
     epsabs_value = keyword_values[0];
     limit_value = keyword_values[1];
     workspace_value = keyword_values[2];
     cycle_workspace_value = keyword_values[3];
+    table_value = keyword_values[4];
   }
 
   qawf_params.a = NUM2DBL(a);
@@ -162,6 +161,7 @@ VALUE integration_qawf(int argc, VALUE *argv, VALUE self) {
   qawf_params.limit = limit;
   qawf_params.workspace_value = workspace_value;
   qawf_params.cycle_workspace_value = cycle_workspace_value;
+  qawf_params.table_value = table_value;
   qawf_params.result = &result;
   qawf_params.error = &error;
 
@@ -171,6 +171,7 @@ VALUE integration_qawf(int argc, VALUE *argv, VALUE self) {
   RB_GC_GUARD(params.exception);
   RB_GC_GUARD(workspace_value);
   RB_GC_GUARD(cycle_workspace_value);
+  RB_GC_GUARD(table_value);
 
   integration_finish_callback(&params, state);
 

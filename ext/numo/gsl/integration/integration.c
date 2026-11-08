@@ -18,9 +18,12 @@ void Init_integration(void) {
   mGSL = rb_define_module_under(mNumo, "GSL");
   mIntegration = rb_define_module_under(mGSL, "Integration");
   numo_eGslError = rb_define_class_under(mGSL, "GslError", rb_eStandardError);
+
   gsl_set_error_handler(&integration_gsl_error_handler);
+
   integration_workspace_init(mIntegration);
   integration_qawo_table_init(mIntegration);
+  integration_qawf_table_init(mIntegration);
   integration_qaws_table_init(mIntegration);
   integration_fixed_init();
 

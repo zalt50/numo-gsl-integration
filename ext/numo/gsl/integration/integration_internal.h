@@ -63,6 +63,11 @@ void integration_qawo_table_use_begin(VALUE table_value, double omega,
                                       size_t levels,
                                       integration_qawo_table_use *use);
 VALUE integration_qawo_table_use_end(VALUE data);
+void integration_qawf_table_init(VALUE integration_module);
+void integration_qawf_table_use_begin(VALUE table_value, double omega,
+                                      enum gsl_integration_qawo_enum sine,
+                                      size_t levels,
+                                      integration_qawo_table_use *use);
 
 typedef struct {
   gsl_integration_qaws_table *table;
