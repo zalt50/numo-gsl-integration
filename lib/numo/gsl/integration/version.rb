@@ -3,7 +3,7 @@
 module Numo
   module GSL
     module Integration
-      VERSION = "0.5.0"
+      VERSION = "0.6.0"
     end
   end
 end
