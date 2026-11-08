@@ -43,6 +43,20 @@ void integration_workspace_use_begin(VALUE workspace_value, size_t *limit,
 VALUE integration_workspace_use_end(VALUE data);
 
 typedef struct {
+  gsl_integration_cquad_workspace *workspace;
+  size_t limit;
+  int busy;
+} integration_cquad_workspace;
+typedef struct {
+  gsl_integration_cquad_workspace *workspace;
+  integration_cquad_workspace *owner;
+} integration_cquad_workspace_use;
+void integration_cquad_workspace_init(VALUE integration_module);
+void integration_cquad_workspace_use_begin(
+    VALUE workspace_value, size_t *limit, int limit_given,
+    integration_cquad_workspace_use *use);
+VALUE integration_cquad_workspace_use_end(VALUE data);
+typedef struct {
   gsl_integration_qawo_table *table;
   double omega;
   double length;

@@ -7,7 +7,9 @@ typedef struct {
   double epsabs;
   double epsrel;
   size_t limit;
-  gsl_integration_cquad_workspace *workspace;
+  int limit_given;
+  VALUE workspace_value;
+  integration_cquad_workspace_use workspace_use;
   double *result;
   double *error;
   size_t *evaluations;
@@ -16,9 +18,13 @@ typedef struct {
 static VALUE integration_run_cquad(VALUE data) {
   integration_cquad_params *params = (integration_cquad_params *)data;
 
-  (void)gsl_integration_cquad(
-      params->function, params->a, params->b, params->epsabs, params->epsrel,
-      params->workspace, params->result, params->error, params->evaluations);
+  integration_cquad_workspace_use_begin(params->workspace_value, &params->limit,
+                                        params->limit_given,
+                                        &params->workspace_use);
+  (void)gsl_integration_cquad(params->function, params->a, params->b,
+                              params->epsabs, params->epsrel,
+                              params->workspace_use.workspace, params->result,
+                              params->error, params->evaluations);
 
   return Qnil;
 }
@@ -27,21 +33,28 @@ static VALUE integration_run_cquad_with_workspace(VALUE data) {
   integration_cquad_params *params = (integration_cquad_params *)data;
 
   return rb_ensure(integration_run_cquad, data,
-                   integration_free_cquad_workspace, (VALUE)params->workspace);
+                   integration_cquad_workspace_use_end,
+                   (VALUE)&params->workspace_use);
 }
 
 VALUE integration_cquad(int argc, VALUE *argv, VALUE self) {
   VALUE a;
   VALUE b;
   VALUE options;
-  integration_options parsed_options;
+  VALUE epsabs_value = Qundef;
+  VALUE epsrel_value = Qundef;
+  VALUE limit_value = Qundef;
+  VALUE workspace_value = Qundef;
+  ID keywords[] = {rb_intern("epsabs"), rb_intern("epsrel"), rb_intern("limit"),
+                   rb_intern("workspace")};
+  VALUE keyword_values[4];
   double epsabs;
   double epsrel;
-  size_t limit;
-  gsl_integration_cquad_workspace *workspace;
+  size_t limit = 100;
+  int limit_given;
   gsl_function function;
   integration_callback_params params;
-  integration_cquad_params cquad_params;
+  integration_cquad_params cquad_params = {0};
   double result;
   double error;
   size_t evaluations;
@@ -50,16 +63,28 @@ VALUE integration_cquad(int argc, VALUE *argv, VALUE self) {
   (void)self;
 
   rb_scan_args(argc, argv, "2:", &a, &b, &options);
+  if (!NIL_P(options)) {
+    rb_get_kwargs(options, keywords, 0, 4, keyword_values);
+    epsabs_value = keyword_values[0];
+    epsrel_value = keyword_values[1];
+    limit_value = keyword_values[2];
+    workspace_value = keyword_values[3];
+  }
 
-  integration_options_parse(options, &parsed_options, 0.0, 1e-8, 100);
-
-  epsabs = parsed_options.epsabs;
-  epsrel = parsed_options.epsrel;
-  limit = parsed_options.limit;
+  epsabs = epsabs_value == Qundef ? 0.0 : NUM2DBL(epsabs_value);
+  epsrel = epsrel_value == Qundef ? 1e-8 : NUM2DBL(epsrel_value);
+  limit_given = limit_value != Qundef;
+  if (limit_given) {
+    if (!RB_INTEGER_TYPE_P(limit_value)) {
+      rb_raise(rb_eTypeError, "limit must be an Integer");
+    }
+    if (RTEST(rb_funcall(limit_value, rb_intern("<"), 1, INT2FIX(3)))) {
+      rb_raise(rb_eArgError, "limit must be at least 3");
+    }
+    limit = NUM2SIZET(limit_value);
+  }
 
   integration_function_init(&function, &params);
-
-  workspace = gsl_integration_cquad_workspace_alloc(limit);
 
   cquad_params.function = &function;
   cquad_params.a = NUM2DBL(a);
@@ -67,7 +92,8 @@ VALUE integration_cquad(int argc, VALUE *argv, VALUE self) {
   cquad_params.epsabs = epsabs;
   cquad_params.epsrel = epsrel;
   cquad_params.limit = limit;
-  cquad_params.workspace = workspace;
+  cquad_params.limit_given = limit_given;
+  cquad_params.workspace_value = workspace_value;
   cquad_params.result = &result;
   cquad_params.error = &error;
   cquad_params.evaluations = &evaluations;
@@ -77,6 +103,7 @@ VALUE integration_cquad(int argc, VALUE *argv, VALUE self) {
 
   RB_GC_GUARD(params.block);
   RB_GC_GUARD(params.exception);
+  RB_GC_GUARD(workspace_value);
 
   integration_finish_callback(&params, state);
 

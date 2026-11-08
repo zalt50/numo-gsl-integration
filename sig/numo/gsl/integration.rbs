@@ -17,6 +17,13 @@ module Numo
         def close: () -> nil
         def closed?: () -> bool
       end
+      class CQUADWorkspace
+        def self.open: [T] (limit: Integer) { (CQUADWorkspace) -> T } -> T
+        def initialize: (limit: Integer) -> void
+        def limit: () -> Integer
+        def close: () -> nil
+        def closed?: () -> bool
+      end
       class QAWOTable
         def self.open: [T] (
           omega: Numeric,
@@ -167,7 +174,8 @@ module Numo
         Numeric b,
         ?epsabs: Numeric,
         ?epsrel: Numeric,
-        ?limit: Integer
+        ?limit: Integer,
+        ?workspace: CQUADWorkspace
       ) { (Float) -> Numeric } -> [Float, Float, Integer]
       def self.romberg: (
         Numeric a,
