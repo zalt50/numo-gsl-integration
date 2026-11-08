@@ -24,6 +24,8 @@ void Init_integration(void) {
   integration_workspace_init(mIntegration);
 
   integration_cquad_workspace_init(mIntegration);
+
+  integration_romberg_workspace_init(mIntegration);
   integration_qawo_table_init(mIntegration);
   integration_qawf_table_init(mIntegration);
   integration_qaws_table_init(mIntegration);

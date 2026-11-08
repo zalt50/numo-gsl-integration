@@ -24,6 +24,13 @@ module Numo
         def close: () -> nil
         def closed?: () -> bool
       end
+      class RombergWorkspace
+        def self.open: [T] (limit: Integer) { (RombergWorkspace) -> T } -> T
+        def initialize: (limit: Integer) -> void
+        def limit: () -> Integer
+        def close: () -> nil
+        def closed?: () -> bool
+      end
       class QAWOTable
         def self.open: [T] (
           omega: Numeric,
@@ -182,7 +189,8 @@ module Numo
         Numeric b,
         ?epsabs: Numeric,
         ?epsrel: Numeric,
-        ?limit: Integer
+        ?limit: Integer,
+        ?workspace: RombergWorkspace
       ) { (Float) -> Numeric } -> [Float, Integer]
       def self.glfixed: (
         Numeric a,

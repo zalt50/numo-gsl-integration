@@ -57,6 +57,20 @@ void integration_cquad_workspace_use_begin(
     integration_cquad_workspace_use *use);
 VALUE integration_cquad_workspace_use_end(VALUE data);
 typedef struct {
+  gsl_integration_romberg_workspace *workspace;
+  size_t limit;
+  int busy;
+} integration_romberg_workspace;
+typedef struct {
+  gsl_integration_romberg_workspace *workspace;
+  integration_romberg_workspace *owner;
+} integration_romberg_workspace_use;
+void integration_romberg_workspace_init(VALUE integration_module);
+void integration_romberg_workspace_use_begin(
+    VALUE workspace_value, size_t *limit, int limit_given,
+    integration_romberg_workspace_use *use);
+VALUE integration_romberg_workspace_use_end(VALUE data);
+typedef struct {
   gsl_integration_qawo_table *table;
   double omega;
   double length;
