@@ -61,7 +61,7 @@ Reusable `Workspace` objects are supported by `qag`, `qags`, `qagp`, `qagi`, `qa
 
 For `qawf`, pass separate `workspace:` and `cycle_workspace:` objects. The first retains Fourier-cycle results and extrapolation state, while the second is used for QAWO integration within each cycle.
 
-For repeated weighted integrations, reusable moment tables can also retain precomputed coefficients. `Numo::GSL::Integration::QAWSTable` is used by `qaws` with fixed `alpha`, `beta`, `mu`, and `nu` parameters, while `Numo::GSL::Integration::QAWOTable` is used by `qawo` with fixed angular frequency, interval length, sine or cosine weight, and level count. `Numo::GSL::Integration::QAWFTable` is used by `qawf`; it computes and retains the Fourier-cycle moments for a fixed angular frequency, sine or cosine weight, and level count. Pass the corresponding object with the `table:` keyword; omitting `table:` retains the allocate-per-call behavior.
+For repeated integrations, reusable tables can retain precomputed data. `Numo::GSL::Integration::GLFixedTable` is used by `glfixed` with a fixed order and can be reused across integration intervals. `Numo::GSL::Integration::QAWSTable` is used by `qaws` with fixed `alpha`, `beta`, `mu`, and `nu` parameters, while `Numo::GSL::Integration::QAWOTable` is used by `qawo` with fixed angular frequency, interval length, sine or cosine weight, and level count. `Numo::GSL::Integration::QAWFTable` is used by `qawf`; it computes and retains the Fourier-cycle moments for a fixed angular frequency, sine or cosine weight, and level count. Pass the corresponding object with the `table:` keyword; omitting `table:` retains the allocate-per-call behavior.
 
 ## Supported routines
 

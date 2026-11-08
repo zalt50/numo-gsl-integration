@@ -507,6 +507,29 @@ The example integral has an exact value of `1.0 / 5.0`. The `order` keyword cont
 
 GLFIXED returns only the integral. It does not accept absolute or relative error bounds and does not return an error estimate. Use an adaptive routine when the required fixed order is not known in advance.
 
+To reuse the Gauss-Legendre table across calls, create a `Numo::GSL::Integration::GLFixedTable` with a fixed order and pass it with `table:`:
+
+```ruby
+Numo::GSL::Integration::GLFixedTable.open(order: 10) do |table|
+  first_result = Numo::GSL::Integration.glfixed(
+    0.0,
+    Math::PI,
+    table: table
+  ) { |x| Math.sin(x) }
+  second_result = Numo::GSL::Integration.glfixed(
+    0.0,
+    Math::PI / 2.0,
+    table: table
+  ) { |x| Math.sin(x) }
+end
+```
+
+`GLFixedTable#order` returns the fixed quadrature order. The table can be reused across different integration intervals because the interval is supplied to each `glfixed` call. Use `.open` for block-scoped cleanup, or call `close` explicitly. Calling `close` more than once is allowed, and Ruby's garbage collector releases an unclosed table.
+
+When `table:` is omitted, `glfixed` allocates and releases a temporary table for the call. If both `order:` and `table:` are omitted, the order defaults to `10`. When a table is supplied and `order:` is omitted, the call uses the table order. An explicitly supplied `order:` must equal the table order.
+
+A GLFixed table cannot be used recursively or by overlapping calls, and it cannot be closed while in use. Passing a closed table raises `RuntimeError`; passing another object, including `nil`, raises `TypeError`.
+
 ## Fixed point quadratures
 
 GSL [fixed point quadratures](https://www.gnu.org/software/gsl/doc/html/integration.html#fixed-point-quadratures) provide fixed-order Gaussian quadrature rules for several weight functions. `Numo::GSL::Integration.fixed` takes a quadrature type, the number of points, and the GSL rule parameters:

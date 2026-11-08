@@ -8,6 +8,6 @@ file:line: reason (GSL error code)
 ```
 
 `numo-gsl-integration` does not convert integration return statuses into separate exceptions.  
-Temporary workspaces used by QAG, QAGS, QAGP, QAGI, QAGIU, QAGIL, QAWC, QAWS, QAWO, QAWF, CQUAD, and Romberg are released when a call completes normally or raises an exception. Reusable `Workspace`, `CQUADWorkspace`, and `RombergWorkspace` objects supplied by the caller remain open and are made available for the next call. QAWS, QAWO, and QAWF release only temporary weight tables, GLFIXED releases its Gauss–Legendre table, and QAGP releases its temporary copy of the point array.
+Temporary workspaces and tables used by QAG, QAGS, QAGP, QAGI, QAGIU, QAGIL, QAWC, QAWS, QAWO, QAWF, CQUAD, Romberg, and GLFIXED are released when a call completes normally or raises an exception. Reusable `Workspace`, `CQUADWorkspace`, `RombergWorkspace`, `GLFixedTable`, `QAWSTable`, `QAWOTable`, and `QAWFTable` objects supplied by the caller remain open and are made available for the next call. QAGP releases its temporary copy of the point array.
 Invalid argument types raise `TypeError`. Invalid values, counts, or ordering raise `ArgumentError`. Exceptions raised by the integrand are propagated unchanged.  
 The GSL error handler is shared by the entire process. Loading this gem replaces the previously registered handler. If another GSL binding is loaded afterward, that binding may replace this gem's handler in turn.
