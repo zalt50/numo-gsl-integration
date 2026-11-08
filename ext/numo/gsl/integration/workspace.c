@@ -121,9 +121,35 @@ static VALUE integration_workspace_open(int argc, VALUE *argv, VALUE klass) {
                    integration_workspace_close, workspace);
 }
 
-void integration_workspace_use_begin(VALUE workspace_value, size_t *limit,
-                                     int limit_given,
-                                     integration_workspace_use *use) {
+static integration_workspace *integration_workspace_get(VALUE workspace_value,
+                                                        const char *name) {
+  integration_workspace *workspace;
+
+  if (!rb_obj_is_kind_of(workspace_value, integration_cWorkspace)) {
+    rb_raise(rb_eTypeError, "%s must be a Numo::GSL::Integration::Workspace",
+             name);
+  }
+
+  TypedData_Get_Struct(workspace_value, integration_workspace,
+                       &integration_workspace_type, workspace);
+  if (workspace->workspace == NULL) {
+    rb_raise(rb_eRuntimeError, "%s is closed", name);
+  }
+  if (workspace->busy) {
+    rb_raise(rb_eRuntimeError, "%s is already in use", name);
+  }
+
+  return workspace;
+}
+
+size_t integration_workspace_capacity(VALUE workspace_value, const char *name) {
+  return integration_workspace_get(workspace_value, name)->limit;
+}
+
+void integration_workspace_use_begin_named(VALUE workspace_value, size_t *limit,
+                                           int limit_given,
+                                           integration_workspace_use *use,
+                                           const char *name) {
   integration_workspace *workspace;
 
   use->workspace = NULL;
@@ -137,21 +163,9 @@ void integration_workspace_use_begin(VALUE workspace_value, size_t *limit,
     return;
   }
 
-  if (!rb_obj_is_kind_of(workspace_value, integration_cWorkspace)) {
-    rb_raise(rb_eTypeError,
-             "workspace must be a Numo::GSL::Integration::Workspace");
-  }
-
-  TypedData_Get_Struct(workspace_value, integration_workspace,
-                       &integration_workspace_type, workspace);
-  if (workspace->workspace == NULL) {
-    rb_raise(rb_eRuntimeError, "workspace is closed");
-  }
-  if (workspace->busy) {
-    rb_raise(rb_eRuntimeError, "workspace is already in use");
-  }
+  workspace = integration_workspace_get(workspace_value, name);
   if (limit_given && *limit > workspace->limit) {
-    rb_raise(rb_eArgError, "limit exceeds workspace capacity");
+    rb_raise(rb_eArgError, "limit exceeds %s capacity", name);
   }
   if (!limit_given) {
     *limit = workspace->limit;
@@ -160,6 +174,13 @@ void integration_workspace_use_begin(VALUE workspace_value, size_t *limit,
   workspace->busy = 1;
   use->workspace = workspace->workspace;
   use->owner = workspace;
+}
+
+void integration_workspace_use_begin(VALUE workspace_value, size_t *limit,
+                                     int limit_given,
+                                     integration_workspace_use *use) {
+  integration_workspace_use_begin_named(workspace_value, limit, limit_given,
+                                        use, "workspace");
 }
 
 VALUE integration_workspace_use_end(VALUE data) {

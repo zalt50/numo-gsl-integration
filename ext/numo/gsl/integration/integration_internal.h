@@ -32,6 +32,11 @@ typedef struct {
 } integration_workspace_use;
 
 void integration_workspace_init(VALUE integration_module);
+size_t integration_workspace_capacity(VALUE workspace_value, const char *name);
+void integration_workspace_use_begin_named(VALUE workspace_value, size_t *limit,
+                                           int limit_given,
+                                           integration_workspace_use *use,
+                                           const char *name);
 void integration_workspace_use_begin(VALUE workspace_value, size_t *limit,
                                      int limit_given,
                                      integration_workspace_use *use);
