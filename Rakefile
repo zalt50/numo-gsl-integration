@@ -38,8 +38,8 @@ MARKDOWN_FORMAT_FILES = FileList[
 namespace(:format) do
   desc("Format Ruby, C, and Markdown files")
   task(:apply) do
-    ruby_files = Shellwords.join(RUBY_FORMAT_FILES.to_a)
-    c_files = Shellwords.join(C_FORMAT_FILES.to_a)
+    ruby_files = Shellwords.join(RUBY_FORMAT_FILES)
+    c_files = Shellwords.join(C_FORMAT_FILES)
     markdown_files = Shellwords.join(MARKDOWN_FORMAT_FILES)
 
     sh("bundle exec rubyfmt -i #{ruby_files}")
@@ -49,8 +49,8 @@ namespace(:format) do
 
   desc("Check Ruby, C, and Markdown formatting")
   task(:check) do
-    ruby_files = Shellwords.join(RUBY_FORMAT_FILES.to_a)
-    c_files = Shellwords.join(C_FORMAT_FILES.to_a)
+    ruby_files = Shellwords.join(RUBY_FORMAT_FILES)
+    c_files = Shellwords.join(C_FORMAT_FILES)
     markdown_files = Shellwords.join(MARKDOWN_FORMAT_FILES)
 
     sh("bundle exec rubyfmt --check #{ruby_files}")

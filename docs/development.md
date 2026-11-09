@@ -28,7 +28,7 @@ The default Rake task performs the following checks:
 - validates RBS signatures;
 - checks Ruby files with [rubyfmt](https://github.com/fables-tales/rubyfmt);
 - checks C source files with `clang-format` using the LLVM style; and
-- checks `README.md` and `CHANGELOG.md` with `markdownlint-cli2`.
+- checks Markdown files under the project root and `docs` with Prettier and `markdownlint-cli2`.
 
 Check source formatting without applying changes:
 
@@ -36,7 +36,7 @@ Check source formatting without applying changes:
 bundle exec rake format:check
 ```
 
-Format the Ruby and C source files:
+Format the Ruby, C, and Markdown files:
 
 ```bash
 bundle exec rake format:apply
