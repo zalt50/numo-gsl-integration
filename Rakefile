@@ -65,4 +65,4 @@ task(:rbs) do
   sh("bundle exec rbs -I sig validate")
 end
 
-task(default: %i[spec rubocop rbs format:check])
+task(default: %i[format:check rubocop rbs spec])
